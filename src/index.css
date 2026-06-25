@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dakora-green: #2D5A27;
+  --color-dakora-yellow: #F2C94C;
+}
+
+/* On force le support du mode sombre par classe */
+@custom-variant dark (&:where(.dark, .dark *));
