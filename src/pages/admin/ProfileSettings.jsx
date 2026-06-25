@@ -192,7 +192,7 @@ const ProfileSettings = () => {
   };
 
   const tabs = [
-    { id: 'profile', label: 'Mon Profil', icon: <User size={14} /> },
+    { id: 'profile', label: t('tab_profile'), icon: <User size={14} /> },
     { id: 'general', label: t('tab_general'), icon: <Phone size={14} /> },
     { id: 'banners', label: t('tab_banners'), icon: <ImageIcon size={14} /> },
   ];
@@ -203,9 +203,9 @@ const ProfileSettings = () => {
       {/* HEADER */}
       <div>
         <h1 className="text-4xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">
-          Paramètres <span className="text-dakora-green">& Profil</span>
+          {t('settings_title')}
         </h1>
-        <p className="text-gray-500 font-medium mt-1">Pilotez votre boutique en temps réel.</p>
+        <p className="text-gray-500 font-medium mt-1">{t('settings_subtitle')}</p>
       </div>
 
       {/* TABS */}
@@ -255,16 +255,12 @@ const ProfileSettings = () => {
               <p className="font-black text-gray-900 dark:text-white text-lg">{profileData.username || 'Admin'}</p>
               <p className="text-gray-400 text-sm mb-3">{user?.email}</p>
               <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-dakora-green text-white rounded-full text-[10px] font-black uppercase cursor-pointer hover:bg-green-700 transition-all shadow-md">
-                <UploadCloud size={14} /> Changer la photo
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={e => e.target.files[0] && handlePhotoSelect(e.target.files[0])}
-                />
+                <UploadCloud size={14} /> {t('profile_change_photo')}
+                <input type="file" accept="image/*" className="hidden"
+                  onChange={e => e.target.files[0] && handlePhotoSelect(e.target.files[0])} />
               </label>
               {photoFile && (
-                <p className="text-[10px] text-dakora-green font-bold mt-2">✓ Nouvelle photo sélectionnée</p>
+                <p className="text-[10px] text-dakora-green font-bold mt-2">{t('profile_photo_selected')}</p>
               )}
             </div>
           </div>
@@ -273,7 +269,7 @@ const ProfileSettings = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 ml-2 flex items-center gap-1">
-                <User size={11} /> Nom d'utilisateur
+                <User size={11} /> {t('profile_username')}
               </label>
               <input
                 type="text"
@@ -285,7 +281,7 @@ const ProfileSettings = () => {
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 ml-2 flex items-center gap-1">
-                <Type size={11} /> Nom complet
+                <Type size={11} /> {t('profile_fullname')}
               </label>
               <input
                 type="text"
@@ -305,7 +301,7 @@ const ProfileSettings = () => {
             >
               {loading
                 ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                : saved ? <><CheckCircle2 size={16} /> Enregistré !</> : <><Save size={16} /> Sauvegarder</>
+                : saved ? <><CheckCircle2 size={16} /> {t('saved')}</> : <><Save size={16} /> {t('save')}</>
               }
             </button>
           </div>
@@ -327,17 +323,12 @@ const ProfileSettings = () => {
               </label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">+</span>
-                <input
-                  type="text"
-                  value={settings.whatsapp_number}
+                <input type="text" value={settings.whatsapp_number}
                   onChange={e => setSettings({ ...settings, whatsapp_number: e.target.value })}
                   placeholder="237690000000"
-                  className="w-full pl-8 pr-6 py-4 rounded-2xl bg-gray-50 dark:bg-neutral-900 border-none focus:ring-2 focus:ring-dakora-green font-bold dark:text-white"
-                />
+                  className="w-full pl-8 pr-6 py-4 rounded-2xl bg-gray-50 dark:bg-neutral-900 border-none focus:ring-2 focus:ring-dakora-green font-bold dark:text-white" />
               </div>
-              <p className="text-[10px] text-gray-400 ml-2">
-                Ce numéro reçoit toutes les commandes WhatsApp.
-              </p>
+              <p className="text-[10px] text-gray-400 ml-2">{t('label_whatsapp_hint')}</p>
             </div>
 
             {/* NOM COMMERCIAL */}
@@ -353,32 +344,17 @@ const ProfileSettings = () => {
               />
             </div>
 
-            {/* SLOGAN FR */}
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-gray-400 ml-2">
-                {t('label_slogan')} (Français)
-              </label>
-              <textarea
-                value={settings.slogan_fr}
-                onChange={e => setSettings({ ...settings, slogan_fr: e.target.value })}
-                rows={3}
-                className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-neutral-900 border-none focus:ring-2 focus:ring-dakora-green text-sm dark:text-white resize-none"
-                placeholder="Produisez plus, dépensez moins..."
-              />
+              <label className="text-[10px] font-black uppercase text-gray-400 ml-2">{t('label_slogan_fr')}</label>
+              <textarea value={settings.slogan_fr} onChange={e => setSettings({ ...settings, slogan_fr: e.target.value })}
+                rows={3} className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-neutral-900 border-none focus:ring-2 focus:ring-dakora-green text-sm dark:text-white resize-none"
+                placeholder="Produisez plus, dépensez moins..." />
             </div>
-
-            {/* SLOGAN EN */}
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-gray-400 ml-2">
-                {t('label_slogan')} (English)
-              </label>
-              <textarea
-                value={settings.slogan_en}
-                onChange={e => setSettings({ ...settings, slogan_en: e.target.value })}
-                rows={3}
-                className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-neutral-900 border-none focus:ring-2 focus:ring-dakora-green text-sm dark:text-white resize-none"
-                placeholder="Produce more, spend less..."
-              />
+              <label className="text-[10px] font-black uppercase text-gray-400 ml-2">{t('label_slogan_en')}</label>
+              <textarea value={settings.slogan_en} onChange={e => setSettings({ ...settings, slogan_en: e.target.value })}
+                rows={3} className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-neutral-900 border-none focus:ring-2 focus:ring-dakora-green text-sm dark:text-white resize-none"
+                placeholder="Produce more, spend less..." />
             </div>
           </div>
 
@@ -390,7 +366,7 @@ const ProfileSettings = () => {
             >
               {loading
                 ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                : saved ? <><CheckCircle2 size={16} /> Enregistré !</> : <><Save size={16} /> Enregistrer</>
+                : saved ? <><CheckCircle2 size={16} /> {t('saved')}</> : <><Save size={16} /> {t('save_settings')}</>
               }
             </button>
           </div>
@@ -406,7 +382,7 @@ const ProfileSettings = () => {
           {/* BARRE D'ACTION */}
           <div className="flex justify-between items-center">
             <p className="text-sm text-gray-400 font-medium italic">
-              {banners.length} bannière{banners.length > 1 ? 's' : ''} — les actives s'affichent en slider sur l'accueil.
+              {banners.length} {banners.length > 1 ? t('banner_count_many') : t('banner_count_one')} — {t('banner_slider_info')}
             </p>
             <label className={`cursor-pointer flex items-center gap-2 px-6 py-3 bg-dakora-green text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-green-700 transition-all shadow-lg ${bannerLoading ? 'opacity-50 pointer-events-none' : ''}`}>
               {bannerLoading
@@ -426,9 +402,7 @@ const ProfileSettings = () => {
           {banners.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-20 bg-white/40 dark:bg-white/5 rounded-[3rem] border border-dashed border-gray-300 dark:border-white/10">
               <ImageIcon size={48} className="text-gray-300 mb-4" />
-              <p className="text-gray-400 italic font-bold text-center">
-                Aucune bannière. Uploadez votre première photo d'accueil.
-              </p>
+              <p className="text-gray-400 italic font-bold text-center">{t('banner_empty')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -448,18 +422,12 @@ const ProfileSettings = () => {
                     />
                     {/* Overlay texte */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-end p-5 gap-2">
-                      <input
-                        className="bg-white/10 backdrop-blur-sm text-white font-black text-base border border-white/20 rounded-xl px-3 py-1.5 w-full focus:ring-2 focus:ring-dakora-green focus:outline-none"
-                        defaultValue={banner.title_fr || ''}
-                        placeholder="Titre de la bannière (FR)..."
-                        onBlur={e => updateBannerTitle(banner.id, 'title_fr', e.target.value)}
-                      />
-                      <input
-                        className="bg-white/10 backdrop-blur-sm text-white/70 text-xs border border-white/10 rounded-xl px-3 py-1.5 w-full focus:ring-2 focus:ring-dakora-green focus:outline-none"
-                        defaultValue={banner.title_en || ''}
-                        placeholder="Banner title (EN)..."
-                        onBlur={e => updateBannerTitle(banner.id, 'title_en', e.target.value)}
-                      />
+                      <input className="bg-white/10 backdrop-blur-sm text-white font-black text-base border border-white/20 rounded-xl px-3 py-1.5 w-full focus:ring-2 focus:ring-dakora-green focus:outline-none"
+                        defaultValue={banner.title_fr || ''} placeholder={t('banner_title_fr')}
+                        onBlur={e => updateBannerTitle(banner.id, 'title_fr', e.target.value)} />
+                      <input className="bg-white/10 backdrop-blur-sm text-white/70 text-xs border border-white/10 rounded-xl px-3 py-1.5 w-full focus:ring-2 focus:ring-dakora-green focus:outline-none"
+                        defaultValue={banner.title_en || ''} placeholder={t('banner_title_en')}
+                        onBlur={e => updateBannerTitle(banner.id, 'title_en', e.target.value)} />
                     </div>
                   </div>
 
