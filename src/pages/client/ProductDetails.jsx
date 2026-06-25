@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../../api/supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
-import { ChevronLeft, MessageCircle, Star, Package, ArrowRight } from 'lucide-react';
+import { useSettings } from '../../context/SettingsContext';
+import { ChevronLeft, MessageCircle, Package, ArrowRight } from 'lucide-react';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const { t, language } = useLanguage();
+  const { settings } = useSettings();
   
   const [product, setProduct] = useState(null);
   const [similarProducts, setSimilarProducts] = useState([]);
@@ -47,7 +49,7 @@ const ProductDetails = () => {
   };
 
   const handleWhatsAppOrder = () => {
-    const phone = "2376XXXXXXXX"; // À remplacer par le numéro Dakora dans les réglages plus tard
+    const phone = settings.whatsapp_number || '237600000000';
     const message = `${t('whatsapp_msg')} *${product.name_fr}* | Modèle : *${selectedVariant?.label_fr}* | Prix : *${selectedVariant?.price} FCFA*`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
   };

@@ -3,17 +3,19 @@ import AppRoutes from './routes/AppRoutes';
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { SettingsProvider } from './context/SettingsContext';
 
 function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <CartProvider>
-          <Router>
-            {/* Rien d'autre ici ! Les layouts dans AppRoutes s'occupent du reste */}
-            <AppRoutes />
-          </Router>
-        </CartProvider>
+        <SettingsProvider>
+          <CartProvider>
+            <Router>
+              <AppRoutes />
+            </Router>
+          </CartProvider>
+        </SettingsProvider>
       </AuthProvider>
     </LanguageProvider>
   );

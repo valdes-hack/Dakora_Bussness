@@ -82,7 +82,7 @@
   "cart_clear": "Clear cart",
   "added_to_cart": "Added to cart!",
   "items_count": "items",
-  
+
    "cart_title": "My Cart",
   "summary": "Order Summary",
   "subtotal": "Subtotal",
@@ -90,6 +90,15 @@
   "shipping_note": "Calculated at checkout",
   "empty_msg": "It looks like you haven't chosen any equipment yet.",
   "continue_shopping": "Continue shopping",
-  "remove_item": "Remove"
+  "remove_item": "Remove",
+  "settings_title": "Global Settings",
+  "tab_general": "Information",
+  "tab_banners": "Home Banners",
+  "label_whatsapp": "Receiving WhatsApp Number",
+  "label_slogan": "Website Slogan",
+  "label_business_name": "Business Name",
+  "add_banner": "New Banner",
+  "banner_title": "Title on photo",
+  "banner_link": "Button link (ex: /shop)"
 
 }

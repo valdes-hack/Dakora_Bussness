@@ -90,6 +90,15 @@
   "shipping_note": "Calculé à l'étape suivante",
   "empty_msg": "On dirait que vous n'avez pas encore choisi de matériel.",
   "continue_shopping": "Continuer mes achats",
-  "remove_item": "Supprimer"
+  "remove_item": "Supprimer",
+   "settings_title": "Configuration Globale",
+  "tab_general": "Informations",
+  "tab_banners": "Bannières Accueil",
+  "label_whatsapp": "Numéro WhatsApp de réception",
+  "label_slogan": "Slogan du site",
+  "label_business_name": "Nom commercial",
+  "add_banner": "Nouvelle Bannière",
+  "banner_title": "Titre sur la photo",
+  "banner_link": "Lien du bouton (ex: /boutique)"
 
 }
