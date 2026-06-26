@@ -14,7 +14,7 @@ const Hero = () => {
 
   useEffect(() => {
     fetchBanners();
-  }, []);
+  }, [settings.business_name]); // recharge si le nom change
 
   const fetchBanners = async () => {
     setLoading(true);
@@ -28,14 +28,13 @@ const Hero = () => {
     if (!error && data && data.length > 0) {
       setSlides(data);
     } else {
-      // Fallback : Si aucune bannière n'est configurée, on met un contenu par défaut
       setSlides([{
         id: 'default',
         media_url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1600",
-        title_fr: "Dakora Business 🚜",
-        title_en: "Dakora Business 🚜",
-        subtitle_fr: "L'excellence agricole à votre portée",
-        subtitle_en: "Agricultural excellence at your fingertips"
+        title_fr: settings.business_name || 'Dakora Business',
+        title_en: settings.business_name || 'Dakora Business',
+        subtitle_fr: settings.slogan_fr || "L'excellence agricole à votre portée",
+        subtitle_en: settings.slogan_en || "Agricultural excellence at your fingertips"
       }]);
     }
     setLoading(false);

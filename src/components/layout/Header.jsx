@@ -1,17 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
-import { useCart } from '../../context/CartContext'; // Pour le badge du panier
+import { useSettings } from '../../context/SettingsContext';
+import { useCart } from '../../context/CartContext';
 import { ShoppingCart, Moon, Sun, Menu, X, LayoutGrid } from 'lucide-react';
-import logo from '../../assets/logo.jpeg'; 
+import logo from '../../assets/logo.jpeg';
 
 const Header = () => {
   const { language, setLanguage, t } = useLanguage();
   const { user, profile } = useAuth();
-  const { totalItems } = useCart(); // Récupère le nombre d'articles
+  const { settings } = useSettings();
+  const { totalItems } = useCart();
   const [isDark, setIsDark] = useState(localStorage.getItem('theme') === 'dark');
   const [isOpen, setIsOpen] = useState(false);
+
+  const siteName = settings.business_name || 'Dakora Business';
 
   useEffect(() => {
     if (isDark) {
@@ -36,7 +40,7 @@ const Header = () => {
           <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-3">
             <img src={logo} alt="Logo" className="h-10 sm:h-12 w-auto object-contain" />
             <span className="font-black text-lg sm:text-xl tracking-tighter text-gray-900 dark:text-white uppercase italic">
-              Dakora <span className="text-dakora-green">Business</span>
+              {siteName.split(' ')[0]} <span className="text-dakora-green">{siteName.split(' ').slice(1).join(' ') || ''}</span>
             </span>
           </Link>
 

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useSettings } from '../../context/SettingsContext';
 import { 
   LayoutDashboard, Boxes, Package, Settings, LogOut, 
   Store, X, Tag, ShoppingBag, ChevronLeft 
@@ -11,8 +12,11 @@ import logo from '../../assets/logo.jpeg';
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const { profile, logout } = useAuth();
   const { t } = useLanguage();
+  const { settings } = useSettings();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const siteName = settings.business_name || 'Dakora Business';
 
   // --- ÉTATS DESIGN ---
   const [width, setWidth] = useState(260);
@@ -89,7 +93,10 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
             <img src={logo} alt="Logo" className="min-w-[40px] h-10 object-contain rounded-lg" />
             {(!isCollapsed || window.innerWidth < 768) && (
               <span className="font-black text-xs tracking-tighter text-dakora-green uppercase whitespace-nowrap leading-tight">
-                Dakora <br/> <span className="text-gray-900 dark:text-white text-sm font-bold">Control</span>
+                {siteName.split(' ')[0]} <br/>
+                <span className="text-gray-900 dark:text-white text-sm font-bold">
+                  {siteName.split(' ').slice(1).join(' ') || 'Control'}
+                </span>
               </span>
             )}
           </div>

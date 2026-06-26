@@ -1,12 +1,14 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useSettings } from '../../context/SettingsContext';
 import logo from '../../assets/logo.jpeg';
 
 const Footer = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { settings } = useSettings();
+  const siteName = settings.business_name || 'Dakora Business';
 
   return (
     <footer className="mt-20 p-6 flex justify-center mb-10">
@@ -36,7 +38,7 @@ const Footer = () => {
               </div>
             )}
             <p className="text-[10px] text-gray-400 uppercase tracking-tighter">
-              © {new Date().getFullYear()} Dakora Business.
+              © {new Date().getFullYear()} {siteName}.
             </p>
           </div>
         </div>
