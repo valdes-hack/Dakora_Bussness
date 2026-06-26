@@ -116,7 +116,8 @@ const ProfileSettings = () => {
         .from('settings')
         .upsert(updates, { onConflict: 'key' });
       if (error) throw error;
-      await refreshSettings(); // Propage les nouveaux settings partout dans le site
+      // refreshSettings() met à jour le contexte sans recharger la page
+      await refreshSettings();
       showSaved();
     } catch (err) {
       alert('Erreur : ' + err.message);

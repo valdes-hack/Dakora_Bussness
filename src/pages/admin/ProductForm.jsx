@@ -3,7 +3,7 @@ import { supabase } from '../../api/supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
 import { X, Trash2, Layers, Image as ImageIcon, CheckCircle2, UploadCloud, Link as LinkIcon, Star } from 'lucide-react';
 
-const ProductForm = ({ product, categories, onClose, onSave }) => {
+const ProductForm = ({ product, categories, onClose, onSave, invalidateCache }) => {
   const { t } = useLanguage();
 
   const [loading, setLoading] = useState(false);
@@ -109,6 +109,9 @@ const ProductForm = ({ product, categories, onClose, onSave }) => {
         price: v.price,
         stock_quantity: v.stock_quantity
       })));
+
+      // Invalider le cache global pour mettre à jour la boutique
+      if (invalidateCache) invalidateCache();
 
       onSave();
     } catch (err) {

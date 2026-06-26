@@ -36,20 +36,22 @@ const Categories = () => {
   const handleAddCategory = async (e) => {
     e.preventDefault();
     try {
-      const { error } = await supabase.from('categories').insert([{
+      const { data, error } = await supabase.from('categories').insert([{
         name_fr: nameFr,
         name_en: nameEn || null,
         slug: slug || nameFr.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         icon_url: iconUrl || null,
         order_index: categories.length
-      }]);
+      }]).select().single();
       if (error) throw error;
+      // Mise à jour locale optimiste
+      setCategories([...categories, data]);
       setNameFr(''); setNameEn(''); setSlug(''); setIconUrl('');
       setIsAddOpen(false);
-      fetchCategories();
       invalidateCache();
     } catch (err) {
       alert(t('cat_error_add') + err.message);
+      fetchCategories(); // Recharger en cas d'erreur
     }
   };
 
@@ -58,10 +60,12 @@ const Categories = () => {
     try {
       const { error } = await supabase.from('categories').delete().eq('id', id);
       if (error) throw error;
-      fetchCategories();
+      // Mise à jour locale optimiste
+      setCategories(categories.filter(cat => cat.id !== id));
       invalidateCache();
     } catch (err) {
       alert(t('cat_error_del') + err.message);
+      fetchCategories(); // Recharger en cas d'erreur
     }
   };
 

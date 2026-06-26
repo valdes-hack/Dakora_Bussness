@@ -35,11 +35,13 @@ const Products = () => {
         .from('products')
         .update({ is_active: !currentStatus })
         .eq('id', id);
-      
+
       if (error) throw error;
-      
+
       // Mise à jour locale pour que ce soit instantané visuellement
       setProducts(products.map(p => p.id === id ? { ...p, is_active: !currentStatus } : p));
+      // Invalider le cache global pour mettre à jour la boutique
+      invalidateCache();
     } catch (err) {
       alert("Erreur activation: " + err.message);
     }
@@ -47,8 +49,16 @@ const Products = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm(t('msg_confirm_del'))) {
-      await supabase.from('products').delete().eq('id', id);
-      fetchData();
+      try {
+        await supabase.from('products').delete().eq('id', id);
+        // Mise à jour locale optimiste
+        setProducts(products.filter(p => p.id !== id));
+        // Invalider le cache global
+        invalidateCache();
+      } catch (err) {
+        alert("Erreur suppression: " + err.message);
+        fetchData(); // Recharger en cas d'erreur
+      }
     }
   };
 
@@ -171,7 +181,8 @@ const Products = () => {
           product={editProduct} 
           categories={categories} 
           onClose={() => setShowForm(false)} 
-          onSave={() => { setShowForm(false); fetchData(); invalidateCache(); }} 
+          onSave={() => { setShowForm(false); }} 
+          invalidateCache={invalidateCache}
         />
       )}
     </div>
