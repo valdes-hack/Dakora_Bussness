@@ -82,6 +82,7 @@ CREATE TABLE order_items (
 -- 8. Stories & Avis & Coupons (On les garde comme avant)
 CREATE TABLE stories (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
   title_fr TEXT, title_en TEXT, media_url TEXT, redirect_link TEXT, expires_at TIMESTAMPTZ, is_active BOOLEAN DEFAULT true
 );
 
