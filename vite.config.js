@@ -10,6 +10,12 @@ export default defineConfig({
     target: 'es2020',
     // Avertissement à partir de 600kb seulement
     chunkSizeWarningLimit: 600,
+    // Forcer Rollup au lieu de Rolldown
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
   },
 
   // Pré-bundling agressif des dépendances pour le dev
