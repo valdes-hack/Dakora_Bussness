@@ -16,6 +16,7 @@ export const DataCacheProvider = ({ children }) => {
   const [products, setProducts]     = useState([]);
   const [categories, setCategories] = useState([]);
   const [ready, setReady]           = useState(false);   // true dès le 1er fetch
+  const [error, setError]           = useState(null);
   const lastFetch = useRef(0);
 
   const fetchAll = useCallback(async (force = false) => {
@@ -23,43 +24,52 @@ export const DataCacheProvider = ({ children }) => {
     // Ne refetch pas si le cache est encore frais (sauf force)
     if (!force && now - lastFetch.current < CACHE_TTL && products.length > 0) return;
 
-    const [{ data: cats }, { data: prods }] = await Promise.all([
-      supabase
-        .from('categories')
-        .select('id, name_fr, name_en, icon_url, slug, order_index')
-        .order('order_index'),
+    setError(null);
+    try {
+      const [{ data: cats, error: catErr }, { data: prods, error: prodErr }] = await Promise.all([
+        supabase
+          .from('categories')
+          .select('id, name_fr, name_en, icon_url, slug, order_index')
+          .order('order_index'),
 
-      supabase
-        .from('products')
-        .select(`
-          id, name_fr, name_en, badge, category_id, is_active, order_index,
-          description_fr, description_en,
-          categories(id, name_fr, name_en),
-          variants(id, label_fr, label_en, price, old_price, stock_quantity),
-          product_images(id, url, is_main, order_index)
-        `)
-        .eq('is_active', true)
-        .order('order_index')
-        .order('created_at', { ascending: false })
-    ]);
+        supabase
+          .from('products')
+          .select(`
+            id, name_fr, name_en, badge, category_id, is_active, order_index,
+            description_fr, description_en,
+            categories(id, name_fr, name_en),
+            variants(id, label_fr, label_en, price, old_price, stock_quantity),
+            product_images(id, url, is_main, order_index)
+          `)
+          .eq('is_active', true)
+          .order('order_index')
+          .order('created_at', { ascending: false })
+      ]);
 
-    if (cats)  setCategories(cats);
-    if (prods) {
-      // Trier les images de chaque produit (principale en tête)
-      const sorted = prods.map(p => ({
-        ...p,
-        product_images: [...(p.product_images || [])].sort((a, b) => {
-          if (a.is_main) return -1;
-          if (b.is_main) return 1;
-          return (a.order_index ?? 99) - (b.order_index ?? 99);
-        })
-      }));
-      setProducts(sorted);
+      if (catErr) throw catErr;
+      if (prodErr) throw prodErr;
+
+      if (cats)  setCategories(cats);
+      if (prods) {
+        // Trier les images de chaque produit (principale en tête)
+        const sorted = prods.map(p => ({
+          ...p,
+          product_images: [...(p.product_images || [])].sort((a, b) => {
+            if (a.is_main) return -1;
+            if (b.is_main) return 1;
+            return (a.order_index ?? 99) - (b.order_index ?? 99);
+          })
+        }));
+        setProducts(sorted);
+      }
+      lastFetch.current = Date.now();
+    } catch (err) {
+      console.error("DataCache fetch error:", err);
+      setError(err.message || String(err));
+    } finally {
+      setReady(true);
     }
-
-    lastFetch.current = Date.now();
-    setReady(true);
-  }, []); // eslint-disable-line
+  }, [products.length]); // eslint-disable-line
 
   // Chargement initial — dès que l'app monte
   useEffect(() => { fetchAll(); }, [fetchAll]);
@@ -83,7 +93,7 @@ export const DataCacheProvider = ({ children }) => {
   }, [fetchAll]);
 
   return (
-    <DataCacheContext.Provider value={{ products, categories, ready, invalidateCache }}>
+    <DataCacheContext.Provider value={{ products, categories, ready, error, invalidateCache }}>
       {children}
     </DataCacheContext.Provider>
   );
