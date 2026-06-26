@@ -49,9 +49,14 @@ const ProductForm = ({ product, categories, onClose, onSave }) => {
   const uploadToStorage = async (productId, file) => {
     const ext = file.name.split('.').pop();
     const fileName = `${productId}/${Date.now()}.${ext}`;
+    console.log('📤 Upload vers Storage:', fileName);
     const { error } = await supabase.storage.from('products').upload(fileName, file);
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Erreur upload Storage:', error);
+      throw error;
+    }
     const { data: urlData } = supabase.storage.from('products').getPublicUrl(fileName);
+    console.log('✅ Upload réussi, URL:', urlData.publicUrl);
     return urlData.publicUrl;
   };
 
@@ -80,12 +85,21 @@ const ProductForm = ({ product, categories, onClose, onSave }) => {
       }
 
       await supabase.from('product_images').delete().eq('product_id', productId);
+      console.log('🗑️ Anciennes images supprimées pour produit:', productId);
       const finalImages = await Promise.all(images.map(async (img) => {
         let finalUrl = img.url;
         if (img.file) finalUrl = await uploadToStorage(productId, img.file);
         return { product_id: productId, url: finalUrl, is_main: img.is_main };
       }));
-      if (finalImages.length > 0) await supabase.from('product_images').insert(finalImages);
+      console.log('📷 Images à insérer:', finalImages.length);
+      if (finalImages.length > 0) {
+        const { error: insertError } = await supabase.from('product_images').insert(finalImages);
+        if (insertError) {
+          console.error('❌ Erreur insertion images:', insertError);
+          throw insertError;
+        }
+        console.log('✅ Images insérées avec succès');
+      }
 
       await supabase.from('variants').delete().eq('product_id', productId);
       await supabase.from('variants').insert(variants.map(v => ({
