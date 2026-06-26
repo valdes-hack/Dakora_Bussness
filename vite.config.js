@@ -5,17 +5,6 @@ export default defineConfig({
   plugins: [react()],
 
   build: {
-    // Découpe le bundle en chunks séparés pour un meilleur cache navigateur
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'react-vendor':   ['react', 'react-dom', 'react-router-dom'],
-          'supabase':       ['@supabase/supabase-js'],
-          'ui-icons':       ['lucide-react'],
-          'leaflet':        ['leaflet', 'react-leaflet'],
-        }
-      }
-    },
     // Compression maximale
     minify: 'esbuild',
     target: 'es2020',
