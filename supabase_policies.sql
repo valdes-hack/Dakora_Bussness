@@ -40,8 +40,11 @@ CREATE POLICY "Ecriture admin des stories" ON stories FOR ALL TO authenticated U
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Lecture publique des parametres" ON settings;
 DROP POLICY IF EXISTS "Ecriture admin des parametres" ON settings;
+DROP POLICY IF EXISTS "Insertion admin des parametres" ON settings;
+DROP POLICY IF EXISTS "Upsert admin des parametres" ON settings;
 CREATE POLICY "Lecture publique des parametres" ON settings FOR SELECT USING (true);
-CREATE POLICY "Ecriture admin des parametres" ON settings FOR ALL TO authenticated USING (true);
+CREATE POLICY "Ecriture admin des parametres" ON settings FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Insertion admin des parametres" ON settings FOR INSERT TO authenticated WITH CHECK (true);
 
 -- 7. Table: profiles
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
