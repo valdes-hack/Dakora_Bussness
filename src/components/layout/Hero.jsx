@@ -14,7 +14,7 @@ const Hero = () => {
 
   useEffect(() => {
     fetchBanners();
-  }, [settings.business_name]); // recharge si le nom change
+  }, []); // chargement unique au montage
 
   const fetchBanners = async () => {
     setLoading(true);
