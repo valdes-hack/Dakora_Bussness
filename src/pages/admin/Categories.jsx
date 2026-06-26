@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../api/supabaseClient';
 import { Plus, Trash2, Folder, X } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useDataCache } from '../../context/DataCacheContext';
 
 const Categories = () => {
   const { t } = useLanguage();
+  const { invalidateCache } = useDataCache();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -45,6 +47,7 @@ const Categories = () => {
       setNameFr(''); setNameEn(''); setSlug(''); setIconUrl('');
       setIsAddOpen(false);
       fetchCategories();
+      invalidateCache();
     } catch (err) {
       alert(t('cat_error_add') + err.message);
     }
@@ -56,6 +59,7 @@ const Categories = () => {
       const { error } = await supabase.from('categories').delete().eq('id', id);
       if (error) throw error;
       fetchCategories();
+      invalidateCache();
     } catch (err) {
       alert(t('cat_error_del') + err.message);
     }

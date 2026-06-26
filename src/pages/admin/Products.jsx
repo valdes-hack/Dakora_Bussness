@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../../api/supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
-import { Plus, Pencil, Trash2, Layers, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { useDataCache } from '../../context/DataCacheContext';
+import { Plus, Pencil, Trash2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import ProductForm from './ProductForm';
 
 const Products = () => {
   const { t, language } = useLanguage();
+  const { invalidateCache } = useDataCache();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -169,7 +171,7 @@ const Products = () => {
           product={editProduct} 
           categories={categories} 
           onClose={() => setShowForm(false)} 
-          onSave={() => { setShowForm(false); fetchData(); }} 
+          onSave={() => { setShowForm(false); fetchData(); invalidateCache(); }} 
         />
       )}
     </div>

@@ -1,115 +1,84 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../../api/supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
 import { useSettings } from '../../context/SettingsContext';
+import { useDataCache } from '../../context/DataCacheContext';
 import { ChevronLeft, MessageCircle, Package, ArrowRight } from 'lucide-react';
 
-// ─── SKELETON détail produit ──────────────────────────────────────────────────
-const ProductSkeleton = () => (
-  <div className="max-w-7xl mx-auto px-6 py-10 animate-pulse">
-    <div className="h-4 w-32 bg-gray-200 dark:bg-white/10 rounded-full mb-10" />
+// ─── SKELETON ─────────────────────────────────────────────────────────────────
+const Skeleton = () => (
+  <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 animate-pulse">
+    <div className="h-3 w-28 bg-gray-200 dark:bg-white/10 rounded-full mb-10" />
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
       <div className="aspect-square rounded-[3rem] bg-gray-200 dark:bg-white/10" />
-      <div className="space-y-6">
-        <div className="h-3 w-24 bg-gray-200 dark:bg-white/10 rounded-full" />
-        <div className="h-10 w-3/4 bg-gray-200 dark:bg-white/10 rounded-2xl" />
-        <div className="h-8 w-32 bg-gray-200 dark:bg-white/10 rounded-2xl" />
+      <div className="space-y-5">
+        <div className="h-3 w-20 bg-gray-200 dark:bg-white/10 rounded-full" />
+        <div className="h-9 w-3/4 bg-gray-200 dark:bg-white/10 rounded-2xl" />
+        <div className="h-7 w-28 bg-gray-200 dark:bg-white/10 rounded-2xl" />
         <div className="flex gap-3">
-          {[1,2,3].map(i => <div key={i} className="h-12 w-28 bg-gray-200 dark:bg-white/10 rounded-2xl" />)}
+          {[1,2].map(i => <div key={i} className="h-12 w-28 bg-gray-200 dark:bg-white/10 rounded-2xl" />)}
         </div>
-        <div className="h-32 bg-gray-200 dark:bg-white/10 rounded-[2.5rem]" />
-        <div className="h-16 bg-gray-200 dark:bg-white/10 rounded-[2rem]" />
+        <div className="h-28 bg-gray-200 dark:bg-white/10 rounded-[2rem]" />
+        <div className="h-14 bg-gray-200 dark:bg-white/10 rounded-[2rem]" />
       </div>
     </div>
   </div>
 );
 
 const ProductDetails = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id }       = useParams();
+  const navigate     = useNavigate();
   const { t, language } = useLanguage();
   const { settings } = useSettings();
+  const { products } = useDataCache(); // ← lecture cache, instantané
 
-  const [product, setProduct] = useState(null);
-  const [similarProducts, setSimilarProducts] = useState([]);
   const [selectedVariant, setSelectedVariant] = useState(null);
-  const [mainImage, setMainImage] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const [mainImage, setMainImage]             = useState('');
+  const [similarProducts, setSimilarProducts] = useState([]);
+  const [simLoaded, setSimLoaded]             = useState(false);
 
+  // Trouver le produit dans le cache — 0ms réseau
+  const product = useMemo(
+    () => products.find(p => p.id === id) || null,
+    [products, id]
+  );
+
+  // Quand le produit est dispo, initialiser l'état
   useEffect(() => {
-    let cancelled = false;
+    if (!product) return;
     window.scrollTo({ top: 0, behavior: 'instant' });
+    setMainImage(product.product_images?.[0]?.url || '');
+    setSelectedVariant(product.variants?.[0] || null);
+    setSimLoaded(false);
+    setSimilarProducts([]);
+  }, [product?.id]); // eslint-disable-line
 
-    const load = async () => {
-      setLoading(true);
-      setNotFound(false);
-
-      // Requête produit — champs stricts, pas de * inutile
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          id, name_fr, name_en, description_fr, description_en,
-          badge, category_id, is_active,
-          categories(name_fr, name_en),
-          variants(id, label_fr, label_en, price, old_price, stock_quantity),
-          product_images(id, url, is_main, order_index)
-        `)
-        .eq('id', id)
-        .single();
-
-      if (cancelled) return;
-
-      if (error || !data) {
-        setNotFound(true);
-        setLoading(false);
-        return;
-      }
-
-      // Tri images : principale d'abord
-      const sortedImages = [...(data.product_images || [])].sort((a, b) => {
-        if (a.is_main) return -1;
-        if (b.is_main) return 1;
-        return (a.order_index ?? 0) - (b.order_index ?? 0);
-      });
-
-      setProduct({ ...data, product_images: sortedImages });
-      setMainImage(sortedImages[0]?.url || '');
-      setSelectedVariant(data.variants?.[0] || null);
-      setLoading(false);
-
-      // Produits similaires en arrière-plan (ne bloque pas l'affichage)
-      supabase
-        .from('products')
-        .select('id, name_fr, name_en, product_images(url, is_main), variants(price)')
-        .eq('category_id', data.category_id)
-        .neq('id', id)
-        .eq('is_active', true)
-        .limit(4)
-        .then(({ data: sim }) => {
-          if (!cancelled) setSimilarProducts(sim || []);
-        });
-    };
-
-    load();
-    return () => { cancelled = true; };
-  }, [id]);
+  // Produits similaires — en arrière-plan, ne bloque rien
+  useEffect(() => {
+    if (!product || simLoaded) return;
+    const sim = products
+      .filter(p => p.category_id === product.category_id && p.id !== product.id)
+      .slice(0, 4);
+    setSimilarProducts(sim);
+    setSimLoaded(true);
+  }, [product, products, simLoaded]);
 
   const handleWhatsAppOrder = useCallback(() => {
     if (!product || !selectedVariant) return;
-    const phone = settings.whatsapp_number || '237600000000';
-    const name = settings.business_name || 'Dakora Business';
-    const productName = language === 'fr' ? product.name_fr : product.name_en;
-    const variantLabel = language === 'fr' ? selectedVariant.label_fr : selectedVariant.label_en;
+    const phone       = settings.whatsapp_number || '237600000000';
+    const name        = settings.business_name   || 'Dakora Business';
+    const productName = language === 'fr' ? product.name_fr  : product.name_en;
+    const varLabel    = language === 'fr' ? selectedVariant.label_fr : selectedVariant.label_en;
     const msg = t('whatsapp_msg').replace('{{name}}', name)
-      + ` *${productName}* | ${language === 'fr' ? 'Modèle' : 'Model'} : *${variantLabel}* | Prix : *${selectedVariant.price?.toLocaleString()} FCFA*`;
+      + ` *${productName}* | ${language === 'fr' ? 'Modèle' : 'Model'} : *${varLabel}* | Prix : *${selectedVariant.price?.toLocaleString()} FCFA*`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   }, [product, selectedVariant, settings, language, t]);
 
-  if (loading) return <ProductSkeleton />;
+  // Cache pas encore prêt → skeleton
+  if (!product && products.length === 0) return <Skeleton />;
 
-  if (notFound) return (
+  // Produit introuvable
+  if (!product) return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6 px-6">
       <p className="text-2xl font-black text-gray-400 uppercase italic">Produit introuvable</p>
       <button onClick={() => navigate('/boutique')}
@@ -119,9 +88,9 @@ const ProductDetails = () => {
     </div>
   );
 
-  const name = language === 'fr' ? product.name_fr : product.name_en;
+  const name        = language === 'fr' ? product.name_fr        : product.name_en;
   const description = language === 'fr' ? product.description_fr : product.description_en;
-  const category = language === 'fr' ? product.categories?.name_fr : product.categories?.name_en;
+  const category    = language === 'fr' ? product.categories?.name_fr : product.categories?.name_en;
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-10">
@@ -134,7 +103,7 @@ const ProductDetails = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
-        {/* ── GALERIE ── */}
+        {/* GALERIE */}
         <div className="space-y-4">
           <div className="aspect-square rounded-[3rem] overflow-hidden bg-gray-100 dark:bg-white/5 border border-white/20 shadow-2xl">
             <img
@@ -142,15 +111,13 @@ const ProductDetails = () => {
               alt={name}
               loading="eager"
               decoding="async"
-              className="w-full h-full object-cover transition-opacity duration-300"
+              className="w-full h-full object-cover transition-opacity duration-200"
             />
           </div>
           {product.product_images?.length > 1 && (
             <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-              {product.product_images.map((img) => (
-                <button
-                  key={img.id}
-                  onClick={() => setMainImage(img.url)}
+              {product.product_images.map(img => (
+                <button key={img.id} onClick={() => setMainImage(img.url)}
                   className={`w-20 h-20 flex-shrink-0 rounded-2xl overflow-hidden border-2 transition-all ${
                     mainImage === img.url ? 'border-dakora-green shadow-lg' : 'border-transparent opacity-50 hover:opacity-100'
                   }`}
@@ -162,8 +129,8 @@ const ProductDetails = () => {
           )}
         </div>
 
-        {/* ── INFOS & ACHAT ── */}
-        <div className="space-y-8">
+        {/* INFOS */}
+        <div className="space-y-7">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-4">
               {category && (
@@ -177,7 +144,7 @@ const ProductDetails = () => {
                 </span>
               )}
             </div>
-            <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none mb-6">
+            <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none mb-5">
               {name}
             </h1>
             <div className="flex items-baseline gap-3">
@@ -199,10 +166,8 @@ const ProductDetails = () => {
                 <Package size={14} /> {t('variant_choice')}
               </label>
               <div className="flex flex-wrap gap-3">
-                {product.variants.map((v) => (
-                  <button
-                    key={v.id}
-                    onClick={() => setSelectedVariant(v)}
+                {product.variants.map(v => (
+                  <button key={v.id} onClick={() => setSelectedVariant(v)}
                     className={`px-5 py-3 rounded-2xl font-bold text-sm transition-all border-2 ${
                       selectedVariant?.id === v.id
                         ? 'border-dakora-green bg-dakora-green/5 text-dakora-green shadow-md'
@@ -225,10 +190,8 @@ const ProductDetails = () => {
           )}
 
           {/* WHATSAPP */}
-          <button
-            onClick={handleWhatsAppOrder}
-            className="w-full py-5 bg-dakora-green text-white rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl hover:bg-green-700 transition-colors flex items-center justify-center gap-4 active:scale-95"
-          >
+          <button onClick={handleWhatsAppOrder}
+            className="w-full py-5 bg-dakora-green text-white rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl hover:bg-green-700 transition-colors flex items-center justify-center gap-4 active:scale-95">
             <MessageCircle size={22} />
             {t('order_whatsapp')}
           </button>
@@ -237,7 +200,7 @@ const ProductDetails = () => {
 
       {/* PRODUITS SIMILAIRES */}
       {similarProducts.length > 0 && (
-        <section className="mt-24">
+        <section className="mt-20">
           <div className="flex justify-between items-end mb-8">
             <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">
               {t('similar_products')}
@@ -247,17 +210,17 @@ const ProductDetails = () => {
               {t('view_all')} <ArrowRight size={14} />
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {similarProducts.map(p => {
-              const pName = language === 'fr' ? p.name_fr : p.name_en;
-              const pImg = p.product_images?.find(i => i.is_main)?.url || p.product_images?.[0]?.url;
+              const pName  = language === 'fr' ? p.name_fr : p.name_en;
+              const pImg   = p.product_images?.[0]?.url;
               const pPrice = p.variants?.[0]?.price;
               return (
                 <Link key={p.id} to={`/produit/${p.id}`} className="group space-y-3">
                   <div className="aspect-square rounded-[2rem] overflow-hidden bg-gray-100 dark:bg-white/5 border border-white/10 shadow-md">
                     {pImg && (
                       <img src={pImg} loading="lazy" decoding="async"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-400"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         alt={pName} />
                     )}
                   </div>
@@ -273,8 +236,8 @@ const ProductDetails = () => {
       )}
 
       <style>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar{display:none}
+        .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
       `}</style>
     </div>
   );
