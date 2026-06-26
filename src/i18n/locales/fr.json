@@ -220,5 +220,10 @@
   "dashboard_chart_placeholder": "L'analyse des tendances apparaîtra ici",
   "quick_actions": "Actions Rapides",
   "action_new_product": "Nouveau Produit",
-  "action_view_shop": "Voir la Boutique"
+  "action_view_shop": "Voir la Boutique",
+  "home_categories_title": "Explorer par Catégorie",
+  "home_featured_title": "Produits Phares",
+  "home_featured_subtitle": "Découvrez notre sélection de matériel haute performance.",
+  "view_all_products": "Voir tout le catalogue",
+  "shop_now": "Acheter maintenant"
 }

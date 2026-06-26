@@ -221,5 +221,10 @@
   "dashboard_chart_placeholder": "Trend analysis will appear here",
   "quick_actions": "Quick Actions",
   "action_new_product": "New Product",
-  "action_view_shop": "View Shop"
+  "action_view_shop": "View Shop",
+   "home_categories_title": "Browse by Category",
+  "home_featured_title": "Featured Products",
+  "home_featured_subtitle": "Discover our selection of high-performance equipment.",
+  "view_all_products": "View all products",
+  "shop_now": "Shop now"
 }

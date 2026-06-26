@@ -1,19 +1,155 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { supabase } from '../../api/supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
 import Hero from '../../components/layout/Hero.jsx';
 import Features from '../../components/layout/Features.jsx';
+import { ArrowRight, ShoppingCart, Star, LayoutGrid } from 'lucide-react';
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const [categories, setCategories] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchHomeData();
+  }, []);
+
+  const fetchHomeData = async () => {
+    setLoading(true);
+    try {
+      // 1. Récupérer les catégories
+      const { data: cats } = await supabase
+        .from('categories')
+        .select('*')
+        .order('order_index', { ascending: true })
+        .limit(6);
+      setCategories(cats || []);
+
+      // 2. Récupérer les 3 derniers produits actifs
+      const { data: prods } = await supabase
+        .from('products')
+        .select('*, product_images(*), variants(price)')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(3);
+      setFeaturedProducts(prods || []);
+
+    } catch (error) {
+      console.error("Erreur chargement accueil:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="animate-in fade-in duration-700">
+    <div className="space-y-20 pb-20 animate-in fade-in duration-1000">
+      
+      {/* 1. SECTION HERO (SLIDER) */}
       <Hero />
+
+      {/* 2. SECTION AVANTAGES */}
       <Features />
-      <section className="py-20 px-6 max-w-6xl mx-auto text-center">
-        <h2 className="text-3xl font-bold dark:text-white mb-4">
-          {t('home_categories_title')}
-        </h2>
-        <p className="text-gray-500 italic font-medium">{t('home_categories_soon')}</p>
+
+      {/* 3. SECTION CATÉGORIES DYNAMIQUE */}
+      <section className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">
+            {t('home_categories_title')}
+          </h2>
+          <div className="w-20 h-1.5 bg-dakora-green mx-auto mt-4 rounded-full" />
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          {loading ? (
+            [1, 2, 3, 4, 5, 6].map(n => <div key={n} className="h-40 rounded-[2rem] bg-gray-100 dark:bg-white/5 animate-pulse" />)
+          ) : (
+            categories.map(cat => (
+              <Link 
+                key={cat.id} 
+                to="/boutique" 
+                className="group flex flex-col items-center p-8 bg-white/60 dark:bg-white/5 backdrop-blur-md border border-white/20 rounded-[2.5rem] shadow-xl hover:shadow-dakora-green/20 hover:-translate-y-2 transition-all duration-500"
+              >
+                <span className="text-5xl mb-4 group-hover:scale-125 transition-transform duration-500">{cat.icon_url || '🚜'}</span>
+                <span className="font-black text-[10px] uppercase tracking-widest text-center dark:text-white leading-tight">
+                  {language === 'fr' ? cat.name_fr : cat.name_en}
+                </span>
+              </Link>
+            ))
+          )}
+        </div>
       </section>
+
+      {/* 4. SECTION PRODUITS PHARES */}
+      <section className="bg-gray-100 dark:bg-black/20 py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+            <div className="max-w-xl">
+              <h2 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">
+                {t('home_featured_title')}
+              </h2>
+              <p className="text-gray-500 mt-2 font-medium">{t('home_featured_subtitle')}</p>
+            </div>
+            <Link to="/boutique" className="group flex items-center gap-3 bg-dakora-green text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl hover:bg-green-700 transition-all">
+              {t('view_all_products')} <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {featuredProducts.map(prod => (
+              <div key={prod.id} className="group bg-white dark:bg-neutral-900 rounded-[3.5rem] p-4 shadow-2xl border border-white/10 flex flex-col transition-all duration-500 hover:shadow-dakora-green/10">
+                <div className="relative aspect-square rounded-[2.8rem] overflow-hidden mb-6">
+                  <img 
+                    src={prod.product_images?.[0]?.url || 'https://via.placeholder.com/500'} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                    alt={prod.name_fr}
+                  />
+                  {prod.badge && (
+                    <div className="absolute top-6 left-6 px-4 py-2 bg-dakora-yellow text-yellow-900 text-[10px] font-black uppercase rounded-full shadow-xl">
+                      {prod.badge}
+                    </div>
+                  )}
+                </div>
+                <div className="px-4 pb-6 space-y-4">
+                  <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tighter uppercase leading-tight">
+                    {language === 'fr' ? prod.name_fr : prod.name_en}
+                  </h3>
+                  <div className="flex justify-between items-center">
+                    <p className="text-xl font-black text-dakora-green">
+                      {prod.variants?.[0]?.price?.toLocaleString()} <span className="text-xs uppercase">FCFA</span>
+                    </p>
+                    <Link to={`/produit/${prod.id}`} className="p-4 bg-gray-100 dark:bg-white/5 rounded-2xl hover:bg-dakora-green hover:text-white transition-all">
+                      <ShoppingCart size={20} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. BANNIÈRE DE FIN (RE-ASSURANCE) */}
+      <section className="max-w-5xl mx-auto px-6">
+        <div className="relative bg-dakora-green rounded-[3.5rem] p-12 md:p-20 overflow-hidden shadow-2xl text-center">
+           <div className="relative z-10 space-y-6">
+              <h2 className="text-3xl md:text-5xl font-black text-white uppercase italic tracking-tighter">
+                Prêt à booster votre rendement ?
+              </h2>
+              <p className="text-green-100 font-medium max-w-2xl mx-auto">
+                Rejoignez les centaines de producteurs qui font confiance à Dakora Business pour leur équipement.
+              </p>
+              <Link to="/boutique" className="inline-block bg-white text-dakora-green px-12 py-5 rounded-full font-black uppercase text-sm tracking-widest shadow-2xl hover:scale-105 transition-all active:scale-95">
+                {t('shop_now')}
+              </Link>
+           </div>
+           {/* Décoration fond */}
+           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20" />
+           <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-3xl -ml-20 -mb-20" />
+        </div>
+      </section>
+
     </div>
   );
 }

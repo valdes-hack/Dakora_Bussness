@@ -4,17 +4,20 @@ import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { SettingsProvider } from './context/SettingsContext';
+import { DataCacheProvider } from './context/DataCacheContext';
 
 function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
         <SettingsProvider>
-          <CartProvider>
-            <Router>
-              <AppRoutes />
-            </Router>
-          </CartProvider>
+          <DataCacheProvider>
+            <CartProvider>
+              <Router>
+                <AppRoutes />
+              </Router>
+            </CartProvider>
+          </DataCacheProvider>
         </SettingsProvider>
       </AuthProvider>
     </LanguageProvider>
