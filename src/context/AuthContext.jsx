@@ -81,7 +81,10 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  const logout = () => supabase.auth.signOut();
+  const logout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/boutique';
+  };
 
   return (
     <AuthContext.Provider value={{ user, profile, login, logout, loading }}>

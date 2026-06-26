@@ -3,7 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useSettings } from '../../context/SettingsContext';
 import { useDataCache } from '../../context/DataCacheContext';
-import { ChevronLeft, MessageCircle, Package, ArrowRight } from 'lucide-react';
+import { useCart } from '../../context/CartContext';
+import { ChevronLeft, MessageCircle, Package, ArrowRight, ShoppingCart, Check } from 'lucide-react';
 
 // ─── SKELETON ─────────────────────────────────────────────────────────────────
 const Skeleton = () => (
@@ -31,11 +32,13 @@ const ProductDetails = () => {
   const { t, language } = useLanguage();
   const { settings } = useSettings();
   const { products } = useDataCache(); // ← lecture cache, instantané
+  const { addToCart } = useCart();
 
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [mainImage, setMainImage]             = useState('');
   const [similarProducts, setSimilarProducts] = useState([]);
   const [simLoaded, setSimLoaded]             = useState(false);
+  const [addedToCart, setAddedToCart]         = useState(false);
 
   // Trouver le produit dans le cache — 0ms réseau
   const product = useMemo(
@@ -73,6 +76,13 @@ const ProductDetails = () => {
       + ` *${productName}* | ${language === 'fr' ? 'Modèle' : 'Model'} : *${varLabel}* | Prix : *${selectedVariant.price?.toLocaleString()} FCFA*`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   }, [product, selectedVariant, settings, language, t]);
+
+  const handleAddToCart = useCallback(() => {
+    if (!product || !selectedVariant) return;
+    addToCart(product, selectedVariant, 1);
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 2000);
+  }, [product, selectedVariant, addToCart]);
 
   // Cache pas encore prêt → skeleton
   if (!product && products.length === 0) return <Skeleton />;
@@ -189,12 +199,24 @@ const ProductDetails = () => {
             </div>
           )}
 
-          {/* WHATSAPP */}
-          <button onClick={handleWhatsAppOrder}
-            className="w-full py-5 bg-dakora-green text-white rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl hover:bg-green-700 transition-colors flex items-center justify-center gap-4 active:scale-95">
-            <MessageCircle size={22} />
-            {t('order_whatsapp')}
-          </button>
+          {/* BOUTONS D'ACTION */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button onClick={handleAddToCart}
+              disabled={addedToCart}
+              className={`flex-1 py-5 rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl transition-all flex items-center justify-center gap-4 active:scale-95 ${
+                addedToCart
+                  ? 'bg-green-500 text-white'
+                  : 'bg-dakora-green text-white hover:bg-green-700'
+              }`}>
+              {addedToCart ? <Check size={22} /> : <ShoppingCart size={22} />}
+              {addedToCart ? t('added') : t('add_to_cart')}
+            </button>
+            <button onClick={handleWhatsAppOrder}
+              className="flex-1 py-5 bg-white dark:bg-white/10 text-gray-900 dark:text-white rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl hover:bg-gray-100 dark:hover:bg-white/20 transition-colors flex items-center justify-center gap-4 active:scale-95 border-2 border-dakora-green">
+              <MessageCircle size={22} />
+              {t('order_whatsapp')}
+            </button>
+          </div>
         </div>
       </div>
 
