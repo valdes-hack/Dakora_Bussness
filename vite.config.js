@@ -12,11 +12,6 @@ export default defineConfig({
     chunkSizeWarningLimit: 600,
   },
 
-  // Désactiver Rolldown pour utiliser Rollup classique (compatibilité Tailwind v4)
-  experimental: {
-    rollup: true,
-  },
-
   // Pré-bundling agressif des dépendances pour le dev
   optimizeDeps: {
     include: [
