@@ -78,7 +78,13 @@ const ProductDetails = () => {
   }, [product, selectedVariant, settings, language, t]);
 
   const handleAddToCart = useCallback(() => {
-    if (!product || !selectedVariant) return;
+    console.log('🛒 Bouton panier cliqué');
+    console.log('Produit:', product);
+    console.log('Variant sélectionné:', selectedVariant);
+    if (!product || !selectedVariant) {
+      console.error('❌ Produit ou variant manquant');
+      return;
+    }
     addToCart(product, selectedVariant, 1);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
