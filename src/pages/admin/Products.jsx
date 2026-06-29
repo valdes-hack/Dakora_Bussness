@@ -5,9 +5,10 @@ import { useDataCache } from '../../context/DataCacheContext';
 import { useSettings } from '../../context/SettingsContext';
 import { Plus, Pencil, Trash2, AlertCircle, Eye, EyeOff, LayoutGrid, List, Search, X, Share2, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
 import ProductForm from './ProductForm';
+import { createNotification } from '../../utils/notify';
 
 // ─── PANNEAU PARTAGE PRODUIT ──────────────────────────────────────────────────
-const ShareProductPanel = ({ product, language, waNumber, onClose }) => {
+const ShareProductPanel = ({ product, language, waNumber, onClose, onShare }) => {
   const name = language === 'fr' ? product.name_fr : product.name_en;
   const productUrl = `${window.location.origin}/produit/${product.id}`;
   const imgUrl = product.product_images?.[0]?.url;
@@ -29,7 +30,7 @@ const ShareProductPanel = ({ product, language, waNumber, onClose }) => {
       name: 'WhatsApp', auto: false,
       hint: 'Ouvre WhatsApp avec le produit pré-rempli',
       bg: 'bg-[#25D366]/10 hover:bg-[#25D366] hover:text-white', text: 'text-[#25D366]',
-      action: () => window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(shareText)}`, '_blank'),
+      action: () => { window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(shareText)}`, '_blank'); onShare?.('WhatsApp'); },
       icon: <svg viewBox="0 0 32 32" className="w-5 h-5 fill-current"><path d="M16.004 2C8.28 2 2 8.28 2 16.004c0 2.46.643 4.867 1.864 6.99L2 30l7.228-1.895A13.94 13.94 0 0016.004 30C23.72 30 30 23.72 30 16.004 30 8.28 23.72 2 16.004 2zm6.27 19.878c-.343-.172-2.034-1.003-2.348-1.118-.314-.115-.544-.172-.773.172-.229.344-.887 1.118-1.088 1.348-.2.23-.4.258-.743.086-.344-.172-1.452-.535-2.766-1.708-1.022-.913-1.713-2.04-1.913-2.383-.2-.344-.022-.53.15-.7.155-.154.344-.402.516-.603.172-.2.229-.344.344-.573.115-.23.057-.43-.029-.602-.086-.173-.773-1.862-1.059-2.551-.279-.67-.562-.579-.773-.59l-.657-.011a1.261 1.261 0 00-.916.43c-.314.343-1.203 1.175-1.203 2.866s1.23 3.322 1.402 3.552c.172.23 2.42 3.695 5.866 5.183.82.354 1.46.566 1.96.724.824.261 1.573.224 2.165.136.66-.099 2.034-.831 2.32-1.634.286-.802.286-1.49.2-1.634-.085-.143-.314-.229-.657-.4z"/></svg>
     },
     {
@@ -148,15 +149,21 @@ const Products = () => {
       if (error) throw error;
       setProducts(prev => prev.map(p => p.id === id ? { ...p, is_active: !currentStatus } : p));
       invalidateCache();
+      const prod = products.find(p => p.id === id);
+      const name = language === 'fr' ? prod?.name_fr : prod?.name_en;
+      createNotification(`Produit ${!currentStatus ? 'activé' : 'désactivé'} : ${name}`, 'product', '/admin/produits');
     } catch (err) { alert('Erreur activation: ' + err.message); }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm(t('msg_confirm_del'))) {
       try {
+        const prod = products.find(p => p.id === id);
+        const name = language === 'fr' ? prod?.name_fr : prod?.name_en;
         await supabase.from('products').delete().eq('id', id);
         setProducts(prev => prev.filter(p => p.id !== id));
         invalidateCache();
+        createNotification(`Produit supprimé : ${name}`, 'product', '/admin/produits');
       } catch (err) {
         alert('Erreur suppression: ' + err.message);
         fetchData();
@@ -402,6 +409,10 @@ const Products = () => {
           language={language}
           waNumber={settings.whatsapp_number || '237690000000'}
           onClose={() => setShareProduct(null)}
+          onShare={(network) => {
+            const name = language === 'fr' ? shareProduct.name_fr : shareProduct.name_en;
+            createNotification(`Produit partagé sur ${network} : ${name}`, 'share', '/admin/produits');
+          }}
         />
       )}
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -7,9 +7,10 @@ import { supabase } from '../../api/supabaseClient';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { rules } from '../../utils/validation';
 import { 
-  Trash2, Plus, Minus, ArrowLeft, ShoppingBag, User, MapPin, 
-  CreditCard, CheckCircle2, Loader2, MessageCircle, Printer, Phone, Mail, Navigation2, X
+  ShoppingBag, User, MapPin, 
+  CreditCard, CheckCircle2, Loader2, MessageCircle, Printer, X, Plus, Minus
 } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
 
@@ -20,6 +21,26 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
+
+// Composant champ du formulaire commande avec étoile + erreur inline
+const OrderField = ({ label, required, value, error, children, className = '' }) => {
+  const isFilled = value !== '' && value !== null && String(value).trim() !== '';
+  return (
+    <div className={`space-y-1.5 ${className}`}>
+      <label className="flex items-center gap-1 text-[9px] font-black uppercase text-gray-400 ml-4 tracking-widest">
+        {label}
+        {required && !isFilled && <span className="text-red-500 text-xs">★</span>}
+        {required && isFilled && !error && <span className="text-dakora-green text-xs">✓</span>}
+      </label>
+      {children}
+      {error && (
+        <p className="text-[10px] text-red-500 font-bold ml-4 flex items-center gap-1 animate-in slide-in-from-top-1 duration-150">
+          ⚠ {error}
+        </p>
+      )}
+    </div>
+  );
+};
 
 const CartPage = () => {
   const { cart, updateQuantity, removeFromCart, totalAmount, clearCart } = useCart();
@@ -40,9 +61,9 @@ const CartPage = () => {
     delivery_mode: 'retrait',
     address: '',
     city: 'Douala',
-    payment_mode: 'Cash',
+    payment_mode: '',
     payment_ref: '',
-    latitude: 4.0511, // Douala par défaut
+    latitude: 4.0511,
     longitude: 9.7679
   });
 
@@ -58,19 +79,27 @@ const CartPage = () => {
 
   const handlePrint = () => window.print();
 
-  // Validation des champs obligatoires
+  // Validation avec les règles centralisées
   const validate = () => {
     const newErrors = {};
-    if (!orderData.customer_first_name.trim()) newErrors.customer_first_name = 'Le prénom est obligatoire';
-    if (!orderData.customer_last_name.trim()) newErrors.customer_last_name = 'Le nom est obligatoire';
-    if (!orderData.phone.trim()) newErrors.phone = 'Le téléphone est obligatoire';
+    const firstNameErr = rules.nameFr(orderData.customer_first_name);
+    const lastNameErr  = rules.nameFr(orderData.customer_last_name);
+    const phoneErr     = rules.phone(orderData.phone);
+    const emailErr     = rules.email(orderData.email);
+    if (firstNameErr) newErrors.customer_first_name = firstNameErr;
+    if (lastNameErr)  newErrors.customer_last_name  = lastNameErr;
+    if (phoneErr)     newErrors.phone               = phoneErr;
+    if (emailErr)     newErrors.email               = emailErr;
     if (!orderData.delivery_mode) newErrors.delivery_mode = 'Choisissez un mode de livraison';
-    if (!orderData.payment_mode) newErrors.payment_mode = 'Choisissez un mode de paiement';
-    if (orderData.delivery_mode === 'domicile' && !orderData.address.trim()) newErrors.address = "L'adresse est obligatoire pour la livraison à domicile";
+    if (!orderData.payment_mode)  newErrors.payment_mode  = 'Choisissez un mode de paiement';
+    if (orderData.delivery_mode === 'domicile' && !orderData.address.trim())
+      newErrors.address = "L'adresse est obligatoire pour la livraison à domicile";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // Effacement de l'erreur dès que le champ est modifié
+  const clearErr = (field) => setErrors(p => ({ ...p, [field]: null }));
   const handleFinalizeOrder = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -245,27 +274,32 @@ const CartPage = () => {
                 <h3 className="text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white italic">Informations Client</h3>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black uppercase text-gray-400 ml-4">Prénom *</label>
-                  <input type="text" value={orderData.customer_first_name} onChange={e => { setOrderData({...orderData, customer_first_name: e.target.value}); setErrors(p => ({...p, customer_first_name: ''})); }} className={`input-pro w-full ${errors.customer_first_name ? 'ring-2 ring-red-400' : ''}`} />
-                  {errors.customer_first_name && <p className="text-[10px] text-red-500 font-bold ml-4 mt-1">{errors.customer_first_name}</p>}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black uppercase text-gray-400 ml-4">Nom *</label>
-                  <input type="text" value={orderData.customer_last_name} onChange={e => { setOrderData({...orderData, customer_last_name: e.target.value}); setErrors(p => ({...p, customer_last_name: ''})); }} className={`input-pro w-full ${errors.customer_last_name ? 'ring-2 ring-red-400' : ''}`} />
-                  {errors.customer_last_name && <p className="text-[10px] text-red-500 font-bold ml-4 mt-1">{errors.customer_last_name}</p>}
-                </div>
+                <OrderField label="Prénom" required value={orderData.customer_first_name} error={errors.customer_first_name}>
+                  <input type="text" value={orderData.customer_first_name}
+                    onChange={e => { setOrderData({...orderData, customer_first_name: e.target.value}); clearErr('customer_first_name'); }}
+                    className={`input-pro w-full ${errors.customer_first_name ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                    placeholder="Jean"/>
+                </OrderField>
+                <OrderField label="Nom" required value={orderData.customer_last_name} error={errors.customer_last_name}>
+                  <input type="text" value={orderData.customer_last_name}
+                    onChange={e => { setOrderData({...orderData, customer_last_name: e.target.value}); clearErr('customer_last_name'); }}
+                    className={`input-pro w-full ${errors.customer_last_name ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                    placeholder="Dupont"/>
+                </OrderField>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black uppercase text-gray-400 ml-4">Téléphone *</label>
-                  <input type="tel" value={orderData.phone} onChange={e => { setOrderData({...orderData, phone: e.target.value}); setErrors(p => ({...p, phone: ''})); }} className={`input-pro w-full font-black ${errors.phone ? 'ring-2 ring-red-400' : ''}`} />
-                  {errors.phone && <p className="text-[10px] text-red-500 font-bold ml-4 mt-1">{errors.phone}</p>}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black uppercase text-gray-400 ml-4">Email</label>
-                  <input type="email" value={orderData.email} onChange={e => setOrderData({...orderData, email: e.target.value})} className="input-pro w-full" />
-                </div>
+                <OrderField label="Téléphone" required value={orderData.phone} error={errors.phone}>
+                  <input type="tel" value={orderData.phone}
+                    onChange={e => { setOrderData({...orderData, phone: e.target.value}); clearErr('phone'); }}
+                    className={`input-pro w-full font-black ${errors.phone ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                    placeholder="690000000"/>
+                </OrderField>
+                <OrderField label="Email" value={orderData.email} error={errors.email}>
+                  <input type="email" value={orderData.email}
+                    onChange={e => { setOrderData({...orderData, email: e.target.value}); clearErr('email'); }}
+                    className={`input-pro w-full ${errors.email ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                    placeholder="jean@email.com"/>
+                </OrderField>
               </div>
             </div>
 
@@ -273,17 +307,37 @@ const CartPage = () => {
             <div className="space-y-6">
               <div className="flex items-center gap-2 border-b border-dakora-green/10 pb-4">
                 <MapPin size={18} className="text-dakora-green"/>
-                <h3 className="text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white italic">Mode de Livraison</h3>
+                <h3 className="text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white italic">
+                  Mode de Livraison <span className="text-red-500 text-xs">★</span>
+                </h3>
               </div>
               <div className="flex gap-3">
-                <button type="button" onClick={() => { setOrderData({...orderData, delivery_mode: 'retrait'}); setErrors(p => ({...p, delivery_mode: ''})); }} className={`flex-1 py-4 rounded-2xl border-2 text-[10px] font-black uppercase transition-all ${orderData.delivery_mode === 'retrait' ? 'border-dakora-green bg-dakora-green/5 text-dakora-green shadow-inner' : 'border-transparent bg-gray-100 dark:bg-white/5 text-gray-400'}`}>Boutique</button>
-                <button type="button" onClick={() => { setOrderData({...orderData, delivery_mode: 'domicile'}); setErrors(p => ({...p, delivery_mode: ''})); }} className={`flex-1 py-4 rounded-2xl border-2 text-[10px] font-black uppercase transition-all ${orderData.delivery_mode === 'domicile' ? 'border-dakora-green bg-dakora-green/5 text-dakora-green shadow-inner' : 'border-transparent bg-gray-100 dark:bg-white/5 text-gray-400'}`}>Domicile</button>
+                {[
+                  { val: 'retrait', label: '🏪 Boutique' },
+                  { val: 'domicile', label: '🏠 Domicile' }
+                ].map(opt => (
+                  <button key={opt.val} type="button"
+                    onClick={() => { setOrderData(p => ({...p, delivery_mode: opt.val})); clearErr('delivery_mode'); }}
+                    className={`flex-1 py-4 rounded-2xl border-2 text-[10px] font-black uppercase transition-all ${
+                      orderData.delivery_mode === opt.val
+                        ? 'border-dakora-green bg-dakora-green/5 text-dakora-green shadow-inner'
+                        : errors.delivery_mode
+                          ? 'border-red-300 bg-red-50/30 text-gray-400'
+                          : 'border-transparent bg-gray-100 dark:bg-white/5 text-gray-400'
+                    }`}>
+                    {opt.label}
+                  </button>
+                ))}
               </div>
-              {errors.delivery_mode && <p className="text-[10px] text-red-500 font-bold ml-4">{errors.delivery_mode}</p>}
+              {errors.delivery_mode && (
+                <p className="text-[10px] text-red-500 font-bold ml-4 flex items-center gap-1">⚠ {errors.delivery_mode}</p>
+              )}
 
               {orderData.delivery_mode === 'domicile' && (
                 <div className="space-y-4 animate-in slide-in-from-top-4 duration-500">
-                  <label className="text-[9px] font-black uppercase text-gray-400 ml-4">Pointer votre adresse sur la carte :</label>
+                  <p className="text-[9px] font-black uppercase text-gray-400 ml-4">
+                    Pointer votre adresse sur la carte :
+                  </p>
                   <div className="h-48 rounded-[2rem] overflow-hidden border border-black/5 shadow-2xl relative z-0">
                     <MapContainer center={[4.0511, 9.7679]} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
                       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -292,8 +346,20 @@ const CartPage = () => {
                     </MapContainer>
                     <div className="absolute top-2 right-2 bg-white/80 p-2 rounded-lg text-[8px] font-bold z-[400] text-dakora-green shadow-sm">GPS OK</div>
                   </div>
-                  <input type="text" placeholder="Quartier, porte, détails..." value={orderData.address} onChange={e => { setOrderData({...orderData, address: e.target.value}); setErrors(p => ({...p, address: ''})); }} className={`input-pro w-full ${errors.address ? 'ring-2 ring-red-400' : ''}`} />
-                  {errors.address && <p className="text-[10px] text-red-500 font-bold ml-4 mt-1">{errors.address}</p>}
+                  <OrderField
+                    label="Adresse (quartier, porte, détails…)"
+                    required
+                    value={orderData.address}
+                    error={errors.address}
+                  >
+                    <input
+                      type="text"
+                      value={orderData.address}
+                      onChange={e => { setOrderData(p => ({...p, address: e.target.value})); clearErr('address'); }}
+                      placeholder="ex: Akwa, Rue de la Joie, porte 12"
+                      className={`input-pro w-full ${errors.address ? 'ring-2 ring-red-400 bg-red-50/50 dark:bg-red-500/5' : ''}`}
+                    />
+                  </OrderField>
                 </div>
               )}
             </div>
@@ -302,14 +368,34 @@ const CartPage = () => {
             <div className="space-y-6">
               <div className="flex items-center gap-2 border-b border-dakora-green/10 pb-4">
                 <CreditCard size={18} className="text-dakora-green"/>
-                <h3 className="text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white italic">Paiement</h3>
+                <h3 className="text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white italic">
+                  Paiement <span className="text-red-500 text-xs">★</span>
+                </h3>
               </div>
               <div className="space-y-4">
-                <select value={orderData.payment_mode} onChange={e => setOrderData({...orderData, payment_mode: e.target.value})} className="input-pro w-full font-black uppercase text-xs">
+                <select
+                  value={orderData.payment_mode}
+                  onChange={e => { setOrderData(p => ({...p, payment_mode: e.target.value})); clearErr('payment_mode'); }}
+                  className={`input-pro w-full font-black uppercase text-xs ${errors.payment_mode ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                >
+                  <option value="">— Choisir un mode de paiement —</option>
                   <option value="Cash">💵 Cash à la livraison</option>
                   <option value="WhatsApp">💬 Payer via WhatsApp</option>
+                  <option value="MoMo">📱 MTN Mobile Money</option>
+                  <option value="OM">🟠 Orange Money</option>
                 </select>
-                {orderData.payment_mode !== 'Cash' && <input type="text" placeholder="Réf. transaction (optionnel)" value={orderData.payment_ref} onChange={e => setOrderData({...orderData, payment_ref: e.target.value})} className="input-pro w-full text-[10px]" />}
+                {errors.payment_mode && (
+                  <p className="text-[10px] text-red-500 font-bold ml-4 flex items-center gap-1">⚠ {errors.payment_mode}</p>
+                )}
+                {orderData.payment_mode && orderData.payment_mode !== 'Cash' && (
+                  <input
+                    type="text"
+                    placeholder="Réf. transaction (optionnel)"
+                    value={orderData.payment_ref}
+                    onChange={e => setOrderData(p => ({...p, payment_ref: e.target.value}))}
+                    className="input-pro w-full text-[10px]"
+                  />
+                )}
               </div>
             </div>
 

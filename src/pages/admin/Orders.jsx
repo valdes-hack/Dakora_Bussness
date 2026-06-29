@@ -7,6 +7,7 @@ import {
   Package, MapPin, Phone, Mail, User, 
   CheckCircle2, XCircle, Truck, Eye, X, FileText, Navigation, CreditCard
 } from 'lucide-react';
+import { createNotification } from '../../utils/notify';
 
 const Orders = () => {
   const { t, language } = useLanguage();
@@ -29,6 +30,10 @@ const Orders = () => {
 
   const updateStatus = async (id, newStatus) => {
     await supabase.from('orders').update({ status: newStatus }).eq('id', id);
+    const order = orders.find(o => o.id === id);
+    const ref = id.slice(0, 8).toUpperCase();
+    const client = order ? `${order.customer_first_name} ${order.customer_last_name}` : '';
+    createNotification(`Commande #${ref} → ${newStatus} (${client})`, 'order', '/admin/commandes');
     fetchOrders();
     setSelectedOrder(null);
   };

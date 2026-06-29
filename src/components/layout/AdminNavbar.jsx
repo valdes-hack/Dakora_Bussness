@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../api/supabaseClient';
 import { useNavigate } from 'react-router-dom';
+import { parseNotification, typeIcon, typeColor } from '../../utils/notify';
 
 const AdminNavbar = ({ onMenuClick }) => {
   const { language, setLanguage, t } = useLanguage();
@@ -83,19 +84,31 @@ const AdminNavbar = ({ onMenuClick }) => {
               <div className="max-h-[350px] overflow-y-auto custom-scrollbar">
                 {notifications.length === 0 ? (
                   <div className="p-10 text-center text-gray-400 italic text-xs">{t('notif_empty')}</div>
-                ) : notifications.map(n => (
-                  <div
-                    key={n.id}
-                    onClick={() => { markAsRead(n.id); navigate('/admin/commandes'); setShowNotifs(false); }}
-                    className={`p-4 border-b border-black/5 dark:border-white/5 cursor-pointer transition-all hover:bg-dakora-green/5 flex gap-4 items-start ${!n.is_read ? 'bg-dakora-green/[0.02]' : 'opacity-60'}`}
-                  >
-                    <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${!n.is_read ? 'bg-dakora-green shadow-[0_0_10px_rgba(45,90,39,0.5)]' : 'bg-gray-300'}`} />
-                    <div className="space-y-1">
-                      <p className={`text-xs leading-snug ${!n.is_read ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-500 font-medium'}`}>{n.message}</p>
-                      <p className="text-[8px] text-gray-400 font-bold uppercase">{new Date(n.created_at).toLocaleTimeString()}</p>
+                ) : notifications.map(n => {
+                  const parsed = parseNotification(n.message);
+                  const dest = parsed.link || '/admin/dashboard';
+                  return (
+                    <div
+                      key={n.id}
+                      onClick={() => { markAsRead(n.id); navigate(dest); setShowNotifs(false); }}
+                      className={`p-4 border-b border-black/5 dark:border-white/5 cursor-pointer transition-all hover:bg-dakora-green/5 flex gap-3 items-start ${!n.is_read ? 'bg-dakora-green/[0.02]' : 'opacity-60'}`}
+                    >
+                      {/* Icône type */}
+                      <div className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center text-base mt-0.5 ${typeColor(parsed.type)}`}>
+                        {typeIcon(parsed.type)}
+                      </div>
+                      <div className="flex-grow min-w-0 space-y-1">
+                        <p className={`text-xs leading-snug ${!n.is_read ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-500 font-medium'}`}>
+                          {parsed.message}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-[8px] text-gray-400 font-bold uppercase">{new Date(n.created_at).toLocaleTimeString()}</p>
+                          {!n.is_read && <span className="w-1.5 h-1.5 rounded-full bg-dakora-green flex-shrink-0"/>}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
