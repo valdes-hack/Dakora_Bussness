@@ -13,7 +13,7 @@ import {
 
 const ProfileSettings = () => {
   const { t, language } = useLanguage();
-  const { user, profile } = useAuth();
+  const { user, profile, fetchProfile } = useAuth();
   const { refreshSettings } = useSettings();
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
@@ -92,11 +92,15 @@ const ProfileSettings = () => {
         const { data: urlData } = supabase.storage.from('products').getPublicUrl(fileName);
         photoUrl = urlData.publicUrl;
       }
-      const { error } = await supabase.from('profiles').update({
-        username: profileData.username, full_name: profileData.full_name,
-        profile_photo_url: photoUrl, updated_at: new Date().toISOString()
-      }).eq('id', user.id);
+      const { error } = await supabase.from('profiles').upsert({
+        id: user.id,
+        username: profileData.username,
+        full_name: profileData.full_name,
+        profile_photo_url: photoUrl,
+        updated_at: new Date().toISOString()
+      });
       if (error) throw error;
+      await fetchProfile(user.id);
       showSaved();
       createNotification(`Profil mis à jour : ${profileData.username}`, 'settings', '/admin/profil');
     } catch (err) { alert('Erreur : ' + err.message); }

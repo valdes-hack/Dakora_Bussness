@@ -102,12 +102,23 @@ const Orders = () => {
               </div>
 
               {/* ACTION */}
-              <button 
-                onClick={() => { setSelectedOrder(order); setActiveTab('invoice'); }}
-                className="p-4 bg-dakora-green text-white rounded-2xl shadow-lg hover:scale-110 transition-all active:scale-95"
-              >
-                <Eye size={20} />
-              </button>
+              <div className="flex gap-2">
+                <a 
+                  href={`https://wa.me/${order.phone.replace(/[^0-9]/g, '').length === 9 ? '237' + order.phone.replace(/[^0-9]/g, '') : order.phone.replace(/[^0-9]/g, '')}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-4 bg-[#25D366] text-white rounded-2xl shadow-lg hover:scale-110 transition-all active:scale-95 flex items-center justify-center"
+                  title="Discuter sur WhatsApp"
+                >
+                  <svg viewBox="0 0 32 32" className="w-5 h-5 fill-current"><path d="M16.004 2C8.28 2 2 8.28 2 16.004c0 2.46.643 4.867 1.864 6.99L2 30l7.228-1.895A13.94 13.94 0 0016.004 30C23.72 30 30 23.72 30 16.004 30 8.28 23.72 2 16.004 2zm6.27 19.878c-.343-.172-2.034-1.003-2.348-1.118-.314-.115-.544-.172-.773.172-.229.344-.887 1.118-1.088 1.348-.2.23-.4.258-.743.086-.344-.172-1.452-.535-2.766-1.708-1.022-.913-1.713-2.04-1.913-2.383-.2-.344-.022-.53.15-.7.155-.154.344-.402.516-.603.172-.2.229-.344.344-.573.115-.23.057-.43-.029-.602-.086-.173-.773-1.862-1.059-2.551-.279-.67-.562-.579-.773-.59l-.657-.011a1.261 1.261 0 00-.916.43c-.314.343-1.203 1.175-1.203 2.866s1.23 3.322 1.402 3.552c.172.23 2.42 3.695 5.866 5.183.82.354 1.46.566 1.96.724.824.261 1.573.224 2.165.136.66-.099 2.034-.831 2.32-1.634.286-.802.286-1.49.2-1.634-.085-.143-.314-.229-.657-.4z"/></svg>
+                </a>
+                <button 
+                  onClick={() => { setSelectedOrder(order); setActiveTab('invoice'); }}
+                  className="p-4 bg-dakora-green text-white rounded-2xl shadow-lg hover:scale-110 transition-all active:scale-95"
+                >
+                  <Eye size={20} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -148,30 +159,73 @@ const Orders = () => {
             {/* CONTENU VARIABLE */}
             <div className="flex-grow overflow-y-auto p-8 custom-scrollbar">
               
-              {/* TABS : FACTURE (ARTICLES) */}
+              {/* TABS : FACTURE (ARTICLES & INFOS) */}
               {activeTab === 'invoice' && (
                 <div className="space-y-6 animate-in fade-in duration-300">
+                  
+                  {/* Résumé des informations saisies par le client */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50 dark:bg-neutral-800/50 rounded-[2rem] border border-black/5 dark:border-white/5">
+                    <div className="space-y-1.5">
+                      <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Facturé à (Client) :</p>
+                      <p className="text-base font-black dark:text-white uppercase">
+                        {selectedOrder.customer_first_name} {selectedOrder.customer_last_name}
+                      </p>
+                      <a href={`tel:${selectedOrder.phone}`} className="text-xs font-bold text-dakora-green hover:underline flex items-center gap-1.5">
+                        <Phone size={12}/> {selectedOrder.phone}
+                      </a>
+                      {selectedOrder.email && (
+                        <p className="text-xs text-gray-400 flex items-center gap-1.5">
+                          <Mail size={12}/> {selectedOrder.email}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5 md:text-right flex flex-col md:items-end">
+                      <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Livraison & Paiement :</p>
+                      <p className="text-xs font-black dark:text-white uppercase flex items-center gap-1.5">
+                        <Truck size={12} className="text-dakora-green"/> {selectedOrder.delivery_mode === 'retrait' ? 'Retrait en boutique' : 'Livraison à domicile'}
+                      </p>
+                      <p className="text-[10px] text-gray-400 italic max-w-xs">{selectedOrder.address || 'Aucune adresse fournie'}</p>
+                      <p className="text-xs font-bold text-dakora-green mt-1 flex items-center gap-1.5">
+                        <CreditCard size={12}/> Mode : {selectedOrder.payment_mode}
+                      </p>
+                      {selectedOrder.payment_ref && (
+                        <p className="text-[9px] font-mono bg-orange-500/10 text-orange-500 px-2 py-0.5 rounded-md">
+                          RÉF: {selectedOrder.payment_ref}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Liste des articles */}
                   <div className="space-y-4">
-                    {selectedOrder.order_items?.map((item, idx) => (
-                      <div key={idx} className="flex justify-between items-center p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-black/5">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-dakora-green text-white rounded-xl flex items-center justify-center font-black">{idx + 1}</div>
-                          <div>
-                            <p className="font-black dark:text-white uppercase text-sm">
-                              {language === 'fr' ? item.variants?.products?.name_fr : item.variants?.products?.name_en}
-                            </p>
-                            <p className="text-[10px] font-bold text-dakora-green uppercase tracking-widest">
-                              {language === 'fr' ? item.variants?.label_fr : item.variants?.label_en}
-                            </p>
+                    {selectedOrder.order_items && selectedOrder.order_items.length > 0 ? (
+                      selectedOrder.order_items.map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-black/5">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-dakora-green text-white rounded-xl flex items-center justify-center font-black">{idx + 1}</div>
+                            <div>
+                              <p className="font-black dark:text-white uppercase text-sm">
+                                {language === 'fr' ? item.variants?.products?.name_fr : item.variants?.products?.name_en}
+                              </p>
+                              <p className="text-[10px] font-bold text-dakora-green uppercase tracking-widest">
+                                {language === 'fr' ? item.variants?.label_fr : item.variants?.label_en}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs font-black dark:text-white">x{item.quantity}</p>
+                            <p className="text-xs font-bold text-gray-400">{(item.unit_price * item.quantity).toLocaleString()} FCFA</p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-xs font-black dark:text-white">x{item.quantity}</p>
-                          <p className="text-xs font-bold text-gray-400">{(item.unit_price * item.quantity).toLocaleString()} FCFA</p>
-                        </div>
+                      ))
+                    ) : (
+                      <div className="p-10 text-center bg-gray-50 dark:bg-white/5 rounded-[2rem] border border-dashed border-gray-200 dark:border-white/10 text-gray-400 italic text-xs">
+                        Aucun article enregistré pour cette commande (RLS bloquant lors de l'achat).
                       </div>
-                    ))}
+                    )}
                   </div>
+
+                  {/* Montant total */}
                   <div className="p-6 bg-dakora-green/10 rounded-[2rem] flex justify-between items-end border border-dakora-green/20">
                      <span className="text-xs font-black text-dakora-green uppercase tracking-widest">{t('order_total')}</span>
                      <span className="text-3xl font-black text-dakora-green tracking-tighter">{selectedOrder.total_amount?.toLocaleString()} FCFA</span>
