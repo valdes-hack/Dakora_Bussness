@@ -227,5 +227,20 @@
   "home_featured_title": "Featured Products",
   "home_featured_subtitle": "Discover our selection of high-performance equipment.",
   "view_all_products": "View all products",
-  "shop_now": "Shop now"
+  "shop_now": "Shop now",
+  "nav_stories": "Stories",
+  "stories_title": "Stories Management",
+  "stories_subtitle": "Publish and share your visual content.",
+  "whatsapp_float_msg": "Hello Dakora Business 👋 I would like to get information about your agricultural equipment.",
+  "search_placeholder": "Search products, categories...",
+  "search_no_results": "No results for",
+  "search_section_products": "Products",
+  "search_section_categories": "Categories",
+  "err_first_name": "First name is required",
+  "err_last_name": "Last name is required",
+  "err_phone": "Phone number is required",
+  "err_delivery_mode": "Please choose a delivery method",
+  "err_payment_mode": "Please choose a payment method",
+  "err_address": "Address is required for home delivery",
+  "img_unavailable": "Image unavailable"
 }

@@ -226,5 +226,20 @@
   "home_featured_title": "Produits Phares",
   "home_featured_subtitle": "Découvrez notre sélection de matériel haute performance.",
   "view_all_products": "Voir tout le catalogue",
-  "shop_now": "Acheter maintenant"
+  "shop_now": "Acheter maintenant",
+  "nav_stories": "Stories",
+  "stories_title": "Gestion des Stories",
+  "stories_subtitle": "Publiez et partagez vos contenus visuels.",
+  "whatsapp_float_msg": "Bonjour Dakora Business 👋 Je souhaite obtenir des informations sur vos équipements agricoles.",
+  "search_placeholder": "Rechercher un produit, catégorie...",
+  "search_no_results": "Aucun résultat pour",
+  "search_section_products": "Produits",
+  "search_section_categories": "Catégories",
+  "err_first_name": "Le prénom est obligatoire",
+  "err_last_name": "Le nom est obligatoire",
+  "err_phone": "Le téléphone est obligatoire",
+  "err_delivery_mode": "Choisissez un mode de livraison",
+  "err_payment_mode": "Choisissez un mode de paiement",
+  "err_address": "L'adresse est obligatoire pour la livraison à domicile",
+  "img_unavailable": "Image indisponible"
 }

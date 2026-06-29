@@ -18,6 +18,7 @@ const Orders         = lazy(() => import('../pages/admin/Orders'));
 const ProfileSettings = lazy(() => import('../pages/admin/ProfileSettings'));
 const Categories     = lazy(() => import('../pages/admin/Categories'));
 const Products       = lazy(() => import('../pages/admin/Products'));
+const Stories        = lazy(() => import('../pages/admin/Stories'));
 
 // Skeleton générique pendant le chargement d'une page
 const PageLoader = () => (
@@ -70,6 +71,9 @@ const AppRoutes = () => {
         } />
         <Route path="/admin/produits" element={
           <Suspense fallback={<PageLoader />}><Products /></Suspense>
+        } />
+        <Route path="/admin/stories" element={
+          <Suspense fallback={<PageLoader />}><Stories /></Suspense>
         } />
       </Route>
 

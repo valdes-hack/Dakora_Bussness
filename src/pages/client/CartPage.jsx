@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useSettings } from '../../context/SettingsContext';
 import { supabase } from '../../api/supabaseClient';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { 
   Trash2, Plus, Minus, ArrowLeft, ShoppingBag, User, MapPin, 
-  CreditCard, CheckCircle2, Loader2, MessageCircle, Printer, Phone, Mail, Navigation2
+  CreditCard, CheckCircle2, Loader2, MessageCircle, Printer, Phone, Mail, Navigation2, X
 } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
 
@@ -23,9 +24,12 @@ L.Icon.Default.mergeOptions({
 const CartPage = () => {
   const { cart, updateQuantity, removeFromCart, totalAmount, clearCart } = useCart();
   const { t, language } = useLanguage();
+  const { settings } = useSettings();
   const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [orderNum, setOrderNum] = useState('');
+  // Erreurs de validation par champ
+  const [errors, setErrors] = useState({});
 
   // --- ÉTAT ALIGNÉ SUR TA BD (100% RESPECTÉ) ---
   const [orderData, setOrderData] = useState({
@@ -54,8 +58,22 @@ const CartPage = () => {
 
   const handlePrint = () => window.print();
 
+  // Validation des champs obligatoires
+  const validate = () => {
+    const newErrors = {};
+    if (!orderData.customer_first_name.trim()) newErrors.customer_first_name = 'Le prénom est obligatoire';
+    if (!orderData.customer_last_name.trim()) newErrors.customer_last_name = 'Le nom est obligatoire';
+    if (!orderData.phone.trim()) newErrors.phone = 'Le téléphone est obligatoire';
+    if (!orderData.delivery_mode) newErrors.delivery_mode = 'Choisissez un mode de livraison';
+    if (!orderData.payment_mode) newErrors.payment_mode = 'Choisissez un mode de paiement';
+    if (orderData.delivery_mode === 'domicile' && !orderData.address.trim()) newErrors.address = "L'adresse est obligatoire pour la livraison à domicile";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleFinalizeOrder = async (e) => {
     e.preventDefault();
+    if (!validate()) return;
     setLoading(true);
     try {
       // 1. Insertion table 'orders'
@@ -89,9 +107,10 @@ const CartPage = () => {
       const ref = order.id.slice(0, 8).toUpperCase();
       setOrderNum(ref);
       
-      // WhatsApp
-      const whatsappMsg = `*NOUVELLE COMMANDE #${ref}*\nClient: ${orderData.customer_first_name}\nPosition: https://www.google.com/maps?q=${orderData.latitude},${orderData.longitude}`;
-      window.open(`https://wa.me/2376XXXXXXXX?text=${encodeURIComponent(whatsappMsg)}`, '_blank');
+      // WhatsApp — utilise le numéro configuré dans les settings
+      const waNumber = settings.whatsapp_number || '237690000000';
+      const whatsappMsg = `*NOUVELLE COMMANDE #${ref}*\nClient: ${orderData.customer_first_name} ${orderData.customer_last_name}\nTél: ${orderData.phone}\nLivraison: ${orderData.delivery_mode}\nPaiement: ${orderData.payment_mode}\nMontant: ${totalAmount.toLocaleString()} FCFA\nPosition: https://www.google.com/maps?q=${orderData.latitude},${orderData.longitude}`;
+      window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(whatsappMsg)}`, '_blank');
       
       setIsSuccess(true);
       clearCart();
@@ -159,18 +178,47 @@ const CartPage = () => {
 
           <div className="space-y-4 mb-16">
             <div className="grid grid-cols-12 pb-4 border-b-2 border-black/5 text-[10px] font-black uppercase text-gray-400">
-              <div className="col-span-8">Description du Matériel</div>
+              <div className="col-span-7">Description du Matériel</div>
               <div className="col-span-2 text-center">Qté</div>
               <div className="col-span-2 text-right">Total</div>
+              <div className="col-span-1"></div>
             </div>
             {cart.map(item => (
               <div key={item.id} className="grid grid-cols-12 py-3 items-center border-b border-black/5 animate-in slide-in-from-left-2">
-                <div className="col-span-8">
-                  <p className="font-black dark:text-white uppercase text-sm tracking-tight">{language === 'fr' ? item.name_fr : item.name_en}</p>
-                  <p className="text-[9px] font-bold text-dakora-green uppercase tracking-widest">{language === 'fr' ? item.variant_label_fr : item.variant_label_en}</p>
+                <div className="col-span-7 flex items-center gap-3">
+                  {/* Miniature produit */}
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.name_fr}
+                      loading="lazy"
+                      className="w-10 h-10 rounded-xl object-cover flex-shrink-0 border border-black/5 print:hidden"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-lg flex-shrink-0 print:hidden">📦</div>
+                  )}
+                  <div>
+                    <p className="font-black dark:text-white uppercase text-sm tracking-tight">{language === 'fr' ? item.name_fr : item.name_en}</p>
+                    <p className="text-[9px] font-bold text-dakora-green uppercase tracking-widest">{language === 'fr' ? item.variant_label_fr : item.variant_label_en}</p>
+                  </div>
                 </div>
-                <div className="col-span-2 text-center font-bold dark:text-white">x{item.quantity}</div>
+                <div className="col-span-2 text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-6 h-6 rounded-lg bg-gray-100 dark:bg-white/10 flex items-center justify-center hover:bg-dakora-green hover:text-white transition-all print:hidden"><Minus size={10}/></button>
+                    <span className="font-bold dark:text-white text-sm w-6 text-center">{item.quantity}</span>
+                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-6 h-6 rounded-lg bg-gray-100 dark:bg-white/10 flex items-center justify-center hover:bg-dakora-green hover:text-white transition-all print:hidden"><Plus size={10}/></button>
+                  </div>
+                </div>
                 <div className="col-span-2 text-right font-black dark:text-white">{(item.price * item.quantity).toLocaleString()}</div>
+                <div className="col-span-1 flex justify-end print:hidden">
+                  <button
+                    onClick={() => removeFromCart(item.id)}
+                    aria-label="Supprimer l'article"
+                    className="w-7 h-7 rounded-full bg-red-50 dark:bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center"
+                  >
+                    <X size={12}/>
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -199,17 +247,20 @@ const CartPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-[9px] font-black uppercase text-gray-400 ml-4">Prénom *</label>
-                  <input type="text" value={orderData.customer_first_name} onChange={e => setOrderData({...orderData, customer_first_name: e.target.value})} className="input-pro w-full" required />
+                  <input type="text" value={orderData.customer_first_name} onChange={e => { setOrderData({...orderData, customer_first_name: e.target.value}); setErrors(p => ({...p, customer_first_name: ''})); }} className={`input-pro w-full ${errors.customer_first_name ? 'ring-2 ring-red-400' : ''}`} />
+                  {errors.customer_first_name && <p className="text-[10px] text-red-500 font-bold ml-4 mt-1">{errors.customer_first_name}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-[9px] font-black uppercase text-gray-400 ml-4">Nom *</label>
-                  <input type="text" value={orderData.customer_last_name} onChange={e => setOrderData({...orderData, customer_last_name: e.target.value})} className="input-pro w-full" required />
+                  <input type="text" value={orderData.customer_last_name} onChange={e => { setOrderData({...orderData, customer_last_name: e.target.value}); setErrors(p => ({...p, customer_last_name: ''})); }} className={`input-pro w-full ${errors.customer_last_name ? 'ring-2 ring-red-400' : ''}`} />
+                  {errors.customer_last_name && <p className="text-[10px] text-red-500 font-bold ml-4 mt-1">{errors.customer_last_name}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-[9px] font-black uppercase text-gray-400 ml-4">Téléphone *</label>
-                  <input type="tel" value={orderData.phone} onChange={e => setOrderData({...orderData, phone: e.target.value})} className="input-pro w-full font-black" required />
+                  <input type="tel" value={orderData.phone} onChange={e => { setOrderData({...orderData, phone: e.target.value}); setErrors(p => ({...p, phone: ''})); }} className={`input-pro w-full font-black ${errors.phone ? 'ring-2 ring-red-400' : ''}`} />
+                  {errors.phone && <p className="text-[10px] text-red-500 font-bold ml-4 mt-1">{errors.phone}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-[9px] font-black uppercase text-gray-400 ml-4">Email</label>
@@ -225,9 +276,10 @@ const CartPage = () => {
                 <h3 className="text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white italic">Mode de Livraison</h3>
               </div>
               <div className="flex gap-3">
-                <button type="button" onClick={() => setOrderData({...orderData, delivery_mode: 'retrait'})} className={`flex-1 py-4 rounded-2xl border-2 text-[10px] font-black uppercase transition-all ${orderData.delivery_mode === 'retrait' ? 'border-dakora-green bg-dakora-green/5 text-dakora-green shadow-inner' : 'border-transparent bg-gray-100 dark:bg-white/5 text-gray-400'}`}>Boutique</button>
-                <button type="button" onClick={() => setOrderData({...orderData, delivery_mode: 'domicile'})} className={`flex-1 py-4 rounded-2xl border-2 text-[10px] font-black uppercase transition-all ${orderData.delivery_mode === 'domicile' ? 'border-dakora-green bg-dakora-green/5 text-dakora-green shadow-inner' : 'border-transparent bg-gray-100 dark:bg-white/5 text-gray-400'}`}>Domicile</button>
+                <button type="button" onClick={() => { setOrderData({...orderData, delivery_mode: 'retrait'}); setErrors(p => ({...p, delivery_mode: ''})); }} className={`flex-1 py-4 rounded-2xl border-2 text-[10px] font-black uppercase transition-all ${orderData.delivery_mode === 'retrait' ? 'border-dakora-green bg-dakora-green/5 text-dakora-green shadow-inner' : 'border-transparent bg-gray-100 dark:bg-white/5 text-gray-400'}`}>Boutique</button>
+                <button type="button" onClick={() => { setOrderData({...orderData, delivery_mode: 'domicile'}); setErrors(p => ({...p, delivery_mode: ''})); }} className={`flex-1 py-4 rounded-2xl border-2 text-[10px] font-black uppercase transition-all ${orderData.delivery_mode === 'domicile' ? 'border-dakora-green bg-dakora-green/5 text-dakora-green shadow-inner' : 'border-transparent bg-gray-100 dark:bg-white/5 text-gray-400'}`}>Domicile</button>
               </div>
+              {errors.delivery_mode && <p className="text-[10px] text-red-500 font-bold ml-4">{errors.delivery_mode}</p>}
 
               {orderData.delivery_mode === 'domicile' && (
                 <div className="space-y-4 animate-in slide-in-from-top-4 duration-500">
@@ -240,7 +292,8 @@ const CartPage = () => {
                     </MapContainer>
                     <div className="absolute top-2 right-2 bg-white/80 p-2 rounded-lg text-[8px] font-bold z-[400] text-dakora-green shadow-sm">GPS OK</div>
                   </div>
-                  <input type="text" placeholder="Quartier, porte, détails..." value={orderData.address} onChange={e => setOrderData({...orderData, address: e.target.value})} className="input-pro w-full" required />
+                  <input type="text" placeholder="Quartier, porte, détails..." value={orderData.address} onChange={e => { setOrderData({...orderData, address: e.target.value}); setErrors(p => ({...p, address: ''})); }} className={`input-pro w-full ${errors.address ? 'ring-2 ring-red-400' : ''}`} />
+                  {errors.address && <p className="text-[10px] text-red-500 font-bold ml-4 mt-1">{errors.address}</p>}
                 </div>
               )}
             </div>
@@ -263,7 +316,7 @@ const CartPage = () => {
             {/* BOUTON VALIDATION */}
             <button 
               type="submit" 
-              disabled={loading || !orderData.phone || !orderData.customer_first_name}
+              disabled={loading}
               className="w-full py-6 bg-dakora-green text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs shadow-2xl hover:bg-green-700 transition-all flex items-center justify-center gap-3 disabled:opacity-30 active:scale-95"
             >
               {loading ? <Loader2 className="animate-spin" size={24}/> : <><MessageCircle size={20}/> Valider & WhatsApp</>}

@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useCart } from '../../context/CartContext';
 import { useDataCache } from '../../context/DataCacheContext';
-import { ShoppingCart, Check } from 'lucide-react';
+import { useSettings } from '../../context/SettingsContext';
+import { ShoppingCart, Check, MessageSquare } from 'lucide-react';
 
 // ─── SKELETON ────────────────────────────────────────────────────────────────
 const SkeletonCard = () => (
@@ -18,7 +19,7 @@ const SkeletonCard = () => (
 );
 
 // ─── CARTE PRODUIT mémorisée ──────────────────────────────────────────────────
-const ProductCard = memo(({ product, language, t, onAddToCart, isAdded }) => {
+const ProductCard = memo(({ product, language, t, onAddToCart, onWhatsApp, isAdded }) => {
   const minPrice = useMemo(
     () => product.variants?.length
       ? Math.min(...product.variants.map(v => Number(v.price)))
@@ -28,23 +29,27 @@ const ProductCard = memo(({ product, language, t, onAddToCart, isAdded }) => {
   const imageUrl = product.product_images?.[0]?.url;
   const name     = language === 'fr' ? product.name_fr : product.name_en;
   const category = language === 'fr' ? product.categories?.name_fr : product.categories?.name_en;
+  const [imgError, setImgError] = useState(false);
 
   return (
     <div className="group bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md rounded-[3.5rem] p-4 border border-white/20 shadow-xl hover:shadow-dakora-green/10 transition-shadow duration-200 flex flex-col will-change-auto">
 
       <Link to={`/produit/${product.id}`}
         className="relative aspect-[4/5] rounded-[2.8rem] overflow-hidden mb-5 bg-gray-100 dark:bg-black/40 block">
-        {imageUrl ? (
+        {imageUrl && !imgError ? (
           <img
             src={imageUrl}
             loading="lazy"
             decoding="async"
-            fetchpriority="low"
+            onError={() => setImgError(true)}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-400"
             alt={name}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-4xl">📦</div>
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-neutral-800 dark:to-neutral-700">
+            <span className="text-5xl">📦</span>
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Image indisponible</span>
+          </div>
         )}
         {product.badge && (
           <span className="absolute top-5 left-5 px-3 py-1.5 bg-dakora-yellow text-yellow-900 text-[10px] font-black uppercase rounded-full shadow-lg">
@@ -62,21 +67,30 @@ const ProductCard = memo(({ product, language, t, onAddToCart, isAdded }) => {
             {name}
           </h3>
         </Link>
-        <div className="mt-auto flex items-end justify-between">
-          <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase">{t('price_from')}</p>
-            <p className="text-xl font-black text-gray-900 dark:text-white tracking-tighter">
-              {minPrice.toLocaleString()} <span className="text-xs text-dakora-green">FCFA</span>
-            </p>
+        <div className="mt-auto">
+          <div className="flex items-end justify-between mb-3">
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase">{t('price_from')}</p>
+              <p className="text-xl font-black text-gray-900 dark:text-white tracking-tighter">
+                {minPrice.toLocaleString()} <span className="text-xs text-dakora-green">FCFA</span>
+              </p>
+            </div>
+            <button
+              onClick={e => { e.preventDefault(); onAddToCart(product); }}
+              aria-label={t('add_to_cart')}
+              className={`p-4 rounded-2xl shadow transition-all duration-150 active:scale-90 ${
+                isAdded ? 'bg-green-500 text-white' : 'bg-dakora-green text-white hover:bg-green-700'
+              }`}
+            >
+              {isAdded ? <Check size={20} /> : <ShoppingCart size={20} />}
+            </button>
           </div>
+          {/* Bouton WhatsApp direct */}
           <button
-            onClick={e => { e.preventDefault(); onAddToCart(product); }}
-            aria-label={t('add_to_cart')}
-            className={`p-4 rounded-2xl shadow transition-all duration-150 active:scale-90 ${
-              isAdded ? 'bg-green-500 text-white' : 'bg-dakora-green text-white hover:bg-green-700'
-            }`}
+            onClick={e => { e.preventDefault(); onWhatsApp(product); }}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white border border-[#25D366]/20 text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
           >
-            {isAdded ? <Check size={20} /> : <ShoppingCart size={20} />}
+            <MessageSquare size={14}/> Commander
           </button>
         </div>
       </div>
@@ -89,7 +103,8 @@ ProductCard.displayName = 'ProductCard';
 const Shop = () => {
   const { t, language } = useLanguage();
   const { addToCart }   = useCart();
-  const { products, categories, ready } = useDataCache(); // ← lecture cache, 0ms
+  const { settings }    = useSettings();
+  const { products, categories, ready } = useDataCache();
 
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [addedId, setAddedId] = useState(null);
@@ -101,6 +116,16 @@ const Shop = () => {
     setAddedId(product.id);
     setTimeout(() => setAddedId(null), 1500);
   }, [addToCart]);
+
+  const handleWhatsApp = useCallback((product) => {
+    const waNumber = settings.whatsapp_number || '237690000000';
+    const name = language === 'fr' ? product.name_fr : product.name_en;
+    const minPrice = product.variants?.length
+      ? Math.min(...product.variants.map(v => Number(v.price)))
+      : 0;
+    const msg = `Bonjour Dakora Business 👋\nJe suis intéressé(e) par :\n*${name}* — à partir de ${minPrice.toLocaleString()} FCFA\nPouvez-vous m'en dire plus ?`;
+    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+  }, [settings.whatsapp_number, language]);
 
   // Filtrage mémorisé — ne recalcule que si la catégorie ou les produits changent
   const filteredProducts = useMemo(
@@ -167,6 +192,7 @@ const Shop = () => {
                 language={language}
                 t={t}
                 onAddToCart={handleAddToCart}
+                onWhatsApp={handleWhatsApp}
                 isAdded={addedId === product.id}
               />
             ))}
