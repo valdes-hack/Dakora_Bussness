@@ -122,25 +122,66 @@ const ProfileSettings = () => {
   };
 
   // ─── BANNIÈRES ────────────────────────────────────────
-  const handleAddBanner = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [bannerUrl, setBannerUrl] = useState('');
+
+  const handleAddBannersMultiple = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    setBannerLoading(true);
+    let successCount = 0;
+    let errors = [];
+
+    try {
+      for (const file of files) {
+        try {
+          const ext = file.name.split('.').pop();
+          const fileName = `banners/${Date.now()}_${Math.random().toString(36).substr(2, 5)}.${ext}`;
+          const { error: uploadErr } = await supabase.storage.from('products').upload(fileName, file, { cacheControl: '3600', upsert: false });
+          if (uploadErr) throw uploadErr;
+          
+          const { data: urlData } = supabase.storage.from('products').getPublicUrl(fileName);
+          const { error: insertErr } = await supabase.from('stories').insert([{
+            media_url: urlData.publicUrl, title_fr: 'Dakora Business', title_en: 'Dakora Business', is_active: true
+          }]);
+          if (insertErr) throw insertErr;
+          successCount++;
+        } catch (err) {
+          errors.push(`${file.name}: ${err.message}`);
+        }
+      }
+      
+      fetchBanners();
+      if (successCount > 0) {
+        createNotification(`${successCount} nouvelle(s) bannière(s) ajoutée(s)`, 'settings', '/admin/profil');
+      }
+      if (errors.length > 0) {
+        alert("Certains fichiers n'ont pas pu être importés :\n" + errors.join('\n'));
+      }
+    } finally {
+      setBannerLoading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleAddBannerByUrl = async (e) => {
+    e.preventDefault();
+    if (!bannerUrl.trim()) return;
     setBannerLoading(true);
     try {
-      const ext = file.name.split('.').pop();
-      const fileName = `banners/${Date.now()}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from('products').upload(fileName, file, { cacheControl: '3600', upsert: false });
-      if (uploadErr) throw uploadErr;
-      const { data: urlData } = supabase.storage.from('products').getPublicUrl(fileName);
       const { error: insertErr } = await supabase.from('stories').insert([{
-        media_url: urlData.publicUrl, title_fr: 'Dakora Business', title_en: 'Dakora Business', is_active: true
+        media_url: bannerUrl.trim(), title_fr: 'Dakora Business', title_en: 'Dakora Business', is_active: true
       }]);
       if (insertErr) throw insertErr;
+      setBannerUrl('');
+      setShowUrlInput(false);
       fetchBanners();
-      createNotification('Nouvelle bannière d\'accueil ajoutée', 'settings', '/admin/profil');
+      createNotification('Nouvelle bannière par URL ajoutée', 'settings', '/admin/profil');
     } catch (err) {
-      alert('Erreur upload : ' + err.message);
-    } finally { setBannerLoading(false); e.target.value = ''; }
+      alert('Erreur ajout URL : ' + err.message);
+    } finally {
+      setBannerLoading(false);
+    }
   };
 
   const updateBannerTitle = async (id, field, value) => {
@@ -307,15 +348,44 @@ const ProfileSettings = () => {
       {/* ── BANNIÈRES ── */}
       {activeTab === 'banners' && (
         <div className="space-y-6">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <p className="text-sm text-gray-400 font-medium italic">
               {banners.length} {banners.length > 1 ? t('banner_count_many') : t('banner_count_one')} — {t('banner_slider_info')}
             </p>
-            <label className={`cursor-pointer flex items-center gap-2 px-6 py-3 bg-dakora-green text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-green-700 transition-all shadow-lg ${bannerLoading ? 'opacity-50 pointer-events-none' : ''}`}>
-              {bannerLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : <><Plus size={14}/> {t('add_banner')}</>}
-              <input type="file" accept="image/*" className="hidden" onChange={handleAddBanner}/>
-            </label>
+            <div className="flex flex-wrap gap-2">
+              <label className={`cursor-pointer flex items-center gap-2 px-5 py-3 bg-dakora-green text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-green-700 transition-all shadow-lg ${bannerLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+                {bannerLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : <><UploadCloud size={14}/> {language === 'fr' ? 'Uploader des images' : 'Upload images'}</>}
+                <input type="file" accept="image/*" multiple className="hidden" onChange={handleAddBannersMultiple}/>
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowUrlInput(prev => !prev)}
+                className="flex items-center gap-2 px-5 py-3 bg-blue-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg"
+              >
+                <Plus size={14}/> {language === 'fr' ? 'Ajouter par lien URL' : 'Add by URL link'}
+              </button>
+            </div>
           </div>
+
+          {showUrlInput && (
+            <form onSubmit={handleAddBannerByUrl} className="flex gap-2 p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5 animate-in slide-in-from-top-2 duration-200">
+              <input
+                type="url"
+                required
+                value={bannerUrl}
+                onChange={e => setBannerUrl(e.target.value)}
+                placeholder={language === 'fr' ? 'Coller le lien URL de l\'image de la bannière...' : 'Paste the banner image URL link...'}
+                className="flex-grow px-4 py-3 rounded-xl bg-white dark:bg-neutral-800 text-xs font-bold dark:text-white border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-dakora-green outline-none"
+              />
+              <button
+                type="submit"
+                disabled={bannerLoading}
+                className="px-6 py-3 bg-dakora-green text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-700 transition-all"
+              >
+                {language === 'fr' ? 'Ajouter' : 'Add'}
+              </button>
+            </form>
+          )}
           {banners.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-20 bg-white/40 dark:bg-white/5 rounded-[3rem] border border-dashed border-gray-300 dark:border-white/10">
               <ImageIcon size={48} className="text-gray-300 mb-4"/>

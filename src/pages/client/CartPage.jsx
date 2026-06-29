@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useSettings } from '../../context/SettingsContext';
 import { supabase } from '../../api/supabaseClient';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { rules } from '../../utils/validation';
 import { 
-  ShoppingBag, User, MapPin, 
+  ShoppingBag, User, MapPin, Navigation,
   CreditCard, CheckCircle2, Loader2, MessageCircle, Printer, X, Plus, Minus
 } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
@@ -22,7 +22,48 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Composant champ du formulaire commande avec étoile + erreur inline
+// ─── COMPOSANTS CARTE ────────────────────────────────────────────────────────
+
+// Recentre la carte quand les coords changent (depuis geolocation)
+const MapRecenter = ({ lat, lng }) => {
+  const map = useMap();
+  useEffect(() => {
+    map.setView([lat, lng], 15, { animate: true });
+  }, [lat, lng]); // eslint-disable-line
+  return null;
+};
+
+// Écoute les clics sur la carte → met à jour la position du marqueur
+const MapClickHandler = ({ onMove }) => {
+  useMapEvents({
+    click(e) { onMove(e.latlng.lat, e.latlng.lng); }
+  });
+  return null;
+};
+
+// Reverse geocoding via OpenStreetMap Nominatim (gratuit, sans clé)
+const reverseGeocode = async (lat, lng) => {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=fr`,
+      { headers: { 'Accept-Language': 'fr' } }
+    );
+    const data = await res.json();
+    if (data.display_name) {
+      // Construire une adresse lisible : quartier + ville
+      const a = data.address || {};
+      const parts = [
+        a.neighbourhood || a.suburb || a.quarter || a.village,
+        a.road || a.street,
+        a.city || a.town || a.municipality || a.county,
+      ].filter(Boolean);
+      return parts.length > 0 ? parts.join(', ') : data.display_name.split(',').slice(0, 3).join(',');
+    }
+  } catch { /* silencieux */ }
+  return '';
+};
+
+// ─── CHAMP FORMULAIRE avec étoile + erreur ────────────────────────────────────
 const OrderField = ({ label, required, value, error, children, className = '' }) => {
   const isFilled = value !== '' && value !== null && String(value).trim() !== '';
   return (
@@ -49,8 +90,12 @@ const CartPage = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [orderNum, setOrderNum] = useState('');
-  // Erreurs de validation par champ
   const [errors, setErrors] = useState({});
+  // Géolocalisation
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError]   = useState(null);
+  const [mapCenter, setMapCenter]  = useState([4.0511, 9.7679]); // Douala par défaut
+  const addressFetchRef = useRef(false); // évite les appels multiples
 
   // --- ÉTAT ALIGNÉ SUR TA BD (100% RESPECTÉ) ---
   const [orderData, setOrderData] = useState({
@@ -67,14 +112,61 @@ const CartPage = () => {
     longitude: 9.7679
   });
 
-  // Gestion clic sur la carte
-  const MapEvents = () => {
-    useMapEvents({
-      click(e) {
-        setOrderData(prev => ({ ...prev, latitude: e.latlng.lat, longitude: e.latlng.lng }));
+  // Gestion clic sur la carte (déplace le marqueur + reverse geocoding)
+  const handleMapMove = async (lat, lng) => {
+    setOrderData(prev => ({ ...prev, latitude: lat, longitude: lng }));
+    setMapCenter([lat, lng]);
+    // Reverse geocoding pour mettre à jour l'adresse texte
+    if (!addressFetchRef.current) {
+      addressFetchRef.current = true;
+      const addr = await reverseGeocode(lat, lng);
+      if (addr) setOrderData(prev => ({ ...prev, address: addr }));
+      clearErr('address');
+      addressFetchRef.current = false;
+    }
+  };
+
+  // Géolocalisation du navigateur → centre la carte + remplit l'adresse
+  const requestGeolocation = () => {
+    if (!navigator.geolocation) {
+      setGeoError(language === 'fr' ? 'Géolocalisation non supportée' : 'Geolocation not supported');
+      return;
+    }
+    setGeoLoading(true);
+    setGeoError(null);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        setOrderData(prev => ({ ...prev, latitude: lat, longitude: lng }));
+        setMapCenter([lat, lng]);
+        // Reverse geocoding
+        const addr = await reverseGeocode(lat, lng);
+        if (addr) {
+          setOrderData(prev => ({ ...prev, address: addr }));
+          clearErr('address');
+        }
+        setGeoLoading(false);
       },
-    });
-    return null;
+      (err) => {
+        setGeoLoading(false);
+        const msgs = {
+          1: language === 'fr' ? 'Accès refusé. Activez la localisation dans votre navigateur.' : 'Access denied. Enable location in your browser.',
+          2: language === 'fr' ? 'Position indisponible.' : 'Position unavailable.',
+          3: language === 'fr' ? 'Délai dépassé.' : 'Timeout.',
+        };
+        setGeoError(msgs[err.code] || (language === 'fr' ? 'Erreur de localisation' : 'Location error'));
+      },
+      { timeout: 10000, maximumAge: 0, enableHighAccuracy: true }
+    );
+  };
+
+  // Quand le client choisit "domicile" → demande automatiquement la position
+  const handleDeliveryModeChange = (mode) => {
+    setOrderData(p => ({ ...p, delivery_mode: mode }));
+    clearErr('delivery_mode');
+    if (mode === 'domicile') {
+      requestGeolocation();
+    }
   };
 
   const handlePrint = () => window.print();
@@ -317,7 +409,7 @@ const CartPage = () => {
                   { val: 'domicile', label: '🏠 Domicile' }
                 ].map(opt => (
                   <button key={opt.val} type="button"
-                    onClick={() => { setOrderData(p => ({...p, delivery_mode: opt.val})); clearErr('delivery_mode'); }}
+                    onClick={() => handleDeliveryModeChange(opt.val)}
                     className={`flex-1 py-4 rounded-2xl border-2 text-[10px] font-black uppercase transition-all ${
                       orderData.delivery_mode === opt.val
                         ? 'border-dakora-green bg-dakora-green/5 text-dakora-green shadow-inner'
@@ -335,19 +427,79 @@ const CartPage = () => {
 
               {orderData.delivery_mode === 'domicile' && (
                 <div className="space-y-4 animate-in slide-in-from-top-4 duration-500">
-                  <p className="text-[9px] font-black uppercase text-gray-400 ml-4">
-                    Pointer votre adresse sur la carte :
-                  </p>
-                  <div className="h-48 rounded-[2rem] overflow-hidden border border-black/5 shadow-2xl relative z-0">
-                    <MapContainer center={[4.0511, 9.7679]} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
-                      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                      <MapEvents />
-                      <Marker position={[orderData.latitude, orderData.longitude]} />
-                    </MapContainer>
-                    <div className="absolute top-2 right-2 bg-white/80 p-2 rounded-lg text-[8px] font-bold z-[400] text-dakora-green shadow-sm">GPS OK</div>
+                  {/* Bandeau état géolocalisation */}
+                  {geoLoading && (
+                    <div className="flex items-center gap-2 px-4 py-3 bg-dakora-green/5 border border-dakora-green/20 rounded-2xl animate-pulse">
+                      <Loader2 size={14} className="animate-spin text-dakora-green flex-shrink-0"/>
+                      <p className="text-[10px] font-bold text-dakora-green">
+                        {language === 'fr' ? 'Récupération de votre position GPS...' : 'Getting your GPS location...'}
+                      </p>
+                    </div>
+                  )}
+                  {geoError && (
+                    <div className="flex items-center gap-2 px-4 py-3 bg-orange-50 dark:bg-orange-500/5 border border-orange-200 dark:border-orange-500/20 rounded-2xl">
+                      <MapPin size={14} className="text-orange-500 flex-shrink-0"/>
+                      <p className="text-[10px] font-bold text-orange-600">{geoError}</p>
+                    </div>
+                  )}
+
+                  {/* Carte */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[9px] font-black uppercase text-gray-400 ml-1">
+                        {language === 'fr' ? 'Cliquez sur la carte pour ajuster votre position exacte' : 'Click on the map to adjust your exact position'}
+                      </p>
+                      {/* Bouton "Ma position" */}
+                      <button type="button" onClick={requestGeolocation} disabled={geoLoading}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-dakora-green/10 text-dakora-green hover:bg-dakora-green hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all disabled:opacity-50">
+                        {geoLoading
+                          ? <Loader2 size={11} className="animate-spin"/>
+                          : <Navigation size={11}/>
+                        }
+                        {language === 'fr' ? 'Ma position' : 'My location'}
+                      </button>
+                    </div>
+
+                    <div className="h-52 rounded-[2rem] overflow-hidden border border-black/5 dark:border-white/10 shadow-xl relative z-0">
+                      <MapContainer
+                        center={mapCenter}
+                        zoom={15}
+                        scrollWheelZoom={false}
+                        style={{ height: '100%', width: '100%' }}
+                      >
+                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+                        <MapRecenter lat={mapCenter[0]} lng={mapCenter[1]}/>
+                        <MapClickHandler onMove={handleMapMove}/>
+                        <Marker
+                          position={[orderData.latitude, orderData.longitude]}
+                          draggable
+                          eventHandlers={{
+                            dragend: (e) => {
+                              const { lat, lng } = e.target.getLatLng();
+                              handleMapMove(lat, lng);
+                            }
+                          }}
+                        />
+                      </MapContainer>
+
+                      {/* Badge GPS */}
+                      <div className="absolute top-2 right-2 z-[400] bg-white/90 dark:bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-xl shadow-lg border border-black/5 flex items-center gap-1.5">
+                        <div className="w-2 h-2 bg-dakora-green rounded-full animate-pulse flex-shrink-0"/>
+                        <span className="text-[8px] font-black uppercase text-dakora-green">
+                          {orderData.latitude.toFixed(4)}, {orderData.longitude.toFixed(4)}
+                        </span>
+                      </div>
+
+                      {/* Instruction clic */}
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[400] bg-black/60 text-white text-[8px] font-bold px-3 py-1 rounded-full">
+                        {language === 'fr' ? '📍 Cliquez ou glissez le marqueur' : '📍 Click or drag the marker'}
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Champ adresse — pré-rempli par reverse geocoding, modifiable */}
                   <OrderField
-                    label="Adresse (quartier, porte, détails…)"
+                    label={language === 'fr' ? 'Adresse (quartier, porte, détails…)' : 'Address (neighborhood, door, details…)'}
                     required
                     value={orderData.address}
                     error={errors.address}
@@ -356,10 +508,17 @@ const CartPage = () => {
                       type="text"
                       value={orderData.address}
                       onChange={e => { setOrderData(p => ({...p, address: e.target.value})); clearErr('address'); }}
-                      placeholder="ex: Akwa, Rue de la Joie, porte 12"
+                      placeholder={language === 'fr' ? 'ex: Akwa, Rue de la Joie, porte 12' : 'ex: Akwa, Rue de la Joie, door 12'}
                       className={`input-pro w-full ${errors.address ? 'ring-2 ring-red-400 bg-red-50/50 dark:bg-red-500/5' : ''}`}
                     />
                   </OrderField>
+
+                  {/* Info récupération auto */}
+                  {orderData.address && !geoLoading && (
+                    <p className="text-[9px] text-dakora-green font-bold ml-4 flex items-center gap-1">
+                      ✓ {language === 'fr' ? 'Adresse détectée automatiquement — modifiable' : 'Address auto-detected — editable'}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
