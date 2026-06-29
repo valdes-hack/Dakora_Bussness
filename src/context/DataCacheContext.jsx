@@ -15,14 +15,19 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 export const DataCacheProvider = ({ children }) => {
   const [products, setProducts]     = useState([]);
   const [categories, setCategories] = useState([]);
-  const [ready, setReady]           = useState(false);   // true dès le 1er fetch
+  const [ready, setReady]           = useState(false);
   const [error, setError]           = useState(null);
   const lastFetch = useRef(0);
+  // On garde les produits dans un ref pour éviter les closures stales
+  const productsRef = useRef([]);
+
+  // Synchronise le ref à chaque changement d'état
+  useEffect(() => { productsRef.current = products; }, [products]);
 
   const fetchAll = useCallback(async (force = false) => {
     const now = Date.now();
-    // Ne refetch pas si le cache est encore frais (sauf force)
-    if (!force && now - lastFetch.current < CACHE_TTL && products.length > 0) return;
+    // Utilise productsRef.current (toujours à jour) au lieu de products (closure)
+    if (!force && now - lastFetch.current < CACHE_TTL && productsRef.current.length > 0) return;
 
     setError(null);
     try {
@@ -69,12 +74,12 @@ export const DataCacheProvider = ({ children }) => {
     } finally {
       setReady(true);
     }
-  }, [products.length]); // eslint-disable-line
+  }, []); // ← plus de dépendance sur products.length → pas de closure stale
 
-  // Chargement initial — dès que l'app monte
+  // Chargement initial
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  // Précharger les images en arrière-plan dès que les produits arrivent
+  // Précharger les images en arrière-plan
   useEffect(() => {
     if (!products.length) return;
     products.forEach(p => {
@@ -86,7 +91,7 @@ export const DataCacheProvider = ({ children }) => {
     });
   }, [products]);
 
-  /** Appelé après une sauvegarde admin pour invalider le cache */
+  /** Appelé après une sauvegarde/suppression admin pour invalider le cache */
   const invalidateCache = useCallback(() => {
     lastFetch.current = 0;
     fetchAll(true);

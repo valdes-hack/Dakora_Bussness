@@ -4,7 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useCart } from '../../context/CartContext';
 import { useDataCache } from '../../context/DataCacheContext';
 import { useSettings } from '../../context/SettingsContext';
-import { ShoppingCart, Check, MessageSquare } from 'lucide-react';
+import { ShoppingCart, Check, MessageSquare, SlidersHorizontal, X, ChevronDown, ChevronUp } from 'lucide-react';
 
 // ─── SKELETON ────────────────────────────────────────────────────────────────
 const SkeletonCard = () => (
@@ -18,12 +18,10 @@ const SkeletonCard = () => (
   </div>
 );
 
-// ─── CARTE PRODUIT mémorisée ──────────────────────────────────────────────────
-const ProductCard = memo(({ product, language, t, onAddToCart, onWhatsApp, isAdded }) => {
+// ─── CARTE PRODUIT ─────────────────────────────────────────────────────────────
+const ProductCard = memo(({ product, language, onAddToCart, onWhatsApp, isAdded }) => {
   const minPrice = useMemo(
-    () => product.variants?.length
-      ? Math.min(...product.variants.map(v => Number(v.price)))
-      : 0,
+    () => product.variants?.length ? Math.min(...product.variants.map(v => Number(v.price))) : 0,
     [product.variants]
   );
   const imageUrl = product.product_images?.[0]?.url;
@@ -33,18 +31,11 @@ const ProductCard = memo(({ product, language, t, onAddToCart, onWhatsApp, isAdd
 
   return (
     <div className="group bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md rounded-[3.5rem] p-4 border border-white/20 shadow-xl hover:shadow-dakora-green/10 transition-shadow duration-200 flex flex-col will-change-auto">
-
       <Link to={`/produit/${product.id}`}
         className="relative aspect-[4/5] rounded-[2.8rem] overflow-hidden mb-5 bg-gray-100 dark:bg-black/40 block">
         {imageUrl && !imgError ? (
-          <img
-            src={imageUrl}
-            loading="lazy"
-            decoding="async"
-            onError={() => setImgError(true)}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-400"
-            alt={name}
-          />
+          <img src={imageUrl} loading="lazy" decoding="async" onError={() => setImgError(true)}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-400" alt={name} />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-neutral-800 dark:to-neutral-700">
             <span className="text-5xl">📦</span>
@@ -57,41 +48,30 @@ const ProductCard = memo(({ product, language, t, onAddToCart, onWhatsApp, isAdd
           </span>
         )}
       </Link>
-
       <div className="px-3 pb-3 flex flex-col flex-grow">
-        {category && (
-          <span className="text-[10px] font-black text-dakora-green uppercase tracking-[0.2em] mb-1">{category}</span>
-        )}
+        {category && <span className="text-[10px] font-black text-dakora-green uppercase tracking-[0.2em] mb-1">{category}</span>}
         <Link to={`/produit/${product.id}`}>
-          <h3 className="text-lg font-black text-gray-900 dark:text-white leading-tight mb-4 tracking-tighter hover:text-dakora-green transition-colors line-clamp-2">
-            {name}
-          </h3>
+          <h3 className="text-lg font-black text-gray-900 dark:text-white leading-tight mb-4 tracking-tighter hover:text-dakora-green transition-colors line-clamp-2">{name}</h3>
         </Link>
         <div className="mt-auto">
-          <div className="flex items-end justify-between mb-3">
-            <div>
-              <p className="text-[10px] font-bold text-gray-400 uppercase">{t('price_from')}</p>
-              <p className="text-xl font-black text-gray-900 dark:text-white tracking-tighter">
-                {minPrice.toLocaleString()} <span className="text-xs text-dakora-green">FCFA</span>
-              </p>
-            </div>
-            <button
-              onClick={e => { e.preventDefault(); onAddToCart(product); }}
-              aria-label={t('add_to_cart')}
-              className={`p-4 rounded-2xl shadow transition-all duration-150 active:scale-90 ${
-                isAdded ? 'bg-green-500 text-white' : 'bg-dakora-green text-white hover:bg-green-700'
-              }`}
-            >
-              {isAdded ? <Check size={20} /> : <ShoppingCart size={20} />}
+          <div className="mb-4">
+            <p className="text-[10px] font-bold text-gray-400 uppercase">{language === 'fr' ? 'À partir de' : 'From'}</p>
+            <p className="text-2xl font-black text-gray-900 dark:text-white tracking-tighter">
+              {minPrice.toLocaleString()} <span className="text-sm text-dakora-green">FCFA</span>
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={e => { e.preventDefault(); onAddToCart(product); }}
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow transition-all active:scale-95 ${isAdded ? 'bg-green-500 text-white' : 'bg-dakora-green text-white hover:bg-green-700'}`}>
+              {isAdded ? <Check size={15}/> : <ShoppingCart size={15}/>}
+              {isAdded ? (language === 'fr' ? 'Ajouté' : 'Added') : (language === 'fr' ? 'Panier' : 'Cart')}
+            </button>
+            <button onClick={e => { e.preventDefault(); onWhatsApp(product); }}
+              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white border border-[#25D366]/20 text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
+              <MessageSquare size={15}/>
+              {language === 'fr' ? 'Payer' : 'Buy'}
             </button>
           </div>
-          {/* Bouton WhatsApp direct */}
-          <button
-            onClick={e => { e.preventDefault(); onWhatsApp(product); }}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white border border-[#25D366]/20 text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
-          >
-            <MessageSquare size={14}/> Commander
-          </button>
         </div>
       </div>
     </div>
@@ -99,15 +79,144 @@ const ProductCard = memo(({ product, language, t, onAddToCart, onWhatsApp, isAdd
 });
 ProductCard.displayName = 'ProductCard';
 
-// ─── PAGE ─────────────────────────────────────────────────────────────────────
+// ─── SECTION FILTRE (réductible) ─────────────────────────────────────────────
+const FilterSection = ({ title, children, defaultOpen = true }) => {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="border-b border-black/5 dark:border-white/5 pb-4">
+      <button onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between py-2 text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 hover:text-dakora-green transition-colors">
+        {title}
+        {open ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
+      </button>
+      {open && <div className="mt-3 space-y-2">{children}</div>}
+    </div>
+  );
+};
+
+// ─── PANNEAU FILTRES ──────────────────────────────────────────────────────────
+const FilterPanel = ({ categories, language, filters, setFilters, products, onClose, isMobile }) => {
+  // Calcul min/max prix réel depuis les produits
+  const allPrices = useMemo(() => products.flatMap(p => p.variants?.map(v => Number(v.price)) || []).filter(Boolean), [products]);
+  const globalMin = allPrices.length ? Math.min(...allPrices) : 0;
+  const globalMax = allPrices.length ? Math.max(...allPrices) : 5000000;
+
+  // Badges uniques présents dans le catalogue
+  const badges = useMemo(() => [...new Set(products.map(p => p.badge).filter(Boolean))], [products]);
+
+  const label = language === 'fr';
+
+  const sortOptions = [
+    { value: 'default', label: label ? 'Par défaut' : 'Default' },
+    { value: 'price_asc', label: label ? 'Prix croissant' : 'Price: low to high' },
+    { value: 'price_desc', label: label ? 'Prix décroissant' : 'Price: high to low' },
+    { value: 'name_asc', label: label ? 'Nom A → Z' : 'Name A → Z' },
+    { value: 'name_desc', label: label ? 'Nom Z → A' : 'Name Z → A' },
+  ];
+
+  const reset = () => setFilters({ category: 'all', priceMin: '', priceMax: '', badge: '', sort: 'default' });
+  const hasActive = filters.category !== 'all' || filters.priceMin || filters.priceMax || filters.badge || filters.sort !== 'default';
+
+  return (
+    <aside className={`${isMobile ? 'w-full' : 'w-64 flex-shrink-0'} bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl rounded-[2rem] border border-white/20 shadow-xl p-6 space-y-5 ${isMobile ? '' : 'sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto'}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal size={16} className="text-dakora-green"/>
+          <span className="font-black text-sm uppercase tracking-widest text-gray-900 dark:text-white">
+            {label ? 'Filtres' : 'Filters'}
+          </span>
+          {hasActive && (
+            <span className="w-2 h-2 rounded-full bg-dakora-green animate-pulse"/>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {hasActive && (
+            <button onClick={reset} className="text-[9px] font-black uppercase text-red-400 hover:text-red-500 transition-colors">
+              {label ? 'Réinitialiser' : 'Reset'}
+            </button>
+          )}
+          {isMobile && <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600"><X size={18}/></button>}
+        </div>
+      </div>
+
+      {/* Catégorie */}
+      <FilterSection title={label ? 'Catégorie' : 'Category'}>
+        <button
+          onClick={() => setFilters(f => ({ ...f, category: 'all' }))}
+          className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all ${filters.category === 'all' ? 'bg-dakora-green text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'}`}>
+          {label ? 'Tous les produits' : 'All products'}
+        </button>
+        {categories.map(cat => (
+          <button key={cat.id}
+            onClick={() => setFilters(f => ({ ...f, category: cat.id }))}
+            className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${filters.category === cat.id ? 'bg-dakora-green text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'}`}>
+            <span>{cat.icon_url}</span>
+            <span className="truncate">{language === 'fr' ? cat.name_fr : cat.name_en}</span>
+          </button>
+        ))}
+      </FilterSection>
+
+      {/* Prix */}
+      <FilterSection title={label ? 'Fourchette de prix' : 'Price range'}>
+        <div className="flex items-center gap-2">
+          <input type="number" placeholder={`Min (${globalMin.toLocaleString()})`} value={filters.priceMin}
+            onChange={e => setFilters(f => ({ ...f, priceMin: e.target.value }))}
+            className="w-full px-3 py-2 rounded-xl bg-gray-50 dark:bg-neutral-800 text-xs font-bold dark:text-white border-none focus:ring-2 focus:ring-dakora-green outline-none"/>
+        </div>
+        <div className="flex items-center gap-2">
+          <input type="number" placeholder={`Max (${globalMax.toLocaleString()})`} value={filters.priceMax}
+            onChange={e => setFilters(f => ({ ...f, priceMax: e.target.value }))}
+            className="w-full px-3 py-2 rounded-xl bg-gray-50 dark:bg-neutral-800 text-xs font-bold dark:text-white border-none focus:ring-2 focus:ring-dakora-green outline-none"/>
+        </div>
+        <p className="text-[9px] text-gray-400 font-bold uppercase">FCFA</p>
+      </FilterSection>
+
+      {/* Badge */}
+      {badges.length > 0 && (
+        <FilterSection title={label ? 'Promotion / Badge' : 'Badge'}>
+          <button onClick={() => setFilters(f => ({ ...f, badge: '' }))}
+            className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all ${!filters.badge ? 'bg-dakora-green text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'}`}>
+            {label ? 'Tous' : 'All'}
+          </button>
+          {badges.map(b => (
+            <button key={b} onClick={() => setFilters(f => ({ ...f, badge: b }))}
+              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all ${filters.badge === b ? 'bg-dakora-yellow text-yellow-900' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'}`}>
+              {b}
+            </button>
+          ))}
+        </FilterSection>
+      )}
+
+      {/* Tri */}
+      <FilterSection title={label ? 'Trier par' : 'Sort by'}>
+        {sortOptions.map(opt => (
+          <button key={opt.value} onClick={() => setFilters(f => ({ ...f, sort: opt.value }))}
+            className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all ${filters.sort === opt.value ? 'bg-dakora-green text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'}`}>
+            {opt.label}
+          </button>
+        ))}
+      </FilterSection>
+    </aside>
+  );
+};
+
+// ─── PAGE BOUTIQUE ─────────────────────────────────────────────────────────────
 const Shop = () => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const { addToCart }   = useCart();
   const { settings }    = useSettings();
   const { products, categories, ready } = useDataCache();
 
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const [addedId, setAddedId] = useState(null);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    category: 'all',
+    priceMin: '',
+    priceMax: '',
+    badge: '',
+    sort: 'default',
+  });
 
   const handleAddToCart = useCallback((product) => {
     if (!product.variants?.length) return;
@@ -120,84 +229,118 @@ const Shop = () => {
   const handleWhatsApp = useCallback((product) => {
     const waNumber = settings.whatsapp_number || '237690000000';
     const name = language === 'fr' ? product.name_fr : product.name_en;
-    const minPrice = product.variants?.length
-      ? Math.min(...product.variants.map(v => Number(v.price)))
-      : 0;
+    const minPrice = product.variants?.length ? Math.min(...product.variants.map(v => Number(v.price))) : 0;
     const msg = `Bonjour Dakora Business 👋\nJe suis intéressé(e) par :\n*${name}* — à partir de ${minPrice.toLocaleString()} FCFA\nPouvez-vous m'en dire plus ?`;
     window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`, '_blank');
   }, [settings.whatsapp_number, language]);
 
-  // Filtrage mémorisé — ne recalcule que si la catégorie ou les produits changent
-  const filteredProducts = useMemo(
-    () => selectedCategory === 'all'
-      ? products
-      : products.filter(p => p.category_id === selectedCategory),
-    [products, selectedCategory]
-  );
+  const filteredProducts = useMemo(() => {
+    let list = [...products];
+    // Catégorie
+    if (filters.category !== 'all') list = list.filter(p => p.category_id === filters.category);
+    // Prix min
+    if (filters.priceMin) {
+      const min = Number(filters.priceMin);
+      list = list.filter(p => p.variants?.some(v => Number(v.price) >= min));
+    }
+    // Prix max
+    if (filters.priceMax) {
+      const max = Number(filters.priceMax);
+      list = list.filter(p => p.variants?.some(v => Number(v.price) <= max));
+    }
+    // Badge
+    if (filters.badge) list = list.filter(p => p.badge === filters.badge);
+    // Tri
+    if (filters.sort === 'price_asc') {
+      list.sort((a, b) => Math.min(...(a.variants?.map(v => Number(v.price)) || [0])) - Math.min(...(b.variants?.map(v => Number(v.price)) || [0])));
+    } else if (filters.sort === 'price_desc') {
+      list.sort((a, b) => Math.min(...(b.variants?.map(v => Number(v.price)) || [0])) - Math.min(...(a.variants?.map(v => Number(v.price)) || [0])));
+    } else if (filters.sort === 'name_asc') {
+      list.sort((a, b) => (language === 'fr' ? a.name_fr : a.name_en)?.localeCompare(language === 'fr' ? b.name_fr : b.name_en));
+    } else if (filters.sort === 'name_desc') {
+      list.sort((a, b) => (language === 'fr' ? b.name_fr : b.name_en)?.localeCompare(language === 'fr' ? a.name_fr : a.name_en));
+    }
+    return list;
+  }, [products, filters, language]);
+
+  const hasActiveFilters = filters.category !== 'all' || filters.priceMin || filters.priceMax || filters.badge || filters.sort !== 'default';
 
   return (
     <div className="min-h-screen pb-20">
-
       {/* HEADER */}
-      <section className="pt-10 pb-10 px-6 text-center">
+      <section className="pt-10 pb-8 px-6 text-center">
         <h1 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter mb-3">
-          {t('shop_title')}
+          {language === 'fr' ? 'Notre Boutique' : 'Our Shop'}
         </h1>
         <p className="text-gray-500 dark:text-gray-400 font-medium max-w-xl mx-auto">
-          {t('shop_subtitle')}
+          {language === 'fr' ? 'Le meilleur matériel pour votre exploitation.' : 'The best equipment for your farm.'}
         </p>
       </section>
 
-      {/* FILTRES */}
-      <div className="sticky top-24 z-40 px-4 mb-10">
-        <div className="max-w-5xl mx-auto bg-white/70 dark:bg-black/50 backdrop-blur-xl border border-white/20 p-2 rounded-[2rem] shadow-xl flex items-center gap-2 overflow-x-auto no-scrollbar">
-          <button
-            onClick={() => setSelectedCategory('all')}
-            className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors whitespace-nowrap ${
-              selectedCategory === 'all' ? 'bg-dakora-green text-white shadow' : 'text-gray-500 dark:text-gray-400 hover:bg-white/60 dark:hover:bg-white/5'
-            }`}
-          >
-            {t('filter_all')}
-          </button>
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors whitespace-nowrap ${
-                selectedCategory === cat.id ? 'bg-dakora-green text-white shadow' : 'text-gray-500 dark:text-gray-400 hover:bg-white/60 dark:hover:bg-white/5'
-              }`}
-            >
-              {cat.icon_url} {language === 'fr' ? cat.name_fr : cat.name_en}
-            </button>
-          ))}
-        </div>
+      {/* BOUTON FILTRE MOBILE */}
+      <div className="lg:hidden px-4 mb-6">
+        <button onClick={() => setMobileFilterOpen(true)}
+          className={`flex items-center gap-2 px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${hasActiveFilters ? 'bg-dakora-green text-white border-dakora-green shadow-lg' : 'bg-white/70 dark:bg-white/5 border-white/20 text-gray-600 dark:text-gray-300 shadow'}`}>
+          <SlidersHorizontal size={14}/>
+          {language === 'fr' ? 'Filtres' : 'Filters'}
+          {hasActiveFilters && <span className="w-2 h-2 rounded-full bg-white animate-pulse"/>}
+        </button>
       </div>
 
-      {/* GRILLE */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
-        {!ready ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Array.from({ length: 6 }).map((_, n) => <SkeletonCard key={n} />)}
+      {/* FILTRE MOBILE — drawer */}
+      {mobileFilterOpen && (
+        <div className="fixed inset-0 z-[60] flex items-end lg:hidden">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileFilterOpen(false)}/>
+          <div className="relative w-full max-h-[80vh] overflow-y-auto bg-white dark:bg-neutral-900 rounded-t-[2.5rem] p-6 animate-in slide-in-from-bottom-4 duration-300">
+            <FilterPanel categories={categories} language={language} filters={filters} setFilters={setFilters}
+              products={products} onClose={() => setMobileFilterOpen(false)} isMobile={true}/>
           </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="text-center py-20 bg-white/20 dark:bg-white/5 rounded-[3rem] border-2 border-dashed border-gray-200 dark:border-white/10">
-            <p className="text-gray-400 italic font-bold">{t('no_products')}</p>
+        </div>
+      )}
+
+      {/* LAYOUT 2 COLONNES : filtre gauche + grille droite */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 flex gap-8 items-start">
+
+        {/* FILTRE DESKTOP — colonne gauche */}
+        <div className="hidden lg:block">
+          <FilterPanel categories={categories} language={language} filters={filters} setFilters={setFilters}
+            products={products} onClose={() => {}} isMobile={false}/>
+        </div>
+
+        {/* GRILLE DROITE */}
+        <div className="flex-grow min-w-0">
+          {/* Compteur + filtre actifs */}
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+            <p className="text-xs text-gray-400 font-bold">
+              {ready ? `${filteredProducts.length} ${language === 'fr' ? 'produit(s)' : 'product(s)'}` : ''}
+            </p>
+            {hasActiveFilters && (
+              <button onClick={() => setFilters({ category: 'all', priceMin: '', priceMax: '', badge: '', sort: 'default' })}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 dark:bg-red-500/10 text-red-400 rounded-xl text-[10px] font-black uppercase hover:bg-red-100 transition-all">
+                <X size={12}/> {language === 'fr' ? 'Effacer les filtres' : 'Clear filters'}
+              </button>
+            )}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProducts.map(product => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                language={language}
-                t={t}
-                onAddToCart={handleAddToCart}
-                onWhatsApp={handleWhatsApp}
-                isAdded={addedId === product.id}
-              />
-            ))}
-          </div>
-        )}
+
+          {!ready ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, n) => <SkeletonCard key={n}/>)}
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="text-center py-20 bg-white/20 dark:bg-white/5 rounded-[3rem] border-2 border-dashed border-gray-200 dark:border-white/10">
+              <p className="text-gray-400 italic font-bold">
+                {language === 'fr' ? 'Aucun produit ne correspond à ces filtres.' : 'No products match these filters.'}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filteredProducts.map(product => (
+                <ProductCard key={product.id} product={product} language={language}
+                  onAddToCart={handleAddToCart} onWhatsApp={handleWhatsApp} isAdded={addedId === product.id}/>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <style>{`

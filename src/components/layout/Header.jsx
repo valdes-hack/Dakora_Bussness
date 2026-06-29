@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
 import { useCart } from '../../context/CartContext';
 import { useDataCache } from '../../context/DataCacheContext';
+import { useTheme } from '../../context/ThemeContext';
 import { ShoppingCart, Moon, Sun, Menu, X, LayoutGrid, Search } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
 
@@ -14,8 +15,8 @@ const Header = () => {
   const { settings } = useSettings();
   const { totalItems } = useCart();
   const { products, categories } = useDataCache();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
-  const [isDark, setIsDark] = useState(localStorage.getItem('theme') === 'dark');
   const [isOpen, setIsOpen] = useState(false);
   // Recherche globale
   const [searchOpen, setSearchOpen] = useState(false);
@@ -25,16 +26,6 @@ const Header = () => {
   const debounceRef = useRef(null);
 
   const siteName = settings.business_name || 'Dakora Business';
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDark]);
 
   // Focus automatique sur l'input quand la recherche s'ouvre
   useEffect(() => {
@@ -160,7 +151,8 @@ const Header = () => {
 
             {/* TOGGLE THÈME */}
             <button 
-              onClick={() => setIsDark(!isDark)} 
+              onClick={toggleTheme}
+              aria-label="Basculer le thème"
               className="p-2 rounded-full bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-dakora-yellow transition-all"
             >
               {isDark ? <Sun size={18} /> : <Moon size={18} />}

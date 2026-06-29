@@ -5,22 +5,25 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { DataCacheProvider } from './context/DataCacheContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <SettingsProvider>
-          <DataCacheProvider>
-            <CartProvider>
-              <Router>
-                <AppRoutes />
-              </Router>
-            </CartProvider>
-          </DataCacheProvider>
-        </SettingsProvider>
-      </AuthProvider>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <SettingsProvider>
+            <DataCacheProvider>
+              <CartProvider>
+                <Router>
+                  <AppRoutes />
+                </Router>
+              </CartProvider>
+            </DataCacheProvider>
+          </SettingsProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 
