@@ -232,9 +232,9 @@ const ProfileSettings = () => {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in duration-700">
+    <div className="max-w-5xl mx-auto space-y-6 md:space-y-10 animate-in fade-in duration-700">
       <div>
-        <h1 className="text-4xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">{t('settings_title')}</h1>
+        <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">{t('settings_title')}</h1>
         <p className="text-gray-500 font-medium mt-1">{t('settings_subtitle')}</p>
       </div>
 
@@ -242,40 +242,40 @@ const ProfileSettings = () => {
       <div className="flex flex-wrap gap-2 p-1.5 bg-gray-100 dark:bg-white/5 rounded-2xl w-fit border border-black/5 dark:border-white/5">
         {tabs.map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+            className={`flex items-center gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all ${
               activeTab === tab.id ? 'bg-white dark:bg-neutral-800 shadow-md text-dakora-green' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
             }`}>
-            {tab.icon} {tab.label}
+            {tab.icon} <span className="hidden sm:inline">{tab.label}</span>
           </button>
         ))}
       </div>
 
       {/* ── PROFIL ── */}
       {activeTab === 'profile' && (
-        <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-8 md:p-10 rounded-[3rem] border border-white/20 shadow-2xl space-y-8">
-          <div className="flex flex-col sm:flex-row items-center gap-8">
+        <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-6 md:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] border border-white/20 shadow-2xl space-y-6 md:space-y-8">
+          <div className="flex flex-col sm:flex-row items-center gap-6 md:gap-8">
             <div className="relative group">
-              <div className="w-28 h-28 rounded-full border-4 border-dakora-green shadow-xl overflow-hidden bg-gray-100 dark:bg-neutral-800">
+              <div className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-dakora-green shadow-xl overflow-hidden bg-gray-100 dark:bg-neutral-800">
                 {photoPreview
                   ? <img src={photoPreview} alt="Profil" className="w-full h-full object-cover"/>
-                  : <div className="w-full h-full flex items-center justify-center text-gray-300"><User size={40}/></div>}
+                  : <div className="w-full h-full flex items-center justify-center text-gray-300"><User size={32} md:size={40}/></div>}
               </div>
               <label className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                <UploadCloud size={24} className="text-white"/>
+                <UploadCloud size={20} md:size={24} className="text-white"/>
                 <input type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && handlePhotoSelect(e.target.files[0])}/>
               </label>
             </div>
-            <div>
-              <p className="font-black text-gray-900 dark:text-white text-lg">{profileData.username || 'Admin'}</p>
-              <p className="text-gray-400 text-sm mb-3">{user?.email}</p>
-              <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-dakora-green text-white rounded-full text-[10px] font-black uppercase cursor-pointer hover:bg-green-700 transition-all shadow-md">
-                <UploadCloud size={14}/> {t('profile_change_photo')}
+            <div className="text-center sm:text-left">
+              <p className="font-black text-gray-900 dark:text-white text-base md:text-lg">{profileData.username || 'Admin'}</p>
+              <p className="text-gray-400 text-xs md:text-sm mb-3">{user?.email}</p>
+              <label className="inline-flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-dakora-green text-white rounded-full text-[9px] md:text-[10px] font-black uppercase cursor-pointer hover:bg-green-700 transition-all shadow-md">
+                <UploadCloud size={12} md:size={14}/> {t('profile_change_photo')}
                 <input type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && handlePhotoSelect(e.target.files[0])}/>
               </label>
-              {photoFile && <p className="text-[10px] text-dakora-green font-bold mt-2">{t('profile_photo_selected')}</p>}
+              {photoFile && <p className="text-[9px] md:text-[10px] text-dakora-green font-bold mt-2">{t('profile_photo_selected')}</p>}
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <FieldInput
               label={t('profile_username')}
               required
@@ -293,9 +293,9 @@ const ProfileSettings = () => {
           </div>
           <div className="flex justify-end pt-4 border-t border-black/5 dark:border-white/5">
             <button onClick={saveProfile} disabled={loading}
-              className="px-10 py-4 bg-dakora-green text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl hover:bg-green-700 transition-all flex items-center gap-3 disabled:opacity-50">
+              className="px-6 md:px-10 py-3 md:py-4 bg-dakora-green text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs shadow-xl hover:bg-green-700 transition-all flex items-center gap-2 md:gap-3 disabled:opacity-50">
               {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
-                : saved ? <><CheckCircle2 size={16}/> {t('saved')}</> : <><Save size={16}/> {t('save')}</>}
+                : saved ? <><CheckCircle2 size={14} md:size={16}/> {t('saved')}</> : <><Save size={14} md:size={16}/> {t('save')}</>}
             </button>
           </div>
         </div>
@@ -303,8 +303,8 @@ const ProfileSettings = () => {
 
       {/* ── GÉNÉRAL ── */}
       {activeTab === 'general' && (
-        <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-8 md:p-10 rounded-[3rem] border border-white/20 shadow-2xl space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-6 md:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] border border-white/20 shadow-2xl space-y-6 md:space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <FieldInput
               label={`${t('label_whatsapp')} (sans +)`}
               required
@@ -341,9 +341,9 @@ const ProfileSettings = () => {
           </div>
           <div className="flex justify-end pt-4 border-t border-black/5 dark:border-white/5">
             <button onClick={saveGeneral} disabled={loading}
-              className="px-10 py-4 bg-dakora-green text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl hover:bg-green-700 transition-all flex items-center gap-3 disabled:opacity-50">
+              className="px-6 md:px-10 py-3 md:py-4 bg-dakora-green text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs shadow-xl hover:bg-green-700 transition-all flex items-center gap-2 md:gap-3 disabled:opacity-50">
               {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
-                : saved ? <><CheckCircle2 size={16}/> {t('saved')}</> : <><Save size={16}/> {t('save_settings')}</>}
+                : saved ? <><CheckCircle2 size={14} md:size={16}/> {t('saved')}</> : <><Save size={14} md:size={16}/> {t('save_settings')}</>}
             </button>
           </div>
         </div>
@@ -351,72 +351,72 @@ const ProfileSettings = () => {
 
       {/* ── BANNIÈRES ── */}
       {activeTab === 'banners' && (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <p className="text-sm text-gray-400 font-medium italic">
+            <p className="text-xs md:text-sm text-gray-400 font-medium italic">
               {banners.length} {banners.length > 1 ? t('banner_count_many') : t('banner_count_one')} — {t('banner_slider_info')}
             </p>
             <div className="flex flex-wrap gap-2">
-              <label className={`cursor-pointer flex items-center gap-2 px-5 py-3 bg-dakora-green text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-green-700 transition-all shadow-lg ${bannerLoading ? 'opacity-50 pointer-events-none' : ''}`}>
-                {bannerLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : <><UploadCloud size={14}/> {language === 'fr' ? 'Uploader des images' : 'Upload images'}</>}
+              <label className={`cursor-pointer flex items-center gap-2 px-4 md:px-5 py-2.5 md:py-3 bg-dakora-green text-white rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-green-700 transition-all shadow-lg ${bannerLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+                {bannerLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : <><UploadCloud size={12} md:size={14}/> {language === 'fr' ? 'Uploader des images' : 'Upload images'}</>}
                 <input type="file" accept="image/*" multiple className="hidden" onChange={handleAddBannersMultiple}/>
               </label>
               <button
                 type="button"
                 onClick={() => setShowUrlInput(prev => !prev)}
-                className="flex items-center gap-2 px-5 py-3 bg-blue-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg"
+                className="flex items-center gap-2 px-4 md:px-5 py-2.5 md:py-3 bg-blue-500 text-white rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg"
               >
-                <Plus size={14}/> {language === 'fr' ? 'Ajouter par lien URL' : 'Add by URL link'}
+                <Plus size={12} md:size={14}/> {language === 'fr' ? 'Ajouter par lien URL' : 'Add by URL link'}
               </button>
             </div>
           </div>
 
           {showUrlInput && (
-            <form onSubmit={handleAddBannerByUrl} className="flex gap-2 p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5 animate-in slide-in-from-top-2 duration-200">
+            <form onSubmit={handleAddBannerByUrl} className="flex gap-2 p-3 md:p-4 bg-gray-50 dark:bg-white/5 rounded-xl md:rounded-2xl border border-black/5 dark:border-white/5 animate-in slide-in-from-top-2 duration-200">
               <input
                 type="url"
                 required
                 value={bannerUrl}
                 onChange={e => setBannerUrl(e.target.value)}
                 placeholder={language === 'fr' ? 'Coller le lien URL de l\'image de la bannière...' : 'Paste the banner image URL link...'}
-                className="flex-grow px-4 py-3 rounded-xl bg-white dark:bg-neutral-800 text-xs font-bold dark:text-white border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-dakora-green outline-none"
+                className="flex-grow px-3 md:px-4 py-2.5 md:py-3 rounded-lg md:rounded-xl bg-white dark:bg-neutral-800 text-[10px] md:text-xs font-bold dark:text-white border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-dakora-green outline-none"
               />
               <button
                 type="submit"
                 disabled={bannerLoading}
-                className="px-6 py-3 bg-dakora-green text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-700 transition-all"
+                className="px-4 md:px-6 py-2.5 md:py-3 bg-dakora-green text-white rounded-lg md:rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-green-700 transition-all"
               >
                 {language === 'fr' ? 'Ajouter' : 'Add'}
               </button>
             </form>
           )}
           {banners.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-20 bg-white/40 dark:bg-white/5 rounded-[3rem] border border-dashed border-gray-300 dark:border-white/10">
-              <ImageIcon size={48} className="text-gray-300 mb-4"/>
-              <p className="text-gray-400 italic font-bold text-center">{t('banner_empty')}</p>
+            <div className="flex flex-col items-center justify-center p-12 md:p-20 bg-white/40 dark:bg-white/5 rounded-[2rem] md:rounded-[3rem] border border-dashed border-gray-300 dark:border-white/10">
+              <ImageIcon size={32} md:size={48} className="text-gray-300 mb-4"/>
+              <p className="text-gray-400 italic font-bold text-center text-xs md:text-sm">{t('banner_empty')}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {banners.map(banner => (
-                <div key={banner.id} className={`group relative bg-white/40 dark:bg-white/5 rounded-[2.5rem] overflow-hidden border-2 shadow-xl transition-all ${banner.is_active ? 'border-dakora-green' : 'border-gray-200 dark:border-white/10 opacity-60'}`}>
+                <div key={banner.id} className={`group relative bg-white/40 dark:bg-white/5 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border-2 shadow-xl transition-all ${banner.is_active ? 'border-dakora-green' : 'border-gray-200 dark:border-white/10 opacity-60'}`}>
                   <div className="aspect-video relative overflow-hidden">
                     <img src={banner.media_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="" loading="lazy"/>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-end p-5 gap-2">
-                      <input className="bg-white/10 backdrop-blur-sm text-white font-black text-base border border-white/20 rounded-xl px-3 py-1.5 w-full focus:ring-2 focus:ring-dakora-green focus:outline-none"
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-end p-3 md:p-5 gap-1.5 md:gap-2">
+                      <input className="bg-white/10 backdrop-blur-sm text-white font-black text-sm md:text-base border border-white/20 rounded-lg md:rounded-xl px-2 md:px-3 py-1 md:py-1.5 w-full focus:ring-2 focus:ring-dakora-green focus:outline-none"
                         defaultValue={banner.title_fr || ''} placeholder={t('banner_title_fr')}
                         onBlur={e => updateBannerTitle(banner.id, 'title_fr', e.target.value)}/>
-                      <input className="bg-white/10 backdrop-blur-sm text-white/70 text-xs border border-white/10 rounded-xl px-3 py-1.5 w-full focus:ring-2 focus:ring-dakora-green focus:outline-none"
+                      <input className="bg-white/10 backdrop-blur-sm text-white/70 text-[10px] md:text-xs border border-white/10 rounded-lg md:rounded-xl px-2 md:px-3 py-1 md:py-1.5 w-full focus:ring-2 focus:ring-dakora-green focus:outline-none"
                         defaultValue={banner.title_en || ''} placeholder={t('banner_title_en')}
                         onBlur={e => updateBannerTitle(banner.id, 'title_en', e.target.value)}/>
                     </div>
                   </div>
-                  <div className="p-4 flex items-center justify-between gap-3">
+                  <div className="p-3 md:p-4 flex items-center justify-between gap-2 md:gap-3">
                     <button onClick={() => toggleBannerActive(banner.id, banner.is_active)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${banner.is_active ? 'bg-dakora-green/10 text-dakora-green hover:bg-dakora-green hover:text-white' : 'bg-gray-100 dark:bg-white/5 text-gray-400 hover:bg-dakora-green hover:text-white'}`}>
-                      <Star size={12}/> {banner.is_active ? 'Active' : 'Inactive'}
+                      className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase transition-all ${banner.is_active ? 'bg-dakora-green/10 text-dakora-green hover:bg-dakora-green hover:text-white' : 'bg-gray-100 dark:bg-white/5 text-gray-400 hover:bg-dakora-green hover:text-white'}`}>
+                      <Star size={10} md:size={12}/> {banner.is_active ? 'Active' : 'Inactive'}
                     </button>
-                    <button onClick={() => deleteBanner(banner.id)} className="p-2.5 bg-red-100 dark:bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all">
-                      <Trash2 size={16}/>
+                    <button onClick={() => deleteBanner(banner.id)} className="p-2 md:p-2.5 bg-red-100 dark:bg-red-500/10 text-red-500 rounded-lg md:rounded-xl hover:bg-red-500 hover:text-white transition-all">
+                      <Trash2 size={14} md:size={16}/>
                     </button>
                   </div>
                 </div>
@@ -428,12 +428,12 @@ const ProfileSettings = () => {
 
       {/* ── NOTIFICATIONS ── */}
       {activeTab === 'notifications' && (
-        <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-8 md:p-10 rounded-[3rem] border border-white/20 shadow-2xl space-y-8">
+        <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-6 md:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] border border-white/20 shadow-2xl space-y-6 md:space-y-8">
           <div>
-            <h3 className="font-black text-gray-900 dark:text-white text-lg uppercase tracking-tight flex items-center gap-3">
-              <Bell size={20} className="text-dakora-green"/> {language === 'fr' ? 'Préférences de Notifications' : 'Notification Preferences'}
+            <h3 className="font-black text-gray-900 dark:text-white text-base md:text-lg uppercase tracking-tight flex items-center gap-2 md:gap-3">
+              <Bell size={16} md:size={20} className="text-dakora-green"/> {language === 'fr' ? 'Préférences de Notifications' : 'Notification Preferences'}
             </h3>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-xs md:text-sm text-gray-400 mt-1">
               {language === 'fr'
                 ? 'Activez ou désactivez les notifications pour chaque type d\'action admin.'
                 : 'Enable or disable notifications for each type of admin action.'}
@@ -443,14 +443,14 @@ const ProfileSettings = () => {
           <div className="space-y-3">
             {NOTIF_TYPES.map(n => (
               <div key={n.type}
-                className="flex items-center justify-between p-5 bg-gray-50 dark:bg-neutral-900/60 rounded-2xl border border-black/5 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/5 transition-all">
-                <div className="flex items-center gap-4">
-                  <span className="text-2xl w-10 text-center">{n.emoji}</span>
+                className="flex items-center justify-between p-3 md:p-5 bg-gray-50 dark:bg-neutral-900/60 rounded-xl md:rounded-2xl border border-black/5 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/5 transition-all">
+                <div className="flex items-center gap-3 md:gap-4">
+                  <span className="text-xl md:text-2xl w-8 md:w-10 text-center">{n.emoji}</span>
                   <div>
-                    <p className="font-black text-gray-900 dark:text-white text-sm">
+                    <p className="font-black text-gray-900 dark:text-white text-xs md:text-sm">
                       {language === 'fr' ? n.labelFr : n.labelEn}
                     </p>
-                    <p className="text-[10px] text-gray-400 font-medium mt-0.5">
+                    <p className="text-[9px] md:text-[10px] text-gray-400 font-medium mt-0.5">
                       {notifPrefs[n.type]
                         ? (language === 'fr' ? 'Activée — vous recevez ces alertes' : 'Enabled — you receive these alerts')
                         : (language === 'fr' ? 'Désactivée — alertes silencieuses' : 'Disabled — silent alerts')}
@@ -460,18 +460,18 @@ const ProfileSettings = () => {
                 {/* Toggle switch */}
                 <button
                   onClick={() => setNotifPrefs(prev => ({ ...prev, [n.type]: !prev[n.type] }))}
-                  className={`w-12 h-6 rounded-full relative transition-colors duration-300 focus:outline-none flex-shrink-0 ${notifPrefs[n.type] ? 'bg-dakora-green' : 'bg-gray-300 dark:bg-gray-600'}`}
+                  className={`w-10 h-5 md:w-12 md:h-6 rounded-full relative transition-colors duration-300 focus:outline-none flex-shrink-0 ${notifPrefs[n.type] ? 'bg-dakora-green' : 'bg-gray-300 dark:bg-gray-600'}`}
                   aria-label={`Toggle ${n.type} notifications`}
                 >
-                  <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-300 ${notifPrefs[n.type] ? 'translate-x-6' : 'translate-x-0'}`}/>
+                  <div className={`absolute top-0.5 md:top-1 left-0.5 md:left-1 w-4 h-4 md:w-4 md:h-4 bg-white rounded-full shadow transition-transform duration-300 ${notifPrefs[n.type] ? 'translate-x-5 md:translate-x-6' : 'translate-x-0'}`}/>
                 </button>
               </div>
             ))}
           </div>
 
           {/* Info globale */}
-          <div className="p-4 bg-dakora-green/5 border border-dakora-green/20 rounded-2xl">
-            <p className="text-[11px] text-dakora-green font-bold">
+          <div className="p-3 md:p-4 bg-dakora-green/5 border border-dakora-green/20 rounded-xl md:rounded-2xl">
+            <p className="text-[10px] md:text-[11px] text-dakora-green font-bold">
               {language === 'fr'
                 ? '💡 Les notifications désactivées sont simplement ignorées — elles ne créent aucune entrée dans le centre de notifications.'
                 : '💡 Disabled notifications are simply ignored — no entry is created in the notification center.'}
@@ -480,9 +480,9 @@ const ProfileSettings = () => {
 
           <div className="flex justify-end pt-4 border-t border-black/5 dark:border-white/5">
             <button onClick={saveNotifPrefs} disabled={notifLoading}
-              className="px-10 py-4 bg-dakora-green text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl hover:bg-green-700 transition-all flex items-center gap-3 disabled:opacity-50">
+              className="px-6 md:px-10 py-3 md:py-4 bg-dakora-green text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs shadow-xl hover:bg-green-700 transition-all flex items-center gap-2 md:gap-3 disabled:opacity-50">
               {notifLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
-                : saved ? <><CheckCircle2 size={16}/> {language === 'fr' ? 'Enregistré !' : 'Saved!'}</> : <><Save size={16}/> {language === 'fr' ? 'Enregistrer les préférences' : 'Save preferences'}</>}
+                : saved ? <><CheckCircle2 size={14} md:size={16}/> {language === 'fr' ? 'Enregistré !' : 'Saved!'}</> : <><Save size={14} md:size={16}/> {language === 'fr' ? 'Enregistrer les préférences' : 'Save preferences'}</>}
             </button>
           </div>
         </div>

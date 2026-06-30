@@ -69,22 +69,24 @@ const Orders = () => {
           <p className="text-gray-400 font-bold uppercase italic text-sm">{t('no_orders_found')}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 gap-4 md:gap-6">
           {orders.map(order => (
-            <div key={order.id} className="group bg-white/70 dark:bg-neutral-900/70 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-8 border border-white/20 shadow-xl hover:shadow-dakora-green/10 transition-all flex flex-col md:flex-row items-center gap-8">
+            <div key={order.id} className="group bg-white/70 dark:bg-neutral-900/70 backdrop-blur-xl rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-6 lg:p-8 border border-white/20 shadow-xl hover:shadow-dakora-green/10 transition-all flex flex-col md:flex-row items-center gap-4 md:gap-8">
               
               {/* STATUT & RÉF */}
-              <div className="flex flex-col items-center md:items-start min-w-[120px]">
-                <div className={`w-3 h-3 rounded-full ${getStatusColor(order.status)} mb-2 shadow-lg animate-pulse`}/>
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Référence</span>
-                <p className="font-black dark:text-white text-sm">#{order.id.slice(0,8).toUpperCase()}</p>
+              <div className="flex flex-row md:flex-col items-center md:items-start gap-2 md:gap-0 min-w-[80px] md:min-w-[120px]">
+                <div className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full ${getStatusColor(order.status)} shadow-lg animate-pulse flex-shrink-0`}/>
+                <div className="text-center md:text-left">
+                  <span className="text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest block">Référence</span>
+                  <p className="font-black dark:text-white text-xs md:text-sm">#{order.id.slice(0,8).toUpperCase()}</p>
+                </div>
               </div>
 
               {/* CLIENT */}
-              <div className="flex-grow space-y-1 text-center md:text-left">
-                <span className="text-[10px] font-black text-dakora-green uppercase tracking-widest">{t('order_client')}</span>
-                <p className="font-black text-lg dark:text-white uppercase leading-none">{order.customer_first_name} {order.customer_last_name}</p>
-                <p className="text-xs text-gray-500 font-bold flex items-center justify-center md:justify-start gap-2"><Phone size={12}/> {order.phone}</p>
+              <div className="flex-grow space-y-0.5 md:space-y-1 text-center md:text-left">
+                <span className="text-[8px] md:text-[10px] font-black text-dakora-green uppercase tracking-widest">{t('order_client')}</span>
+                <p className="font-black text-sm md:text-lg dark:text-white uppercase leading-none">{order.customer_first_name} {order.customer_last_name}</p>
+                <p className="text-[10px] md:text-xs text-gray-500 font-bold flex items-center justify-center md:justify-start gap-1 md:gap-2"><Phone size={10} md:size={12}/> {order.phone}</p>
               </div>
 
               {/* ARTICLES (VUE RAPIDE) */}
@@ -96,9 +98,9 @@ const Orders = () => {
               </div>
 
               {/* MONTANT */}
-              <div className="text-center md:text-right min-w-[140px]">
-                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('order_total')}</span>
-                 <p className="text-xl font-black text-dakora-green">{order.total_amount?.toLocaleString()} <span className="text-[10px]">FCFA</span></p>
+              <div className="text-center md:text-right min-w-[100px] md:min-w-[140px]">
+                 <span className="text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('order_total')}</span>
+                 <p className="text-base md:text-xl font-black text-dakora-green">{order.total_amount?.toLocaleString()} <span className="text-[8px] md:text-[10px]">FCFA</span></p>
               </div>
 
               {/* ACTION */}
@@ -107,16 +109,16 @@ const Orders = () => {
                   href={`https://wa.me/${order.phone.replace(/[^0-9]/g, '').length === 9 ? '237' + order.phone.replace(/[^0-9]/g, '') : order.phone.replace(/[^0-9]/g, '')}`} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="p-4 bg-[#25D366] text-white rounded-2xl shadow-lg hover:scale-110 transition-all active:scale-95 flex items-center justify-center"
+                  className="p-3 md:p-4 bg-[#25D366] text-white rounded-xl md:rounded-2xl shadow-lg hover:scale-110 transition-all active:scale-95 flex items-center justify-center"
                   title="Discuter sur WhatsApp"
                 >
-                  <svg viewBox="0 0 32 32" className="w-5 h-5 fill-current"><path d="M16.004 2C8.28 2 2 8.28 2 16.004c0 2.46.643 4.867 1.864 6.99L2 30l7.228-1.895A13.94 13.94 0 0016.004 30C23.72 30 30 23.72 30 16.004 30 8.28 23.72 2 16.004 2zm6.27 19.878c-.343-.172-2.034-1.003-2.348-1.118-.314-.115-.544-.172-.773.172-.229.344-.887 1.118-1.088 1.348-.2.23-.4.258-.743.086-.344-.172-1.452-.535-2.766-1.708-1.022-.913-1.713-2.04-1.913-2.383-.2-.344-.022-.53.15-.7.155-.154.344-.402.516-.603.172-.2.229-.344.344-.573.115-.23.057-.43-.029-.602-.086-.173-.773-1.862-1.059-2.551-.279-.67-.562-.579-.773-.59l-.657-.011a1.261 1.261 0 00-.916.43c-.314.343-1.203 1.175-1.203 2.866s1.23 3.322 1.402 3.552c.172.23 2.42 3.695 5.866 5.183.82.354 1.46.566 1.96.724.824.261 1.573.224 2.165.136.66-.099 2.034-.831 2.32-1.634.286-.802.286-1.49.2-1.634-.085-.143-.314-.229-.657-.4z"/></svg>
+                  <svg viewBox="0 0 32 32" className="w-4 h-4 md:w-5 md:h-5 fill-current"><path d="M16.004 2C8.28 2 2 8.28 2 16.004c0 2.46.643 4.867 1.864 6.99L2 30l7.228-1.895A13.94 13.94 0 0016.004 30C23.72 30 30 23.72 30 16.004 30 8.28 23.72 2 16.004 2zm6.27 19.878c-.343-.172-2.034-1.003-2.348-1.118-.314-.115-.544-.172-.773.172-.229.344-.887 1.118-1.088 1.348-.2.23-.4.258-.743.086-.344-.172-1.452-.535-2.766-1.708-1.022-.913-1.713-2.04-1.913-2.383-.2-.344-.022-.53.15-.7.155-.154.344-.402.516-.603.172-.2.229-.344.344-.573.115-.23.057-.43-.029-.602-.086-.173-.773-1.862-1.059-2.551-.279-.67-.562-.579-.773-.59l-.657-.011a1.261 1.261 0 00-.916.43c-.314.343-1.203 1.175-1.203 2.866s1.23 3.322 1.402 3.552c.172.23 2.42 3.695 5.866 5.183.82.354 1.46.566 1.96.724.824.261 1.573.224 2.165.136.66-.099 2.034-.831 2.32-1.634.286-.802.286-1.49.2-1.634-.085-.143-.314-.229-.657-.4z"/></svg>
                 </a>
                 <button 
                   onClick={() => { setSelectedOrder(order); setActiveTab('invoice'); }}
-                  className="p-4 bg-dakora-green text-white rounded-2xl shadow-lg hover:scale-110 transition-all active:scale-95"
+                  className="p-3 md:p-4 bg-dakora-green text-white rounded-xl md:rounded-2xl shadow-lg hover:scale-110 transition-all active:scale-95"
                 >
-                  <Eye size={20} />
+                  <Eye size={16} md:size={20} />
                 </button>
               </div>
             </div>

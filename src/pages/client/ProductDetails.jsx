@@ -8,19 +8,19 @@ import { ChevronLeft, MessageCircle, Package, ArrowRight, ShoppingCart, Check, S
 
 // ─── SKELETON ─────────────────────────────────────────────────────────────────
 const Skeleton = () => (
-  <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 animate-pulse">
-    <div className="h-3 w-28 bg-gray-200 dark:bg-white/10 rounded-full mb-10" />
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-      <div className="aspect-square rounded-[3rem] bg-gray-200 dark:bg-white/10" />
-      <div className="space-y-5">
-        <div className="h-3 w-20 bg-gray-200 dark:bg-white/10 rounded-full" />
-        <div className="h-9 w-3/4 bg-gray-200 dark:bg-white/10 rounded-2xl" />
-        <div className="h-7 w-28 bg-gray-200 dark:bg-white/10 rounded-2xl" />
-        <div className="flex gap-3">
-          {[1,2].map(i => <div key={i} className="h-12 w-28 bg-gray-200 dark:bg-white/10 rounded-2xl" />)}
+  <div className="max-w-7xl mx-auto px-3 md:px-4 lg:px-6 py-8 md:py-10 animate-pulse">
+    <div className="h-2 md:h-3 w-20 md:w-28 bg-gray-200 dark:bg-white/10 rounded-full mb-6 md:mb-10" />
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 lg:gap-16">
+      <div className="aspect-square rounded-[1.5rem] md:rounded-[2rem] lg:rounded-[3rem] bg-gray-200 dark:bg-white/10" />
+      <div className="space-y-3 md:space-y-5">
+        <div className="h-2 md:h-3 w-16 md:w-20 bg-gray-200 dark:bg-white/10 rounded-full" />
+        <div className="h-6 md:h-7 md:h-9 w-3/4 bg-gray-200 dark:bg-white/10 rounded-xl md:rounded-2xl" />
+        <div className="h-4 md:h-5 md:h-7 w-20 md:w-28 bg-gray-200 dark:bg-white/10 rounded-xl md:rounded-2xl" />
+        <div className="flex gap-2 md:gap-3">
+          {[1,2].map(i => <div key={i} className="h-8 md:h-10 md:h-12 w-20 md:w-28 bg-gray-200 dark:bg-white/10 rounded-xl md:rounded-2xl" />)}
         </div>
-        <div className="h-28 bg-gray-200 dark:bg-white/10 rounded-[2rem]" />
-        <div className="h-14 bg-gray-200 dark:bg-white/10 rounded-[2rem]" />
+        <div className="h-16 md:h-20 md:h-28 bg-gray-200 dark:bg-white/10 rounded-[1.5rem] md:rounded-[2rem]" />
+        <div className="h-10 md:h-12 md:h-14 bg-gray-200 dark:bg-white/10 rounded-[1.5rem] md:rounded-[2rem]" />
       </div>
     </div>
   </div>
@@ -83,36 +83,36 @@ const ShareProductPanel = ({ product, language, waNumber, onClose }) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="w-full max-w-md bg-white dark:bg-neutral-900 rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 md:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="w-full max-w-md bg-white dark:bg-neutral-900 rounded-[1.5rem] md:rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-black/5 dark:border-white/10">
-          <div className="flex items-center gap-3">
-            {imgUrl && <img src={imgUrl} alt="" className="w-11 h-11 rounded-xl object-cover flex-shrink-0" />}
+        <div className="flex items-center justify-between p-3 md:p-4 lg:p-5 border-b border-black/5 dark:border-white/10">
+          <div className="flex items-center gap-2 md:gap-3">
+            {imgUrl && <img src={imgUrl} alt="" className="w-9 h-9 md:w-11 md:h-11 rounded-lg md:rounded-xl object-cover flex-shrink-0" />}
             <div className="min-w-0">
-              <p className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-tight truncate max-w-[180px]">{name}</p>
-              <p className="text-[10px] text-dakora-green font-bold">{minPrice.toLocaleString()} FCFA</p>
+              <p className="font-black text-gray-900 dark:text-white text-xs md:text-sm uppercase tracking-tight truncate max-w-[140px] md:max-w-[180px]">{name}</p>
+              <p className="text-[9px] md:text-[10px] text-dakora-green font-bold">{minPrice.toLocaleString()} FCFA</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 flex-shrink-0"><X size={18}/></button>
+          <button onClick={onClose} className="p-1.5 md:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 flex-shrink-0"><X size={16}/></button>
         </div>
         {/* Copier lien */}
-        <div className="px-5 pt-4 pb-2">
-          <button onClick={copyLink} className={`w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 text-xs font-black uppercase tracking-widest transition-all ${copied ? 'border-dakora-green bg-dakora-green/5 text-dakora-green' : 'border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-300 hover:border-dakora-green'}`}>
-            {copied ? <CheckCircle2 size={15}/> : <LinkIcon size={15}/>}
+        <div className="px-3 md:px-4 lg:px-5 pt-3 md:pt-4 pb-2">
+          <button onClick={copyLink} className={`w-full flex items-center justify-center gap-2 py-2 md:py-3 rounded-xl md:rounded-2xl border-2 text-[10px] md:text-xs font-black uppercase tracking-widest transition-all ${copied ? 'border-dakora-green bg-dakora-green/5 text-dakora-green' : 'border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-300 hover:border-dakora-green'}`}>
+            {copied ? <CheckCircle2 size={14}/> : <LinkIcon size={14}/>}
             {copied ? (language === 'fr' ? 'Lien copié !' : 'Link copied!') : (language === 'fr' ? 'Copier le lien' : 'Copy link')}
           </button>
         </div>
         {/* Options */}
-        <div className="p-5 space-y-2">
+        <div className="p-3 md:p-4 lg:p-5 space-y-2">
           {options.map(opt => (
-            <button key={opt.name} onClick={opt.action} className={`w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all ${opt.bg} ${opt.text}`}>
+            <button key={opt.name} onClick={opt.action} className={`w-full flex items-center gap-3 md:gap-4 px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl transition-all ${opt.bg} ${opt.text}`}>
               <span className="flex-shrink-0">{opt.icon}</span>
               <div className="text-left flex-grow min-w-0">
-                <p className="font-black text-sm">{opt.name}</p>
-                <p className="text-[10px] opacity-70 font-medium truncate">{opt.hint}</p>
+                <p className="font-black text-xs md:text-sm">{opt.name}</p>
+                <p className="text-[9px] md:text-[10px] opacity-70 font-medium truncate">{opt.hint}</p>
               </div>
-              <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-full flex-shrink-0 ${opt.auto ? 'bg-green-500/20 text-green-600' : 'bg-orange-500/20 text-orange-600'}`}>
+              <span className={`text-[8px] md:text-[9px] font-black uppercase px-1.5 md:px-2 py-0.5 md:py-1 rounded-full flex-shrink-0 ${opt.auto ? 'bg-green-500/20 text-green-600' : 'bg-orange-500/20 text-orange-600'}`}>
                 {opt.auto ? '✓ Auto' : '~ Manuel'}
               </span>
             </button>
@@ -201,19 +201,19 @@ const ProductDetails = () => {
   const category    = language === 'fr' ? product.categories?.name_fr : product.categories?.name_en;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-10">
+    <div className="max-w-7xl mx-auto px-3 md:px-4 lg:px-6 py-8 md:py-10">
 
       {/* RETOUR */}
       <Link to="/boutique"
-        className="inline-flex items-center gap-2 text-gray-500 hover:text-dakora-green font-bold text-xs uppercase tracking-widest mb-10 transition-colors">
-        <ChevronLeft size={16} /> {t('back_to_shop')}
+        className="inline-flex items-center gap-1.5 md:gap-2 text-gray-500 hover:text-dakora-green font-bold text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-10 transition-colors">
+        <ChevronLeft size={14} /> {t('back_to_shop')}
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-10 xl:gap-16 items-start">
 
         {/* GALERIE */}
-        <div className="space-y-4">
-          <div className="aspect-square rounded-[3rem] overflow-hidden bg-gray-100 dark:bg-white/5 border border-white/20 shadow-2xl">
+        <div className="space-y-2 md:space-y-3 lg:space-y-4">
+          <div className="aspect-square rounded-[1.5rem] md:rounded-[2rem] lg:rounded-[3rem] overflow-hidden bg-gray-100 dark:bg-white/5 border border-white/20 shadow-2xl">
             <img
               src={mainImage || 'https://via.placeholder.com/800'}
               alt={name}
@@ -223,10 +223,10 @@ const ProductDetails = () => {
             />
           </div>
           {product.product_images?.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+            <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 no-scrollbar">
               {product.product_images.map(img => (
                 <button key={img.id} onClick={() => setMainImage(img.url)}
-                  className={`w-20 h-20 flex-shrink-0 rounded-2xl overflow-hidden border-2 transition-all ${
+                  className={`w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 flex-shrink-0 rounded-lg md:rounded-xl lg:rounded-2xl overflow-hidden border-2 transition-all ${
                     mainImage === img.url ? 'border-dakora-green shadow-lg' : 'border-transparent opacity-50 hover:opacity-100'
                   }`}
                 >
@@ -238,29 +238,29 @@ const ProductDetails = () => {
         </div>
 
         {/* INFOS */}
-        <div className="space-y-7">
+        <div className="space-y-4 md:space-y-5 lg:space-y-7">
           <div>
-            <div className="flex flex-wrap items-center gap-2 mb-4">
+            <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3 lg:mb-4">
               {category && (
-                <span className="px-3 py-1 bg-dakora-green/10 text-dakora-green text-[10px] font-black uppercase tracking-widest rounded-full">
+                <span className="px-1.5 md:px-2 lg:px-3 py-0.5 md:py-1 bg-dakora-green/10 text-dakora-green text-[7px] md:text-[8px] lg:text-[10px] font-black uppercase tracking-widest rounded-full">
                   {category}
                 </span>
               )}
               {product.badge && (
-                <span className="px-3 py-1 bg-dakora-yellow text-yellow-900 text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
+                <span className="px-1.5 md:px-2 lg:px-3 py-0.5 md:py-1 bg-dakora-yellow text-yellow-900 text-[7px] md:text-[8px] lg:text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
                   {product.badge}
                 </span>
               )}
             </div>
-            <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none mb-5">
+            <h1 className="text-xl md:text-2xl lg:text-3xl xl:text-5xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none mb-2 md:mb-3 lg:mb-5">
               {name}
             </h1>
-            <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-black text-dakora-green tracking-tighter">
-                {selectedVariant?.price?.toLocaleString()} <span className="text-sm">FCFA</span>
+            <div className="flex items-baseline gap-1.5 md:gap-2 lg:gap-3">
+              <span className="text-xl md:text-2xl lg:text-4xl font-black text-dakora-green tracking-tighter">
+                {selectedVariant?.price?.toLocaleString()} <span className="text-[10px] md:text-xs lg:text-sm">FCFA</span>
               </span>
               {selectedVariant?.old_price && (
-                <span className="text-xl text-gray-400 line-through font-bold">
+                <span className="text-sm md:text-base lg:text-xl text-gray-400 line-through font-bold">
                   {selectedVariant.old_price.toLocaleString()}
                 </span>
               )}
@@ -269,14 +269,14 @@ const ProductDetails = () => {
 
           {/* VARIANTES */}
           {product.variants?.length > 0 && (
-            <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                <Package size={14} /> {t('variant_choice')}
+            <div className="space-y-1.5 md:space-y-2 lg:space-y-3">
+              <label className="text-[9px] md:text-[10px] lg:text-xs font-black uppercase tracking-widest text-gray-400 flex items-center gap-1.5 md:gap-2">
+                <Package size={12} /> {t('variant_choice')}
               </label>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-1.5 md:gap-2 lg:gap-3">
                 {product.variants.map(v => (
                   <button key={v.id} onClick={() => setSelectedVariant(v)}
-                    className={`px-5 py-3 rounded-2xl font-bold text-sm transition-all border-2 ${
+                    className={`px-2 md:px-3 lg:px-5 py-1.5 md:py-2 lg:py-3 rounded-lg md:rounded-xl lg:rounded-2xl font-bold text-[10px] md:text-xs lg:text-sm transition-all border-2 ${
                       selectedVariant?.id === v.id
                         ? 'border-dakora-green bg-dakora-green/5 text-dakora-green shadow-md'
                         : 'border-gray-100 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'
@@ -291,36 +291,37 @@ const ProductDetails = () => {
 
           {/* DESCRIPTION */}
           {description && (
-            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-md p-6 rounded-[2rem] border border-white/20">
-              <h4 className="text-xs font-black uppercase tracking-widest text-dakora-green mb-3">{t('description_title')}</h4>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm">{description}</p>
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-md p-3 md:p-4 lg:p-6 rounded-[1.2rem] md:rounded-[1.5rem] lg:rounded-[2rem] border border-white/20">
+              <h4 className="text-[9px] md:text-[10px] lg:text-xs font-black uppercase tracking-widest text-dakora-green mb-1.5 md:mb-2 lg:mb-3">{t('description_title')}</h4>
+              <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-[10px] md:text-xs lg:text-sm">{description}</p>
             </div>
           )}
 
           {/* BOUTONS D'ACTION */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button onClick={handleAddToCart}
+          <div className="flex flex-col sm:flex-row gap-2 md:gap-3 lg:gap-4">
+            <button 
+              onClick={handleAddToCart}
               disabled={addedToCart}
-              className={`flex-1 py-5 rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl transition-all flex items-center justify-center gap-4 active:scale-95 ${
+              className={`flex-1 py-3 md:py-4 lg:py-5 rounded-[1.2rem] md:rounded-[1.5rem] lg:rounded-[2rem] font-black uppercase tracking-widest text-[10px] md:text-xs lg:text-sm shadow-2xl transition-all flex items-center justify-center gap-2 md:gap-3 lg:gap-4 active:scale-95 ${
                 addedToCart
                   ? 'bg-green-500 text-white'
                   : 'bg-dakora-green text-white hover:bg-green-700'
               }`}>
-              {addedToCart ? <Check size={22} /> : <ShoppingCart size={22} />}
+              <ShoppingCart size={18} />
               {addedToCart ? t('added') : t('add_to_cart')}
             </button>
             <button onClick={handleWhatsAppOrder}
-              className="flex-1 py-5 bg-white dark:bg-white/10 text-gray-900 dark:text-white rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl hover:bg-gray-100 dark:hover:bg-white/20 transition-colors flex items-center justify-center gap-4 active:scale-95 border-2 border-dakora-green">
-              <MessageCircle size={22} />
+              className="flex-1 py-3 md:py-4 lg:py-5 bg-white dark:bg-white/10 text-gray-900 dark:text-white rounded-[1.2rem] md:rounded-[1.5rem] lg:rounded-[2rem] font-black uppercase tracking-widest text-[10px] md:text-xs lg:text-sm shadow-2xl hover:bg-gray-100 dark:hover:bg-white/20 transition-colors flex items-center justify-center gap-2 md:gap-3 lg:gap-4 active:scale-95 border-2 border-dakora-green">
+              <MessageCircle size={18} />
               {t('order_whatsapp')}
             </button>
             <button
               onClick={() => setShowShare(true)}
               aria-label="Partager ce produit"
-              className="py-5 px-6 bg-white/60 dark:bg-white/5 text-gray-600 dark:text-gray-300 rounded-[2rem] font-black uppercase tracking-widest text-sm shadow hover:bg-gray-100 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 border border-gray-200 dark:border-white/10"
+              className="py-3 md:py-4 lg:py-5 px-3 md:px-4 lg:px-6 bg-white/60 dark:bg-white/5 text-gray-600 dark:text-gray-300 rounded-[1.2rem] md:rounded-[1.5rem] lg:rounded-[2rem] font-black uppercase tracking-widest text-[10px] md:text-xs lg:text-sm shadow hover:bg-gray-100 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1.5 md:gap-2 lg:gap-3 active:scale-95 border border-gray-200 dark:border-white/10"
             >
-              <Share2 size={20}/>
-              <span className="hidden sm:inline text-xs">{language === 'fr' ? 'Partager' : 'Share'}</span>
+              <Share2 size={18}/>
+              <span className="hidden sm:inline text-[9px] md:text-[10px] lg:text-xs">{language === 'fr' ? 'Partager' : 'Share'}</span>
             </button>
           </div>
         </div>
@@ -328,24 +329,24 @@ const ProductDetails = () => {
 
       {/* PRODUITS SIMILAIRES */}
       {similarProducts.length > 0 && (
-        <section className="mt-20">
-          <div className="flex justify-between items-end mb-8">
-            <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">
+        <section className="mt-12 md:mt-16 lg:mt-20">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 mb-6 md:mb-8">
+            <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">
               {t('similar_products')}
             </h2>
             <Link to="/boutique"
-              className="text-dakora-green text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:translate-x-1 transition-transform">
-              {t('view_all')} <ArrowRight size={14} />
+              className="text-dakora-green text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center gap-1.5 md:gap-2 hover:translate-x-1 transition-transform">
+              {t('view_all')} <ArrowRight size={12} />
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
             {similarProducts.map(p => {
               const pName  = language === 'fr' ? p.name_fr : p.name_en;
               const pImg   = p.product_images?.[0]?.url;
               const pPrice = p.variants?.[0]?.price;
               return (
-                <Link key={p.id} to={`/produit/${p.id}`} className="group space-y-3">
-                  <div className="aspect-square rounded-[2rem] overflow-hidden bg-gray-100 dark:bg-white/5 border border-white/10 shadow-md">
+                <Link key={p.id} to={`/produit/${p.id}`} className="group space-y-2 md:space-y-3">
+                  <div className="aspect-square rounded-[1.2rem] md:rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden bg-gray-100 dark:bg-white/5 border border-white/10 shadow-md">
                     {pImg && (
                       <img src={pImg} loading="lazy" decoding="async"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -353,8 +354,8 @@ const ProductDetails = () => {
                     )}
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm text-gray-900 dark:text-white group-hover:text-dakora-green transition-colors line-clamp-2">{pName}</h4>
-                    {pPrice && <p className="text-dakora-green font-black text-sm">{Number(pPrice).toLocaleString()} FCFA</p>}
+                    <h4 className="font-bold text-xs md:text-sm text-gray-900 dark:text-white group-hover:text-dakora-green transition-colors line-clamp-2">{pName}</h4>
+                    {pPrice && <p className="text-dakora-green font-black text-xs md:text-sm">{Number(pPrice).toLocaleString()} FCFA</p>}
                   </div>
                 </Link>
               );

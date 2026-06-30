@@ -127,40 +127,40 @@ const Categories = () => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
 
       {/* HEADER */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">
             {t('cat_title')} <span className="text-dakora-green">{t('cat_title_green')}</span>
           </h1>
-          <p className="text-gray-500 font-medium">{t('cat_subtitle')}</p>
+          <p className="text-gray-500 font-medium text-xs md:text-sm">{t('cat_subtitle')}</p>
         </div>
         <button onClick={handleOpen}
-          className="flex items-center gap-2 bg-dakora-green hover:bg-green-700 text-white font-bold py-3 px-6 rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 text-sm uppercase tracking-wider">
-          <Plus size={18}/> {t('cat_add')}
+          className="flex items-center gap-2 bg-dakora-green hover:bg-green-700 text-white font-black py-2.5 md:py-3 px-4 md:px-6 rounded-xl md:rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 text-[10px] md:text-sm uppercase tracking-wider">
+          <Plus size={14} md:size={18}/> {t('cat_add')}
         </button>
       </div>
 
       {/* MODAL AJOUT */}
       {isAddOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-neutral-900 rounded-[2rem] border border-white/20 shadow-2xl p-8 max-w-md w-full space-y-6 animate-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-neutral-900 rounded-[1.5rem] md:rounded-[2rem] border border-white/20 shadow-2xl p-4 md:p-8 max-w-md w-full space-y-4 md:space-y-6 animate-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center">
-              <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase italic">{t('cat_modal_title')}</h3>
+              <h3 className="text-lg md:text-xl font-black text-gray-900 dark:text-white uppercase italic">{t('cat_modal_title')}</h3>
               <button onClick={handleClose} className="p-2 text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full transition-all hover:rotate-90">
-                <X size={20}/>
+                <X size={16} md:size={20}/>
               </button>
             </div>
 
             {/* Légende */}
-            <p className="text-[9px] text-gray-400 font-bold flex items-center gap-1.5">
+            <p className="text-[8px] md:text-[9px] text-gray-400 font-bold flex items-center gap-1.5">
               <span className="text-red-500">★</span> = Obligatoire
               <span className="ml-3 text-dakora-green">✓</span> = Rempli
             </p>
 
-            <form onSubmit={handleSubmit} noValidate className="space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="space-y-3 md:space-y-4">
 
               <FieldInput
                 label={t('cat_name_fr')}
@@ -202,13 +202,13 @@ const Categories = () => {
                 placeholder="🚜 ou https://..."
               />
 
-              <div className="flex gap-4 pt-2">
+              <div className="flex gap-3 md:gap-4 pt-2">
                 <button type="button" onClick={handleClose}
-                  className="flex-1 py-3 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 rounded-xl font-bold uppercase tracking-wider text-xs transition-all hover:bg-gray-200 dark:hover:bg-white/20">
+                  className="flex-1 py-2.5 md:py-3 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 rounded-lg md:rounded-xl font-bold uppercase tracking-wider text-[10px] md:text-xs transition-all hover:bg-gray-200 dark:hover:bg-white/20">
                   {t('btn_cancel')}
                 </button>
                 <button type="submit" disabled={submitting}
-                  className="flex-1 py-3 bg-dakora-green text-white rounded-xl font-black uppercase tracking-wider text-xs hover:bg-green-700 shadow-md transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                  className="flex-1 py-2.5 md:py-3 bg-dakora-green text-white rounded-lg md:rounded-xl font-black uppercase tracking-wider text-[10px] md:text-xs hover:bg-green-700 shadow-md transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                   {submitting
                     ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
                     : t('save')
@@ -222,32 +222,32 @@ const Categories = () => {
 
       {/* LISTE */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1,2,3].map(n => <div key={n} className="h-32 rounded-3xl bg-white/40 dark:bg-white/5 border border-white/20 animate-pulse"/>)}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {[1,2,3].map(n => <div key={n} className="h-24 md:h-32 rounded-2xl md:rounded-3xl bg-white/40 dark:bg-white/5 border border-white/20 animate-pulse"/>)}
         </div>
       ) : categories.length === 0 ? (
-        <div className="bg-white/40 dark:bg-black/20 backdrop-blur-xl rounded-[2.5rem] p-10 border border-white/20 border-dashed text-center">
-          <p className="text-gray-400 italic font-medium">{t('cat_empty')}</p>
+        <div className="bg-white/40 dark:bg-black/20 backdrop-blur-xl rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 border border-white/20 border-dashed text-center">
+          <p className="text-gray-400 italic font-medium text-xs md:text-sm">{t('cat_empty')}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {categories.map(cat => (
-            <div key={cat.id} className="bg-white/60 dark:bg-white/5 backdrop-blur-md p-6 rounded-[2rem] border border-white/20 shadow-xl flex items-center justify-between group hover:scale-[1.02] transition-all">
-              <div className="flex items-center gap-4">
-                <div className="text-3xl p-3 bg-gray-100 dark:bg-white/10 rounded-2xl">
+            <div key={cat.id} className="bg-white/60 dark:bg-white/5 backdrop-blur-md p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-white/20 shadow-xl flex items-center justify-between group hover:scale-[1.02] transition-all">
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className="text-2xl md:text-3xl p-2 md:p-3 bg-gray-100 dark:bg-white/10 rounded-xl md:rounded-2xl">
                   {cat.icon_url || <Folder className="text-dakora-green"/>}
                 </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 dark:text-white">{cat.name_fr}</h3>
-                  {cat.name_en && <p className="text-xs text-gray-400">{cat.name_en}</p>}
-                  <p className="text-[10px] bg-dakora-green/10 text-dakora-green px-2 py-0.5 rounded-full inline-block mt-1 font-bold">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 dark:text-white text-sm md:text-base truncate">{cat.name_fr}</h3>
+                  {cat.name_en && <p className="text-[10px] md:text-xs text-gray-400 truncate">{cat.name_en}</p>}
+                  <p className="text-[8px] md:text-[10px] bg-dakora-green/10 text-dakora-green px-1.5 md:px-2 py-0.5 rounded-full inline-block mt-1 font-bold truncate">
                     slug: {cat.slug}
                   </p>
                 </div>
               </div>
               <button onClick={() => handleDelete(cat.id)}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all">
-                <Trash2 size={18}/>
+                className="p-1.5 md:p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg md:rounded-xl transition-all flex-shrink-0">
+                <Trash2 size={14} md:size={18}/>
               </button>
             </div>
           ))}

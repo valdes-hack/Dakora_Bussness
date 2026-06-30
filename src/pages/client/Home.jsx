@@ -96,31 +96,31 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-10">
             {featuredProducts.map(prod => (
-              <div key={prod.id} className="group bg-white dark:bg-neutral-900 rounded-[3.5rem] p-4 shadow-2xl border border-white/10 flex flex-col transition-all duration-500 hover:shadow-dakora-green/10">
-                <div className="relative aspect-square rounded-[2.8rem] overflow-hidden mb-6">
+              <div key={prod.id} className="group bg-white dark:bg-neutral-900 rounded-[2rem] md:rounded-[3.5rem] p-3 md:p-4 shadow-2xl border border-white/10 flex flex-col transition-all duration-500 hover:shadow-dakora-green/10">
+                <div className="relative aspect-square rounded-[1.8rem] md:rounded-[2.8rem] overflow-hidden mb-4 md:mb-6">
                   <img 
                     src={prod.product_images?.[0]?.url || 'https://via.placeholder.com/500'} 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                     alt={prod.name_fr}
                   />
                   {prod.badge && (
-                    <div className="absolute top-6 left-6 px-4 py-2 bg-dakora-yellow text-yellow-900 text-[10px] font-black uppercase rounded-full shadow-xl">
+                    <div className="absolute top-4 left-4 md:top-6 md:left-6 px-2 py-1 md:px-4 md:py-2 bg-dakora-yellow text-yellow-900 text-[8px] md:text-[10px] font-black uppercase rounded-full shadow-xl">
                       {prod.badge}
                     </div>
                   )}
                 </div>
-                <div className="px-4 pb-6 space-y-4">
-                  <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tighter uppercase leading-tight">
+                <div className="px-2 md:px-4 pb-4 md:pb-6 space-y-3 md:space-y-4">
+                  <h3 className="text-base md:text-2xl font-black text-gray-900 dark:text-white tracking-tighter uppercase leading-tight line-clamp-2">
                     {language === 'fr' ? prod.name_fr : prod.name_en}
                   </h3>
                   <div className="flex justify-between items-center">
-                    <p className="text-xl font-black text-dakora-green">
-                      {prod.variants?.[0]?.price?.toLocaleString()} <span className="text-xs uppercase">FCFA</span>
+                    <p className="text-sm md:text-xl font-black text-dakora-green">
+                      {prod.variants?.[0]?.price?.toLocaleString()} <span className="text-[10px] md:text-xs uppercase">FCFA</span>
                     </p>
-                    <Link to={`/produit/${prod.id}`} className="p-4 bg-gray-100 dark:bg-white/5 rounded-2xl hover:bg-dakora-green hover:text-white transition-all">
-                      <ShoppingCart size={20} />
+                    <Link to={`/produit/${prod.id}`} className="p-3 md:p-4 bg-gray-100 dark:bg-white/5 rounded-xl md:rounded-2xl hover:bg-dakora-green hover:text-white transition-all">
+                      <ShoppingCart size={16} md:size={20} />
                     </Link>
                   </div>
                 </div>

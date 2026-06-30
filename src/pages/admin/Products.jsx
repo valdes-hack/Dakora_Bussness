@@ -270,8 +270,8 @@ const Products = () => {
 
       {/* CONTENU */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[1,2,3].map(n => <div key={n} className="h-80 rounded-[3rem] bg-white/40 dark:bg-white/5 animate-pulse border border-white/20"/>)}
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+          {[1,2,3].map(n => <div key={n} className="h-64 md:h-80 rounded-[2rem] md:rounded-[3rem] bg-white/40 dark:bg-white/5 animate-pulse border border-white/20"/>)}
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-20 bg-white/40 dark:bg-white/5 rounded-[3rem] border border-dashed border-gray-300 dark:border-white/10">
@@ -281,58 +281,58 @@ const Products = () => {
 
       /* ── VUE GRILLE ── */
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {filtered.map(prod => (
             <div key={prod.id}
-              className={`group relative bg-white/70 dark:bg-neutral-900/80 backdrop-blur-xl rounded-[3rem] p-8 border border-white/20 shadow-xl transition-all duration-500 flex flex-col justify-between ${!prod.is_active ? 'opacity-60 grayscale-[0.4]' : ''}`}>
+              className={`group relative bg-white/70 dark:bg-neutral-900/80 backdrop-blur-xl rounded-[2rem] md:rounded-[3rem] p-4 md:p-8 border border-white/20 shadow-xl transition-all duration-500 flex flex-col justify-between ${!prod.is_active ? 'opacity-60 grayscale-[0.4]' : ''}`}>
               <div>
-                <div className="relative h-48 mb-6 rounded-[2rem] overflow-hidden bg-gray-100 dark:bg-black/40 border border-black/5 shadow-inner">
+                <div className="relative h-36 md:h-48 mb-4 md:mb-6 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden bg-gray-100 dark:bg-black/40 border border-black/5 shadow-inner">
                   {prod.product_images?.[0]?.url ? (
                     <img src={prod.product_images[0].url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" loading="lazy"/>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-4xl">📦</div>
+                    <div className="w-full h-full flex items-center justify-center text-3xl md:text-4xl">📦</div>
                   )}
                   {prod.badge && (
-                    <div className="absolute top-4 left-4 px-4 py-1.5 bg-dakora-yellow text-yellow-900 text-[10px] font-black uppercase rounded-full shadow-lg">{prod.badge}</div>
+                    <div className="absolute top-3 left-3 md:top-4 md:left-4 px-2 py-1 md:px-4 md:py-1.5 bg-dakora-yellow text-yellow-900 text-[8px] md:text-[10px] font-black uppercase rounded-full shadow-lg">{prod.badge}</div>
                   )}
                   <button onClick={() => toggleActive(prod.id, prod.is_active)}
-                    className={`absolute top-4 right-4 p-3 rounded-2xl backdrop-blur-md transition-all shadow-lg ${prod.is_active ? 'bg-green-500/80 text-white' : 'bg-gray-500/80 text-white'}`}>
-                    {prod.is_active ? <Eye size={18}/> : <EyeOff size={18}/>}
+                    className={`absolute top-3 right-3 md:top-4 md:right-4 p-2 md:p-3 rounded-xl md:rounded-2xl backdrop-blur-md transition-all shadow-lg ${prod.is_active ? 'bg-green-500/80 text-white' : 'bg-gray-500/80 text-white'}`}>
+                    {prod.is_active ? <Eye size={14} md:size={18}/> : <EyeOff size={14} md:size={18}/>}
                   </button>
                 </div>
-                <span className="text-[10px] font-black text-dakora-green uppercase tracking-[0.2em]">
+                <span className="text-[8px] md:text-[10px] font-black text-dakora-green uppercase tracking-[0.2em]">
                   {language === 'fr' ? prod.categories?.name_fr : prod.categories?.name_en}
                 </span>
-                <h3 className="text-xl font-black text-gray-900 dark:text-white mt-1 leading-tight line-clamp-2">
+                <h3 className="text-sm md:text-xl font-black text-gray-900 dark:text-white mt-1 leading-tight line-clamp-2">
                   {language === 'fr' ? prod.name_fr : prod.name_en}
                 </h3>
-                <div className="flex items-center justify-between mt-4">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{prod.is_active ? t('prod_active') : t('prod_hidden')}</span>
+                <div className="flex items-center justify-between mt-3 md:mt-4">
+                  <span className="text-[8px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest">{prod.is_active ? t('prod_active') : t('prod_hidden')}</span>
                   <button onClick={() => toggleActive(prod.id, prod.is_active)}
-                    className={`w-10 h-5 rounded-full relative transition-colors duration-300 focus:outline-none ${prod.is_active ? 'bg-dakora-green' : 'bg-gray-300 dark:bg-gray-700'}`}>
-                    <div className={`absolute top-0.5 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 ${prod.is_active ? 'translate-x-4' : 'translate-x-0'}`}/>
+                    className={`w-8 h-4 md:w-10 md:h-5 rounded-full relative transition-colors duration-300 focus:outline-none ${prod.is_active ? 'bg-dakora-green' : 'bg-gray-300 dark:bg-gray-700'}`}>
+                    <div className={`absolute top-0.5 left-1 w-3 h-3 md:w-4 md:h-4 bg-white rounded-full transition-transform duration-300 ${prod.is_active ? 'translate-x-3 md:translate-x-4' : 'translate-x-0'}`}/>
                   </button>
                 </div>
               </div>
-              <div className="mt-8 flex items-center justify-between pt-6 border-t border-black/5 dark:border-white/5">
+              <div className="mt-4 md:mt-8 flex items-center justify-between pt-4 md:pt-6 border-t border-black/5 dark:border-white/5">
                 <div>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase">{t('variant_price')}</p>
-                  <p className="text-xl font-black text-gray-900 dark:text-white tracking-tighter">
-                    {prod.variants?.[0]?.price?.toLocaleString() || '---'} <span className="text-xs text-dakora-green">FCFA</span>
+                  <p className="text-[8px] md:text-[10px] font-bold text-gray-400 uppercase">{t('variant_price')}</p>
+                  <p className="text-base md:text-xl font-black text-gray-900 dark:text-white tracking-tighter">
+                    {prod.variants?.[0]?.price?.toLocaleString() || '---'} <span className="text-[10px] md:text-xs text-dakora-green">FCFA</span>
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 md:gap-2">
                   <button onClick={() => setShareProduct(prod)}
-                    className="p-4 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-2xl hover:bg-blue-500 hover:text-white transition-all shadow-sm active:scale-90">
-                    <Share2 size={18}/>
+                    className="p-2.5 md:p-4 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-xl md:rounded-2xl hover:bg-blue-500 hover:text-white transition-all shadow-sm active:scale-90">
+                    <Share2 size={14} md:size={18}/>
                   </button>
                   <button onClick={() => { setEditProduct(prod); setShowForm(true); }}
-                    className="p-4 bg-dakora-green/10 text-dakora-green rounded-2xl hover:bg-dakora-green hover:text-white transition-all shadow-sm active:scale-90">
-                    <Pencil size={18}/>
+                    className="p-2.5 md:p-4 bg-dakora-green/10 text-dakora-green rounded-xl md:rounded-2xl hover:bg-dakora-green hover:text-white transition-all shadow-sm active:scale-90">
+                    <Pencil size={14} md:size={18}/>
                   </button>
                   <button onClick={() => handleDelete(prod.id)}
-                    className="p-4 bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-90">
-                    <Trash2 size={18}/>
+                    className="p-2.5 md:p-4 bg-red-500/10 text-red-500 rounded-xl md:rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-90">
+                    <Trash2 size={14} md:size={18}/>
                   </button>
                 </div>
               </div>

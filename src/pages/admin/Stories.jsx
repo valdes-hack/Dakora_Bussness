@@ -64,32 +64,32 @@ const SharePanel = ({ story, onClose, whatsappNumber, onShare }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-white dark:bg-neutral-900 rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
-        <div className="flex items-center justify-between p-6 border-b border-black/5 dark:border-white/10">
-          <div className="flex items-center gap-3">
-            {story.media_url && <img src={story.media_url} alt="" className="w-12 h-12 rounded-2xl object-cover" />}
-            <div>
-              <h3 className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-tight">{title}</h3>
-              <p className="text-[10px] text-gray-400 font-bold truncate max-w-[180px]">{storyUrl}</p>
+      <div className="w-full max-w-md bg-white dark:bg-neutral-900 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+        <div className="flex items-center justify-between p-4 md:p-6 border-b border-black/5 dark:border-white/10">
+          <div className="flex items-center gap-2 md:gap-3">
+            {story.media_url && <img src={story.media_url} alt="" className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl object-cover" />}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-black text-gray-900 dark:text-white text-xs md:text-sm uppercase tracking-tight truncate">{title}</h3>
+              <p className="text-[9px] md:text-[10px] text-gray-400 font-bold truncate max-w-[150px] md:max-w-[180px]">{storyUrl}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 transition-all"><X size={18}/></button>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 transition-all flex-shrink-0"><X size={16} md:size={18}/></button>
         </div>
-        <div className="px-6 pt-4 pb-2">
-          <button onClick={copyLink} className={`w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 text-xs font-black uppercase tracking-widest transition-all ${copied ? 'border-dakora-green bg-dakora-green/5 text-dakora-green' : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:border-dakora-green'}`}>
-            {copied ? <CheckCircle2 size={16}/> : <LinkIcon size={16}/>}
+        <div className="px-4 md:px-6 pt-3 md:pt-4 pb-2">
+          <button onClick={copyLink} className={`w-full flex items-center justify-center gap-2 py-2.5 md:py-3 rounded-xl md:rounded-2xl border-2 text-[10px] md:text-xs font-black uppercase tracking-widest transition-all ${copied ? 'border-dakora-green bg-dakora-green/5 text-dakora-green' : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:border-dakora-green'}`}>
+            {copied ? <CheckCircle2 size={14} md:size={16}/> : <LinkIcon size={14} md:size={16}/>}
             {copied ? 'Lien copié !' : 'Copier le lien'}
           </button>
         </div>
-        <div className="p-6 space-y-2.5">
+        <div className="p-4 md:p-6 space-y-2 md:space-y-2.5">
           {shareOptions.map(opt => (
-            <button key={opt.name} onClick={opt.action} className={`w-full flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all ${opt.bg} ${opt.text}`}>
+            <button key={opt.name} onClick={opt.action} className={`w-full flex items-center gap-3 md:gap-4 px-4 md:px-5 py-3 md:py-3.5 rounded-xl md:rounded-2xl transition-all ${opt.bg} ${opt.text}`}>
               <span className="flex-shrink-0">{opt.icon}</span>
-              <div className="text-left flex-grow">
-                <p className="font-black text-sm">{opt.name}</p>
-                <p className="text-[10px] opacity-70 font-medium">{opt.hint}</p>
+              <div className="text-left flex-grow min-w-0">
+                <p className="font-black text-xs md:text-sm">{opt.name}</p>
+                <p className="text-[9px] md:text-[10px] opacity-70 font-medium truncate">{opt.hint}</p>
               </div>
-              <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-full flex-shrink-0 ${opt.auto ? 'bg-green-500/20 text-green-600' : 'bg-orange-500/20 text-orange-600'}`}>
+              <span className={`text-[8px] md:text-[9px] font-black uppercase px-1.5 md:px-2 py-0.5 md:py-1 rounded-full flex-shrink-0 ${opt.auto ? 'bg-green-500/20 text-green-600' : 'bg-orange-500/20 text-orange-600'}`}>
                 {opt.auto ? '✓ Auto' : '~ Manuel'}
               </span>
             </button>
@@ -432,31 +432,31 @@ const Stories = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-700">
+    <div className="max-w-5xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-700">
 
       {/* HEADER */}
-      <div className="flex items-end justify-between flex-wrap gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">
+          <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">
             {language === 'fr' ? 'Gestion des' : 'Manage'} <span className="text-dakora-green">Stories</span>
           </h1>
-          <p className="text-gray-500 font-medium mt-1">
+          <p className="text-gray-500 font-medium mt-1 text-xs md:text-sm">
             {language === 'fr' ? 'Publiez vos produits et contenus visuels.' : 'Publish your products and visual content.'}
           </p>
         </div>
         <button
           onClick={() => setShowForm(s => !s)}
-          className="flex items-center gap-2 px-6 py-3 bg-dakora-green text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-green-700 transition-all"
+          className="flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-dakora-green text-white rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg hover:bg-green-700 transition-all"
         >
-          {showForm ? <X size={16}/> : <Plus size={16}/>}
+          {showForm ? <X size={14} md:size={16}/> : <Plus size={14} md:size={16}/>}
           {showForm ? 'Fermer' : 'Nouvelle Story'}
         </button>
       </div>
 
       {/* TOAST SUCCÈS */}
       {saved && (
-        <div className="flex items-center gap-3 p-4 bg-dakora-green/10 text-dakora-green rounded-2xl border border-dakora-green/20 animate-in slide-in-from-top-2">
-          <CheckCircle2 size={18}/> <span className="font-bold text-sm">Story publiée avec succès !</span>
+        <div className="flex items-center gap-2 md:gap-3 p-3 md:p-4 bg-dakora-green/10 text-dakora-green rounded-xl md:rounded-2xl border border-dakora-green/20 animate-in slide-in-from-top-2">
+          <CheckCircle2 size={14} md:size={18}/> <span className="font-bold text-xs md:text-sm">Story publiée avec succès !</span>
         </div>
       )}
 
@@ -471,52 +471,52 @@ const Stories = () => {
 
       {/* LISTE */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[1,2,3,4].map(i => <div key={i} className="aspect-video rounded-[2.5rem] bg-gray-100 dark:bg-white/5 animate-pulse"/>)}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          {[1,2,3,4].map(i => <div key={i} className="aspect-video rounded-[2rem] md:rounded-[2.5rem] bg-gray-100 dark:bg-white/5 animate-pulse"/>)}
         </div>
       ) : stories.length === 0 ? (
-        <div className="flex flex-col items-center justify-center p-20 bg-white/40 dark:bg-white/5 rounded-[3rem] border border-dashed border-gray-300 dark:border-white/10 text-center">
-          <div className="text-5xl mb-4">📸</div>
-          <p className="text-gray-400 italic font-bold text-sm">Aucune story. Cliquez sur "Nouvelle Story" pour commencer !</p>
+        <div className="flex flex-col items-center justify-center p-12 md:p-20 bg-white/40 dark:bg-white/5 rounded-[2rem] md:rounded-[3rem] border border-dashed border-gray-300 dark:border-white/10 text-center">
+          <div className="text-4xl md:text-5xl mb-4">📸</div>
+          <p className="text-gray-400 italic font-bold text-xs md:text-sm">Aucune story. Cliquez sur "Nouvelle Story" pour commencer !</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {stories.map(story => {
             const status = getStatus(story);
             const isActive = story.is_active && !(story.expires_at && new Date(story.expires_at) < new Date());
             return (
-              <div key={story.id} className={`group relative bg-white/40 dark:bg-white/5 rounded-[2.5rem] overflow-hidden border-2 shadow-xl transition-all ${isActive ? 'border-dakora-green' : 'border-gray-200 dark:border-white/10 opacity-70'}`}>
+              <div key={story.id} className={`group relative bg-white/40 dark:bg-white/5 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border-2 shadow-xl transition-all ${isActive ? 'border-dakora-green' : 'border-gray-200 dark:border-white/10 opacity-70'}`}>
                 <div className="aspect-video relative overflow-hidden bg-gray-100 dark:bg-neutral-800">
                   {story.media_url ? (
                     <img src={story.media_url} loading="lazy" alt={story.title_fr} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-4xl">🖼️</div>
+                    <div className="w-full h-full flex items-center justify-center text-3xl md:text-4xl">🖼️</div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-end p-5 gap-1">
-                    <p className="text-white font-black text-base leading-tight">{story.title_fr}</p>
-                    {story.title_en && <p className="text-white/60 text-xs">{story.title_en}</p>}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-end p-3 md:p-5 gap-1">
+                    <p className="text-white font-black text-sm md:text-base leading-tight truncate">{story.title_fr}</p>
+                    {story.title_en && <p className="text-white/60 text-[10px] md:text-xs truncate">{story.title_en}</p>}
                     {story.redirect_link && (
-                      <p className="text-dakora-green text-[10px] font-bold flex items-center gap-1">
-                        <LinkIcon size={10}/> {story.redirect_link}
+                      <p className="text-dakora-green text-[9px] md:text-[10px] font-bold flex items-center gap-1 truncate">
+                        <LinkIcon size={8} md:size={10}/> {story.redirect_link}
                       </p>
                     )}
                   </div>
-                  <span className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[9px] font-black uppercase ${status.color}`}>{status.label}</span>
+                  <span className={`absolute top-3 md:top-4 right-3 md:right-4 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[8px] md:text-[9px] font-black uppercase ${status.color}`}>{status.label}</span>
                 </div>
 
-                <div className="p-4 flex items-center justify-between gap-2 flex-wrap">
-                  <div className="text-[10px] text-gray-400 font-bold flex items-center gap-1">
-                    {story.expires_at && <><Calendar size={10}/>{new Date(story.expires_at).toLocaleDateString()}</>}
+                <div className="p-3 md:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-2">
+                  <div className="text-[9px] md:text-[10px] text-gray-400 font-bold flex items-center gap-1">
+                    {story.expires_at && <><Calendar size={8} md:size={10}/>{new Date(story.expires_at).toLocaleDateString()}</>}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => setShareStory(story)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-all text-[10px] font-black uppercase">
-                      <Share2 size={12}/> Partager
+                  <div className="flex items-center gap-1.5 md:gap-2 w-full sm:w-auto justify-end">
+                    <button onClick={() => setShareStory(story)} className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 md:py-2 rounded-lg md:rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-all text-[9px] md:text-[10px] font-black uppercase">
+                      <Share2 size={10} md:size={12}/> Partager
                     </button>
-                    <button onClick={() => toggleActive(story.id, story.is_active)} className={`p-2.5 rounded-xl transition-all ${story.is_active ? 'bg-dakora-green/10 text-dakora-green hover:bg-dakora-green hover:text-white' : 'bg-gray-100 dark:bg-white/5 text-gray-400 hover:bg-dakora-green hover:text-white'}`}>
-                      {story.is_active ? <Eye size={16}/> : <EyeOff size={16}/>}
+                    <button onClick={() => toggleActive(story.id, story.is_active)} className={`p-1.5 md:p-2.5 rounded-lg md:rounded-xl transition-all ${story.is_active ? 'bg-dakora-green/10 text-dakora-green hover:bg-dakora-green hover:text-white' : 'bg-gray-100 dark:bg-white/5 text-gray-400 hover:bg-dakora-green hover:text-white'}`}>
+                      {story.is_active ? <Eye size={12} md:size={16}/> : <EyeOff size={12} md:size={16}/>}
                     </button>
-                    <button onClick={() => deleteStory(story.id)} className="p-2.5 bg-red-50 dark:bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all">
-                      <Trash2 size={16}/>
+                    <button onClick={() => deleteStory(story.id)} className="p-1.5 md:p-2.5 bg-red-50 dark:bg-red-500/10 text-red-400 rounded-lg md:rounded-xl hover:bg-red-500 hover:text-white transition-all">
+                      <Trash2 size={12} md:size={16}/>
                     </button>
                   </div>
                 </div>

@@ -208,22 +208,22 @@ const Dashboard = () => {
       </div>
 
       {/* STAT CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
         {statCards.map((s, i) => (
           <Link key={i} to={s.link}
-            className={`group relative bg-white/70 dark:bg-neutral-900/70 backdrop-blur-xl p-7 rounded-[2.5rem] border shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer ${s.alert ? 'border-orange-200 dark:border-orange-500/20 shadow-orange-100 dark:shadow-orange-500/5' : 'border-white/20 dark:border-white/5'}`}>
+            className={`group relative bg-white/70 dark:bg-neutral-900/70 backdrop-blur-xl p-4 md:p-7 rounded-[1.5rem] md:rounded-[2.5rem] border shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer ${s.alert ? 'border-orange-200 dark:border-orange-500/20 shadow-orange-100 dark:shadow-orange-500/5' : 'border-white/20 dark:border-white/5'}`}>
             {s.alert && (
-              <span className="absolute top-4 right-4 w-2.5 h-2.5 bg-orange-500 rounded-full animate-ping"/>
+              <span className="absolute top-3 right-3 md:top-4 md:right-4 w-2 h-2 md:w-2.5 md:h-2.5 bg-orange-500 rounded-full animate-ping"/>
             )}
-            <div className={`w-11 h-11 rounded-2xl ${s.bg} ${s.color} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
+            <div className={`w-9 h-9 md:w-11 md:h-11 rounded-xl md:rounded-2xl ${s.bg} ${s.color} flex items-center justify-center mb-3 md:mb-5 group-hover:scale-110 transition-transform`}>
               {s.icon}
             </div>
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">{s.title}</p>
-            <p className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter leading-none mb-1">
-              {loading ? <span className="inline-block w-20 h-7 bg-gray-100 dark:bg-white/10 rounded-xl animate-pulse"/> : s.value}
+            <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">{s.title}</p>
+            <p className="text-xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tighter leading-none mb-1">
+              {loading ? <span className="inline-block w-16 md:w-20 h-5 md:h-7 bg-gray-100 dark:bg-white/10 rounded-xl animate-pulse"/> : s.value}
             </p>
-            <p className="text-[9px] text-gray-400 font-medium">{s.sub}</p>
-            <ArrowRight size={14} className="absolute bottom-5 right-5 text-gray-200 group-hover:text-dakora-green group-hover:translate-x-1 transition-all"/>
+            <p className="text-[8px] md:text-[9px] text-gray-400 font-medium hidden sm:block">{s.sub}</p>
+            <ArrowRight size={12} className="absolute bottom-3 right-3 md:bottom-5 md:right-5 text-gray-200 group-hover:text-dakora-green group-hover:translate-x-1 transition-all"/>
           </Link>
         ))}
       </div>
