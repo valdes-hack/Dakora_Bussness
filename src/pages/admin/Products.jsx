@@ -160,7 +160,9 @@ const Products = () => {
       try {
         const prod = products.find(p => p.id === id);
         const name = language === 'fr' ? prod?.name_fr : prod?.name_en;
-        await supabase.from('products').delete().eq('id', id);
+        const { error } = await supabase.from('products').delete().eq('id', id);
+        if (error) throw error;
+
         setProducts(prev => prev.filter(p => p.id !== id));
         invalidateCache();
         createNotification(`Produit supprimé : ${name}`, 'product', '/admin/produits');
