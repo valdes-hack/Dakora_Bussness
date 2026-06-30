@@ -1,47 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../../api/supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
 import Hero from '../../components/layout/Hero.jsx';
 import Features from '../../components/layout/Features.jsx';
-import { ArrowRight, ShoppingCart, Star, LayoutGrid } from 'lucide-react';
+import { useDataCache } from '../../context/DataCacheContext';
+import { ArrowRight, ShoppingCart } from 'lucide-react';
 
 export default function Home() {
   const { t, language } = useLanguage();
-  const [categories, setCategories] = useState([]);
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { products, categories, ready } = useDataCache();
 
-  useEffect(() => {
-    fetchHomeData();
-  }, []);
-
-  const fetchHomeData = async () => {
-    setLoading(true);
-    try {
-      // 1. Récupérer les catégories
-      const { data: cats } = await supabase
-        .from('categories')
-        .select('*')
-        .order('order_index', { ascending: true })
-        .limit(6);
-      setCategories(cats || []);
-
-      // 2. Récupérer les 3 derniers produits actifs
-      const { data: prods } = await supabase
-        .from('products')
-        .select('*, product_images(*), variants(price)')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(3);
-      setFeaturedProducts(prods || []);
-
-    } catch (error) {
-      console.error("Erreur chargement accueil:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // On prend les 6 premières catégories et les 3 derniers produits du cache
+  const featuredCategories = categories.slice(0, 6);
+  const featuredProducts = products.slice(0, 3);
 
   return (
     <div className="space-y-20 pb-20 animate-in fade-in duration-1000">
@@ -62,10 +33,10 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-          {loading ? (
+          {!ready ? (
             [1, 2, 3, 4, 5, 6].map(n => <div key={n} className="h-40 rounded-[2rem] bg-gray-100 dark:bg-white/5 animate-pulse" />)
           ) : (
-            categories.map(cat => (
+            featuredCategories.map(cat => (
               <Link 
                 key={cat.id} 
                 to="/boutique" 
@@ -97,35 +68,41 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-10">
-            {featuredProducts.map(prod => (
-              <div key={prod.id} className="group bg-white dark:bg-neutral-900 rounded-[2rem] md:rounded-[3.5rem] p-3 md:p-4 shadow-2xl border border-white/10 flex flex-col transition-all duration-500 hover:shadow-dakora-green/10">
-                <div className="relative aspect-square rounded-[1.8rem] md:rounded-[2.8rem] overflow-hidden mb-4 md:mb-6">
-                  <img 
-                    src={prod.product_images?.[0]?.url || 'https://via.placeholder.com/500'} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                    alt={prod.name_fr}
-                  />
-                  {prod.badge && (
-                    <div className="absolute top-4 left-4 md:top-6 md:left-6 px-2 py-1 md:px-4 md:py-2 bg-dakora-yellow text-yellow-900 text-[8px] md:text-[10px] font-black uppercase rounded-full shadow-xl">
-                      {prod.badge}
+            {!ready ? (
+              [1, 2, 3].map(n => (
+                <div key={n} className="h-96 rounded-[2rem] md:rounded-[3.5rem] bg-gray-100 dark:bg-white/5 animate-pulse" />
+              ))
+            ) : (
+              featuredProducts.map(prod => (
+                <div key={prod.id} className="group bg-white dark:bg-neutral-900 rounded-[2rem] md:rounded-[3.5rem] p-3 md:p-4 shadow-2xl border border-white/10 flex flex-col transition-all duration-500 hover:shadow-dakora-green/10">
+                  <div className="relative aspect-square rounded-[1.8rem] md:rounded-[2.8rem] overflow-hidden mb-4 md:mb-6">
+                    <img 
+                      src={prod.product_images?.[0]?.url || 'https://via.placeholder.com/500'} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                      alt={prod.name_fr}
+                    />
+                    {prod.badge && (
+                      <div className="absolute top-4 left-4 md:top-6 md:left-6 px-2 py-1 md:px-4 md:py-2 bg-dakora-yellow text-yellow-900 text-[8px] md:text-[10px] font-black uppercase rounded-full shadow-xl">
+                        {prod.badge}
+                      </div>
+                    )}
+                  </div>
+                  <div className="px-2 md:px-4 pb-4 md:pb-6 space-y-3 md:space-y-4">
+                    <h3 className="text-base md:text-2xl font-black text-gray-900 dark:text-white tracking-tighter uppercase leading-tight line-clamp-2">
+                      {language === 'fr' ? prod.name_fr : prod.name_en}
+                    </h3>
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm md:text-xl font-black text-dakora-green">
+                        {prod.variants?.[0]?.price?.toLocaleString()} <span className="text-[10px] md:text-xs uppercase">FCFA</span>
+                      </p>
+                      <Link to={`/produit/${prod.id}`} className="p-3 md:p-4 bg-gray-100 dark:bg-white/5 rounded-xl md:rounded-2xl hover:bg-dakora-green hover:text-white transition-all">
+                        <ShoppingCart size={18} />
+                      </Link>
                     </div>
-                  )}
-                </div>
-                <div className="px-2 md:px-4 pb-4 md:pb-6 space-y-3 md:space-y-4">
-                  <h3 className="text-base md:text-2xl font-black text-gray-900 dark:text-white tracking-tighter uppercase leading-tight line-clamp-2">
-                    {language === 'fr' ? prod.name_fr : prod.name_en}
-                  </h3>
-                  <div className="flex justify-between items-center">
-                    <p className="text-sm md:text-xl font-black text-dakora-green">
-                      {prod.variants?.[0]?.price?.toLocaleString()} <span className="text-[10px] md:text-xs uppercase">FCFA</span>
-                    </p>
-                    <Link to={`/produit/${prod.id}`} className="p-3 md:p-4 bg-gray-100 dark:bg-white/5 rounded-xl md:rounded-2xl hover:bg-dakora-green hover:text-white transition-all">
-                      <ShoppingCart size={18} />
-                    </Link>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../api/supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
 import { useSettings } from '../../context/SettingsContext';
+import { useDataCache } from '../../context/DataCacheContext';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
@@ -9,37 +9,17 @@ import logo from '../../assets/logo.jpeg';
 const Hero = () => {
   const { t, language } = useLanguage();
   const { settings } = useSettings();
-  const [slides, setSlides] = useState([]);
+  const { banners, ready } = useDataCache();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchBanners();
-  }, []); // chargement unique au montage
-
-  const fetchBanners = async () => {
-    setLoading(true);
-    // On récupère les bannières actives depuis la table "stories"
-    const { data, error } = await supabase
-      .from('stories')
-      .select('*')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false });
-
-    if (!error && data && data.length > 0) {
-      setSlides(data);
-    } else {
-      setSlides([{
-        id: 'default',
-        media_url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1600",
-        title_fr: settings.business_name || 'Dakora Business',
-        title_en: settings.business_name || 'Dakora Business',
-        subtitle_fr: settings.slogan_fr || "L'excellence agricole à votre portée",
-        subtitle_en: settings.slogan_en || "Agricultural excellence at your fingertips"
-      }]);
-    }
-    setLoading(false);
-  };
+  const slides = banners.length > 0 ? banners : [{
+    id: 'default',
+    media_url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1600",
+    title_fr: settings.business_name || 'Dakora Business',
+    title_en: settings.business_name || 'Dakora Business',
+    subtitle_fr: settings.slogan_fr || "L'excellence agricole à votre portée",
+    subtitle_en: settings.slogan_en || "Agricultural excellence at your fingertips"
+  }];
 
   // Défilement automatique toutes les 6 secondes
   useEffect(() => {
@@ -50,7 +30,7 @@ const Hero = () => {
     return () => clearInterval(timer);
   }, [slides.length]);
 
-  if (loading) return <div className="h-[70vh] bg-gray-100 dark:bg-neutral-900 animate-pulse rounded-[3rem] m-6" />;
+  if (!ready) return <div className="h-[70vh] bg-gray-100 dark:bg-neutral-900 animate-pulse rounded-[3rem] m-6" />;
 
   return (
     <section className="relative h-[85vh] w-full overflow-hidden px-0 md:px-6 mt-4">

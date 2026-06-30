@@ -8,7 +8,7 @@ export default defineConfig({
     // Configuration PWA ultra-pro
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon/favicon.ico', 'icon/apple-touch-icon.png'],
+      includeAssets: ['icon/favicon.ico', 'icon/apple-touch-icon.png', 'icon/android-icon-192x192.png', 'icon/android-icon-144x144.png', 'icon/ms-icon-310x310.png'],
       manifest: {
         name: 'Dakora Business',
         short_name: 'Dakora',
@@ -19,17 +19,17 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
-            src: 'icon/android-icon-192x192.png',
+            src: 'android-icon-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'icon/android-icon-144x144.png',
+            src: 'android-icon-144x144.png',
             sizes: '144x144',
             type: 'image/png'
           },
           {
-            src: 'icon/ms-icon-310x310.png',
+            src: 'ms-icon-310x310.png',
             sizes: '310x310',
             type: 'image/png',
             purpose: 'any maskable'

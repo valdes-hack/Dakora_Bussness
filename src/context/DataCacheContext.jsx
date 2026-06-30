@@ -15,6 +15,7 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 export const DataCacheProvider = ({ children }) => {
   const [products, setProducts]     = useState([]);
   const [categories, setCategories] = useState([]);
+  const [banners, setBanners]       = useState([]);
   const [ready, setReady]           = useState(false);
   const [error, setError]           = useState(null);
   const lastFetch = useRef(0);
@@ -31,7 +32,11 @@ export const DataCacheProvider = ({ children }) => {
 
     setError(null);
     try {
-      const [{ data: cats, error: catErr }, { data: prods, error: prodErr }] = await Promise.all([
+      const [
+        { data: cats, error: catErr },
+        { data: prods, error: prodErr },
+        { data: stories, error: storiesErr }
+      ] = await Promise.all([
         supabase
           .from('categories')
           .select('id, name_fr, name_en, icon_url, slug, order_index')
@@ -48,13 +53,21 @@ export const DataCacheProvider = ({ children }) => {
           `)
           .eq('is_active', true)
           .order('order_index')
+          .order('created_at', { ascending: false }),
+
+        supabase
+          .from('stories')
+          .select('*')
+          .eq('is_active', true)
           .order('created_at', { ascending: false })
       ]);
 
       if (catErr) throw catErr;
       if (prodErr) throw prodErr;
+      if (storiesErr) throw storiesErr;
 
       if (cats)  setCategories(cats);
+      if (stories) setBanners(stories);
       if (prods) {
         // Trier les images de chaque produit (principale en tête)
         const sorted = prods.map(p => ({
@@ -98,7 +111,7 @@ export const DataCacheProvider = ({ children }) => {
   }, [fetchAll]);
 
   return (
-    <DataCacheContext.Provider value={{ products, categories, ready, error, invalidateCache }}>
+    <DataCacheContext.Provider value={{ products, categories, banners, ready, error, invalidateCache }}>
       {children}
     </DataCacheContext.Provider>
   );
