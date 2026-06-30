@@ -14,7 +14,7 @@ const Footer = () => {
   
   // PWA Installation
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstallButton, setShowInstallButton] = useState(false);
+  const [showInstallButton, setShowInstallButton] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
 
   useEffect(() => {
@@ -28,12 +28,16 @@ const Footer = () => {
   }, []);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
-      setShowInstallButton(false);
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+        setShowInstallButton(false);
+      }
+    } else {
+      // Fallback: show instructions
+      alert('Pour installer cette application:\n\nSur Chrome/Edge: Cliquez sur le menu (⋮) → "Installer l\'application"\nSur Safari: Cliquez sur "Partager" → "Ajouter à l\'écran d\'accueil"');
     }
   };
 
