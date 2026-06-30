@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useSettings } from '../../context/SettingsContext';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import logo from '../../assets/logo.jpeg';
 
 const Hero = () => {
   const { t, language } = useLanguage();
@@ -53,6 +54,11 @@ const Hero = () => {
 
   return (
     <section className="relative h-[85vh] w-full overflow-hidden px-0 md:px-6 mt-4">
+      {/* LOGO AU-DESSUS DE LA BANNIERE */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 z-30">
+        <img src={logo} alt="Logo" className="h-24 md:h-36 lg:h-48 w-auto object-contain drop-shadow-2xl" />
+      </div>
+
       <div className="relative h-full w-full md:rounded-[3.5rem] overflow-hidden shadow-2xl">
         
         {slides.map((slide, index) => (
@@ -74,9 +80,9 @@ const Hero = () => {
             </div>
 
             {/* TEXTE AU CENTRE (Style Apple Glass) */}
-            <div className="relative h-full flex flex-col items-center justify-center text-center px-6">
-              <div className="max-w-4xl space-y-6 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-                <h1 className="text-5xl md:text-8xl font-black text-white uppercase italic tracking-tighter leading-none drop-shadow-2xl">
+            <div className="relative h-full flex flex-col items-center justify-center text-center px-6 pt-20">
+              <div className="max-w-4xl space-y-4 md:space-y-6 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+                <h1 className="text-4xl md:text-7xl lg:text-8xl font-black text-white uppercase italic tracking-tighter leading-none drop-shadow-2xl">
                   {language === 'fr' ? slide.title_fr : slide.title_en}
                 </h1>
                 
