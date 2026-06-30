@@ -43,44 +43,6 @@ const Footer = () => {
 
   return (
     <>
-      {/* PWA INSTALL BUTTON - Fixed Position */}
-      {showInstallButton && (
-        <div 
-          className={`fixed bottom-4 left-4 z-50 transition-all duration-300 ${
-            isMinimized ? 'translate-x-0' : 'translate-x-0'
-          }`}
-        >
-          <div className="relative bg-dakora-green text-white rounded-full shadow-2xl overflow-hidden">
-            {/* Main Button */}
-            {!isMinimized ? (
-              <button
-                onClick={handleInstallClick}
-                className="flex items-center gap-2 px-4 py-3 md:px-6 md:py-4 font-black text-[10px] md:text-xs uppercase tracking-widest hover:bg-green-700 transition-all"
-              >
-                <Download size={16} className="animate-pulse" />
-                <span>{t('install_app') || 'Installer l\'app'}</span>
-                <X 
-                  size={14} 
-                  className="ml-2 opacity-70 hover:opacity-100 transition-opacity"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsMinimized(true);
-                  }}
-                />
-              </button>
-            ) : (
-              // Minimized Button
-              <button
-                onClick={() => setIsMinimized(false)}
-                className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-dakora-green hover:bg-green-700 transition-all shadow-2xl"
-              >
-                <Download size={20} className="animate-pulse" />
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
       <footer className="mt-20 p-4 md:p-6 flex justify-center mb-10">
         <div className="w-full max-w-6xl bg-white/40 dark:bg-black/40 backdrop-blur-lg rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-10 border border-white/20 shadow-2xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center">
@@ -93,6 +55,15 @@ const Footer = () => {
             </div>
 
           <div className="flex flex-col items-center md:items-end gap-4 md:gap-6">
+            {/* Bouton d'installation PWA dans le footer */}
+            <button
+              onClick={handleInstallClick}
+              className="flex items-center gap-2 px-4 py-3 md:px-6 md:py-4 bg-dakora-green hover:bg-green-700 text-white rounded-full font-black text-[10px] md:text-xs uppercase tracking-widest shadow-2xl transition-all hover:scale-105 active:scale-95"
+            >
+              <Download size={16} className="animate-pulse" />
+              <span>{t('install_app') || 'Installer l\'app'}</span>
+            </button>
+            
             {!user ? (
               <Link 
                 to="/admin/login" 
