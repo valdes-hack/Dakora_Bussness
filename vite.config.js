@@ -19,17 +19,17 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
-            src: 'android-icon-192x192.png',
+            src: 'icon/android-icon-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'android-icon-144x144.png',
+            src: 'icon/android-icon-144x144.png',
             sizes: '144x144',
             type: 'image/png'
           },
           {
-            src: 'ms-icon-310x310.png',
+            src: 'icon/ms-icon-310x310.png',
             sizes: '310x310',
             type: 'image/png',
             purpose: 'any maskable'
