@@ -125,11 +125,11 @@ export default function Inventory() {
           <p className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white mt-1">{variants.length}</p>
         </div>
         <div className={`backdrop-blur-xl rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-6 border shadow transition-all ${lowStockCount > 0 ? 'bg-yellow-50 dark:bg-yellow-500/10 border-yellow-200 dark:border-yellow-500/20' : 'bg-white/60 dark:bg-white/5 border-white/20'}`}>
-          <p className="text-[9px] md:text-[10px] font-black uppercase text-yellow-600 tracking-widest flex items-center gap-1.5"><AlertTriangle size={10} md:size={12}/> {language === 'fr' ? 'Stock faible (≤5)' : 'Low stock (≤5)'}</p>
+          <p className="text-[9px] md:text-[10px] font-black uppercase text-yellow-600 tracking-widest flex items-center gap-1.5"><AlertTriangle size={11}/> {language === 'fr' ? 'Stock faible (≤5)' : 'Low stock (≤5)'}</p>
           <p className="text-2xl md:text-4xl font-black text-yellow-600 mt-1">{lowStockCount}</p>
         </div>
         <div className={`backdrop-blur-xl rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-6 border shadow transition-all ${outOfStockCount > 0 ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20' : 'bg-white/60 dark:bg-white/5 border-white/20'}`}>
-          <p className="text-[9px] md:text-[10px] font-black uppercase text-red-500 tracking-widest flex items-center gap-1.5"><Package size={10} md:size={12}/> {language === 'fr' ? 'Rupture de stock' : 'Out of stock'}</p>
+          <p className="text-[9px] md:text-[10px] font-black uppercase text-red-500 tracking-widest flex items-center gap-1.5"><Package size={11}/> {language === 'fr' ? 'Rupture de stock' : 'Out of stock'}</p>
           <p className="text-2xl md:text-4xl font-black text-red-500 mt-1">{outOfStockCount}</p>
         </div>
       </div>

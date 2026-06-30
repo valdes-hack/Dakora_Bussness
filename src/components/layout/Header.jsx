@@ -104,12 +104,12 @@ const Header = () => {
               aria-label="Rechercher"
               className={`p-1.5 md:p-2 rounded-lg md:rounded-xl transition-all ${searchOpen ? 'bg-dakora-green text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-dakora-green/10'}`}
             >
-              <Search size={16} md:size={20}/>
+              <Search size={18}/>
             </button>
             
             {/* PANIER (Badge dynamique) */}
             <Link to="/panier" className="relative p-1.5 md:p-2 text-gray-600 dark:text-gray-300 hover:bg-dakora-green/10 rounded-lg md:rounded-xl transition-all">
-              <ShoppingCart size={18} md:size={22} />
+              <ShoppingCart size={20} />
               {totalItems > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 md:-top-1 md:-right-1 bg-dakora-green text-white text-[8px] md:text-[10px] font-black w-4 h-4 md:w-5 md:h-5 flex items-center justify-center rounded-full border-2 border-white dark:border-black animate-in zoom-in">
                   {totalItems}
@@ -124,7 +124,7 @@ const Header = () => {
                   to="/admin/dashboard" 
                   className="hidden lg:flex items-center gap-2 px-2 md:px-3 py-1 md:py-1.5 bg-dakora-green text-white rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-green-700 transition-all"
                 >
-                  <LayoutGrid size={10} md:size={12} /> {t('manage_btn') || 'Gestion'}
+                  <LayoutGrid size={11} /> {t('manage_btn') || 'Gestion'}
                 </Link>
                 
                 {profile ? (
@@ -155,12 +155,12 @@ const Header = () => {
               aria-label="Basculer le thème"
               className="p-1.5 md:p-2 rounded-full bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-dakora-yellow transition-all"
             >
-              {isDark ? <Sun size={14} md:size={18} /> : <Moon size={14} md:size={18} />}
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
             
             {/* BURGER MOBILE */}
             <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-1.5 md:p-2 dark:text-white">
-              {isOpen ? <X size={20} md:size={24} /> : <Menu size={20} md:size={24} />}
+              {isOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
         </div>
@@ -169,7 +169,7 @@ const Header = () => {
         {searchOpen && (
           <div data-search-container className="w-full px-3 md:px-4 pb-3 animate-in slide-in-from-top-2 duration-200">
             <div className="relative">
-              <Search size={14} md:size={16} className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Search size={15} className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 ref={searchRef}
                 type="text"
@@ -180,7 +180,7 @@ const Header = () => {
               />
               {searchQuery && (
                 <button onClick={() => handleSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                  <X size={14} md:size={16}/>
+                  <X size={15}/>
                 </button>
               )}
             </div>

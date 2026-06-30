@@ -258,10 +258,10 @@ const ProfileSettings = () => {
               <div className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-dakora-green shadow-xl overflow-hidden bg-gray-100 dark:bg-neutral-800">
                 {photoPreview
                   ? <img src={photoPreview} alt="Profil" className="w-full h-full object-cover"/>
-                  : <div className="w-full h-full flex items-center justify-center text-gray-300"><User size={32} md:size={40}/></div>}
+                  : <div className="w-full h-full flex items-center justify-center text-gray-300"><User size={36}/></div>}
               </div>
               <label className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                <UploadCloud size={20} md:size={24} className="text-white"/>
+                <UploadCloud size={22} className="text-white"/>
                 <input type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && handlePhotoSelect(e.target.files[0])}/>
               </label>
             </div>
@@ -269,7 +269,7 @@ const ProfileSettings = () => {
               <p className="font-black text-gray-900 dark:text-white text-base md:text-lg">{profileData.username || 'Admin'}</p>
               <p className="text-gray-400 text-xs md:text-sm mb-3">{user?.email}</p>
               <label className="inline-flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-dakora-green text-white rounded-full text-[9px] md:text-[10px] font-black uppercase cursor-pointer hover:bg-green-700 transition-all shadow-md">
-                <UploadCloud size={12} md:size={14}/> {t('profile_change_photo')}
+                <UploadCloud size={13}/> {t('profile_change_photo')}
                 <input type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && handlePhotoSelect(e.target.files[0])}/>
               </label>
               {photoFile && <p className="text-[9px] md:text-[10px] text-dakora-green font-bold mt-2">{t('profile_photo_selected')}</p>}
@@ -295,7 +295,7 @@ const ProfileSettings = () => {
             <button onClick={saveProfile} disabled={loading}
               className="px-6 md:px-10 py-3 md:py-4 bg-dakora-green text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs shadow-xl hover:bg-green-700 transition-all flex items-center gap-2 md:gap-3 disabled:opacity-50">
               {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
-                : saved ? <><CheckCircle2 size={14} md:size={16}/> {t('saved')}</> : <><Save size={14} md:size={16}/> {t('save')}</>}
+                : saved ? <><CheckCircle2 size={15}/> {t('saved')}</> : <><Save size={15}/> {t('save')}</>}
             </button>
           </div>
         </div>
@@ -312,7 +312,7 @@ const ProfileSettings = () => {
               value={settings.whatsapp_number}
               onChange={e => { setSettings({...settings, whatsapp_number: e.target.value}); setGeneralErrors(p => ({...p, whatsapp_number: null})); }}
               error={generalErrors.whatsapp_number}
-              placeholder="237690000000"
+              placeholder="Ex: 237690000000 (votre numéro WhatsApp)"
             />
             <FieldInput
               label={t('label_business_name')}
@@ -343,7 +343,7 @@ const ProfileSettings = () => {
             <button onClick={saveGeneral} disabled={loading}
               className="px-6 md:px-10 py-3 md:py-4 bg-dakora-green text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs shadow-xl hover:bg-green-700 transition-all flex items-center gap-2 md:gap-3 disabled:opacity-50">
               {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
-                : saved ? <><CheckCircle2 size={14} md:size={16}/> {t('saved')}</> : <><Save size={14} md:size={16}/> {t('save_settings')}</>}
+                : saved ? <><CheckCircle2 size={15}/> {t('saved')}</> : <><Save size={15}/> {t('save_settings')}</>}
             </button>
           </div>
         </div>
@@ -358,7 +358,7 @@ const ProfileSettings = () => {
             </p>
             <div className="flex flex-wrap gap-2">
               <label className={`cursor-pointer flex items-center gap-2 px-4 md:px-5 py-2.5 md:py-3 bg-dakora-green text-white rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-green-700 transition-all shadow-lg ${bannerLoading ? 'opacity-50 pointer-events-none' : ''}`}>
-                {bannerLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : <><UploadCloud size={12} md:size={14}/> {language === 'fr' ? 'Uploader des images' : 'Upload images'}</>}
+                {bannerLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : <><UploadCloud size={13}/> {language === 'fr' ? 'Uploader des images' : 'Upload images'}</>}
                 <input type="file" accept="image/*" multiple className="hidden" onChange={handleAddBannersMultiple}/>
               </label>
               <button
@@ -366,7 +366,7 @@ const ProfileSettings = () => {
                 onClick={() => setShowUrlInput(prev => !prev)}
                 className="flex items-center gap-2 px-4 md:px-5 py-2.5 md:py-3 bg-blue-500 text-white rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg"
               >
-                <Plus size={12} md:size={14}/> {language === 'fr' ? 'Ajouter par lien URL' : 'Add by URL link'}
+                <Plus size={13}/> {language === 'fr' ? 'Ajouter par lien URL' : 'Add by URL link'}
               </button>
             </div>
           </div>
@@ -392,7 +392,7 @@ const ProfileSettings = () => {
           )}
           {banners.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-12 md:p-20 bg-white/40 dark:bg-white/5 rounded-[2rem] md:rounded-[3rem] border border-dashed border-gray-300 dark:border-white/10">
-              <ImageIcon size={32} md:size={48} className="text-gray-300 mb-4"/>
+              <ImageIcon size={40} className="text-gray-300 mb-4"/>
               <p className="text-gray-400 italic font-bold text-center text-xs md:text-sm">{t('banner_empty')}</p>
             </div>
           ) : (
@@ -413,10 +413,10 @@ const ProfileSettings = () => {
                   <div className="p-3 md:p-4 flex items-center justify-between gap-2 md:gap-3">
                     <button onClick={() => toggleBannerActive(banner.id, banner.is_active)}
                       className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase transition-all ${banner.is_active ? 'bg-dakora-green/10 text-dakora-green hover:bg-dakora-green hover:text-white' : 'bg-gray-100 dark:bg-white/5 text-gray-400 hover:bg-dakora-green hover:text-white'}`}>
-                      <Star size={10} md:size={12}/> {banner.is_active ? 'Active' : 'Inactive'}
+                      <Star size={11}/> {banner.is_active ? 'Active' : 'Inactive'}
                     </button>
                     <button onClick={() => deleteBanner(banner.id)} className="p-2 md:p-2.5 bg-red-100 dark:bg-red-500/10 text-red-500 rounded-lg md:rounded-xl hover:bg-red-500 hover:text-white transition-all">
-                      <Trash2 size={14} md:size={16}/>
+                      <Trash2 size={15}/>
                     </button>
                   </div>
                 </div>
@@ -431,7 +431,7 @@ const ProfileSettings = () => {
         <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-6 md:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] border border-white/20 shadow-2xl space-y-6 md:space-y-8">
           <div>
             <h3 className="font-black text-gray-900 dark:text-white text-base md:text-lg uppercase tracking-tight flex items-center gap-2 md:gap-3">
-              <Bell size={16} md:size={20} className="text-dakora-green"/> {language === 'fr' ? 'Préférences de Notifications' : 'Notification Preferences'}
+              <Bell size={18} className="text-dakora-green"/> {language === 'fr' ? 'Préférences de Notifications' : 'Notification Preferences'}
             </h3>
             <p className="text-xs md:text-sm text-gray-400 mt-1">
               {language === 'fr'
@@ -482,7 +482,7 @@ const ProfileSettings = () => {
             <button onClick={saveNotifPrefs} disabled={notifLoading}
               className="px-6 md:px-10 py-3 md:py-4 bg-dakora-green text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs shadow-xl hover:bg-green-700 transition-all flex items-center gap-2 md:gap-3 disabled:opacity-50">
               {notifLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
-                : saved ? <><CheckCircle2 size={14} md:size={16}/> {language === 'fr' ? 'Enregistré !' : 'Saved!'}</> : <><Save size={14} md:size={16}/> {language === 'fr' ? 'Enregistrer les préférences' : 'Save preferences'}</>}
+                : saved ? <><CheckCircle2 size={15}/> {language === 'fr' ? 'Enregistré !' : 'Saved!'}</> : <><Save size={15}/> {language === 'fr' ? 'Enregistrer les préférences' : 'Save preferences'}</>}
             </button>
           </div>
         </div>

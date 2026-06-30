@@ -139,7 +139,7 @@ const Categories = () => {
         </div>
         <button onClick={handleOpen}
           className="flex items-center gap-2 bg-dakora-green hover:bg-green-700 text-white font-black py-2.5 md:py-3 px-4 md:px-6 rounded-xl md:rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 text-[10px] md:text-sm uppercase tracking-wider">
-          <Plus size={14} md:size={18}/> {t('cat_add')}
+          <Plus size={16}/> {t('cat_add')}
         </button>
       </div>
 
@@ -150,7 +150,7 @@ const Categories = () => {
             <div className="flex justify-between items-center">
               <h3 className="text-lg md:text-xl font-black text-gray-900 dark:text-white uppercase italic">{t('cat_modal_title')}</h3>
               <button onClick={handleClose} className="p-2 text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full transition-all hover:rotate-90">
-                <X size={16} md:size={20}/>
+                <X size={18}/>
               </button>
             </div>
 
@@ -247,7 +247,7 @@ const Categories = () => {
               </div>
               <button onClick={() => handleDelete(cat.id)}
                 className="p-1.5 md:p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg md:rounded-xl transition-all flex-shrink-0">
-                <Trash2 size={14} md:size={18}/>
+                <Trash2 size={16}/>
               </button>
             </div>
           ))}

@@ -120,7 +120,7 @@ export default function Home() {
                       {prod.variants?.[0]?.price?.toLocaleString()} <span className="text-[10px] md:text-xs uppercase">FCFA</span>
                     </p>
                     <Link to={`/produit/${prod.id}`} className="p-3 md:p-4 bg-gray-100 dark:bg-white/5 rounded-xl md:rounded-2xl hover:bg-dakora-green hover:text-white transition-all">
-                      <ShoppingCart size={16} md:size={20} />
+                      <ShoppingCart size={18} />
                     </Link>
                   </div>
                 </div>

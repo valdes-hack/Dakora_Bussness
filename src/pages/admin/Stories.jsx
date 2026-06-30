@@ -73,11 +73,11 @@ const SharePanel = ({ story, onClose, whatsappNumber, onShare }) => {
               <p className="text-[9px] md:text-[10px] text-gray-400 font-bold truncate max-w-[150px] md:max-w-[180px]">{storyUrl}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 transition-all flex-shrink-0"><X size={16} md:size={18}/></button>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 transition-all flex-shrink-0"><X size={17}/></button>
         </div>
         <div className="px-4 md:px-6 pt-3 md:pt-4 pb-2">
           <button onClick={copyLink} className={`w-full flex items-center justify-center gap-2 py-2.5 md:py-3 rounded-xl md:rounded-2xl border-2 text-[10px] md:text-xs font-black uppercase tracking-widest transition-all ${copied ? 'border-dakora-green bg-dakora-green/5 text-dakora-green' : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:border-dakora-green'}`}>
-            {copied ? <CheckCircle2 size={14} md:size={16}/> : <LinkIcon size={14} md:size={16}/>}
+            {copied ? <CheckCircle2 size={15}/> : <LinkIcon size={15}/>}
             {copied ? 'Lien copié !' : 'Copier le lien'}
           </button>
         </div>
@@ -448,7 +448,7 @@ const Stories = () => {
           onClick={() => setShowForm(s => !s)}
           className="flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-dakora-green text-white rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg hover:bg-green-700 transition-all"
         >
-          {showForm ? <X size={14} md:size={16}/> : <Plus size={14} md:size={16}/>}
+          {showForm ? <X size={15}/> : <Plus size={15}/>}
           {showForm ? 'Fermer' : 'Nouvelle Story'}
         </button>
       </div>
@@ -456,7 +456,7 @@ const Stories = () => {
       {/* TOAST SUCCÈS */}
       {saved && (
         <div className="flex items-center gap-2 md:gap-3 p-3 md:p-4 bg-dakora-green/10 text-dakora-green rounded-xl md:rounded-2xl border border-dakora-green/20 animate-in slide-in-from-top-2">
-          <CheckCircle2 size={14} md:size={18}/> <span className="font-bold text-xs md:text-sm">Story publiée avec succès !</span>
+          <CheckCircle2 size={16}/> <span className="font-bold text-xs md:text-sm">Story publiée avec succès !</span>
         </div>
       )}
 
@@ -497,7 +497,7 @@ const Stories = () => {
                     {story.title_en && <p className="text-white/60 text-[10px] md:text-xs truncate">{story.title_en}</p>}
                     {story.redirect_link && (
                       <p className="text-dakora-green text-[9px] md:text-[10px] font-bold flex items-center gap-1 truncate">
-                        <LinkIcon size={8} md:size={10}/> {story.redirect_link}
+                        <LinkIcon size={9}/> {story.redirect_link}
                       </p>
                     )}
                   </div>
@@ -506,17 +506,17 @@ const Stories = () => {
 
                 <div className="p-3 md:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-2">
                   <div className="text-[9px] md:text-[10px] text-gray-400 font-bold flex items-center gap-1">
-                    {story.expires_at && <><Calendar size={8} md:size={10}/>{new Date(story.expires_at).toLocaleDateString()}</>}
+                    {story.expires_at && <><Calendar size={9}/>{new Date(story.expires_at).toLocaleDateString()}</>}
                   </div>
                   <div className="flex items-center gap-1.5 md:gap-2 w-full sm:w-auto justify-end">
                     <button onClick={() => setShareStory(story)} className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 md:py-2 rounded-lg md:rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-all text-[9px] md:text-[10px] font-black uppercase">
-                      <Share2 size={10} md:size={12}/> Partager
+                      <Share2 size={11}/> Partager
                     </button>
                     <button onClick={() => toggleActive(story.id, story.is_active)} className={`p-1.5 md:p-2.5 rounded-lg md:rounded-xl transition-all ${story.is_active ? 'bg-dakora-green/10 text-dakora-green hover:bg-dakora-green hover:text-white' : 'bg-gray-100 dark:bg-white/5 text-gray-400 hover:bg-dakora-green hover:text-white'}`}>
-                      {story.is_active ? <Eye size={12} md:size={16}/> : <EyeOff size={12} md:size={16}/>}
+                      {story.is_active ? <Eye size={14}/> : <EyeOff size={14}/>}
                     </button>
                     <button onClick={() => deleteStory(story.id)} className="p-1.5 md:p-2.5 bg-red-50 dark:bg-red-500/10 text-red-400 rounded-lg md:rounded-xl hover:bg-red-500 hover:text-white transition-all">
-                      <Trash2 size={12} md:size={16}/>
+                      <Trash2 size={14}/>
                     </button>
                   </div>
                 </div>

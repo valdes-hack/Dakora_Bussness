@@ -63,12 +63,12 @@ const ProductCard = memo(({ product, language, onAddToCart, onWhatsApp, isAdded 
           <div className="flex gap-1.5 md:gap-2">
             <button onClick={e => { e.preventDefault(); onAddToCart(product); }}
               className={`flex-1 flex items-center justify-center gap-1 md:gap-2 py-2 md:py-3.5 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-black uppercase tracking-widest shadow transition-all active:scale-95 ${isAdded ? 'bg-green-500 text-white' : 'bg-dakora-green text-white hover:bg-green-700'}`}>
-              {isAdded ? <Check size={12} md:size={15}/> : <ShoppingCart size={12} md:size={15}/>}
+              {isAdded ? <Check size={13}/> : <ShoppingCart size={13}/>}
               {isAdded ? (language === 'fr' ? 'Ajouté' : 'Added') : (language === 'fr' ? 'Panier' : 'Cart')}
             </button>
             <button onClick={e => { e.preventDefault(); onWhatsApp(product); }}
               className="flex-1 flex items-center justify-center gap-1 md:gap-2 py-2 md:py-3.5 rounded-xl md:rounded-2xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white border border-[#25D366]/20 text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
-              <MessageSquare size={12} md:size={15}/>
+              <MessageSquare size={13}/>
               {language === 'fr' ? 'Payer' : 'Buy'}
             </button>
           </div>
@@ -122,7 +122,7 @@ const FilterPanel = ({ categories, language, filters, setFilters, products, onCl
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 md:gap-2">
-          <SlidersHorizontal size={14} md:size={16} className="text-dakora-green"/>
+          <SlidersHorizontal size={15} className="text-dakora-green"/>
           <span className="font-black text-xs md:text-sm uppercase tracking-widest text-gray-900 dark:text-white">
             {label ? 'Filtres' : 'Filters'}
           </span>
@@ -136,7 +136,7 @@ const FilterPanel = ({ categories, language, filters, setFilters, products, onCl
               {label ? 'Réinitialiser' : 'Reset'}
             </button>
           )}
-          {isMobile && <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600"><X size={14} md:size={18}/></button>}
+          {isMobile && <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600"><X size={16}/></button>}
         </div>
       </div>
 
@@ -281,7 +281,7 @@ const Shop = () => {
       <div className="lg:hidden px-4 mb-4 md:mb-6">
         <button onClick={() => setMobileFilterOpen(true)}
           className={`flex items-center gap-2 px-4 md:px-5 py-2.5 md:py-3 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest border transition-all ${hasActiveFilters ? 'bg-dakora-green text-white border-dakora-green shadow-lg' : 'bg-white/70 dark:bg-white/5 border-white/20 text-gray-600 dark:text-gray-300 shadow'}`}>
-          <SlidersHorizontal size={12} md:size={14}/>
+          <SlidersHorizontal size={13}/>
           {language === 'fr' ? 'Filtres' : 'Filters'}
           {hasActiveFilters && <span className="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-white animate-pulse"/>}
         </button>
@@ -317,7 +317,7 @@ const Shop = () => {
             {hasActiveFilters && (
               <button onClick={() => setFilters({ category: 'all', priceMin: '', priceMax: '', badge: '', sort: 'default' })}
                 className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1 md:py-1.5 bg-red-50 dark:bg-red-500/10 text-red-400 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase hover:bg-red-100 transition-all">
-                <X size={10} md:size={12}/> {language === 'fr' ? 'Effacer' : 'Clear'}
+                <X size={11}/> {language === 'fr' ? 'Effacer' : 'Clear'}
               </button>
             )}
           </div>

@@ -272,7 +272,7 @@ const CartPage = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 md:mb-12">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">Finalisation</h1>
         <button onClick={handlePrint} className="hidden md:flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 shadow-sm transition-all active:scale-95">
-          <Printer size={14} md:size={16}/> Ouvrir dans le navigateur
+          <Printer size={16}/> Ouvrir dans le navigateur
         </button>
       </div>
 
@@ -337,9 +337,9 @@ const CartPage = () => {
                 <div className="col-span-1 md:col-span-2 flex md:block justify-between items-center md:text-center">
                   <span className="text-[7px] md:hidden font-bold text-gray-400 uppercase">Qté:</span>
                   <div className="flex items-center justify-center gap-1">
-                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded-lg bg-gray-100 dark:bg-white/10 flex items-center justify-center hover:bg-dakora-green hover:text-white transition-all print:hidden"><Minus size={7} md:size={8} lg:size={10}/></button>
+                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded-lg bg-gray-100 dark:bg-white/10 flex items-center justify-center hover:bg-dakora-green hover:text-white transition-all print:hidden"><Minus size={8}/></button>
                     <span className="font-bold dark:text-white text-[10px] md:text-xs lg:text-sm w-4 md:w-5 lg:w-6 text-center">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded-lg bg-gray-100 dark:bg-white/10 flex items-center justify-center hover:bg-dakora-green hover:text-white transition-all print:hidden"><Plus size={7} md:size={8} lg:size={10}/></button>
+                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded-lg bg-gray-100 dark:bg-white/10 flex items-center justify-center hover:bg-dakora-green hover:text-white transition-all print:hidden"><Plus size={8}/></button>
                   </div>
                 </div>
                 <div className="col-span-1 md:col-span-2 flex md:block justify-between items-center md:text-right font-black dark:text-white text-[10px] md:text-xs lg:text-sm">
@@ -352,7 +352,7 @@ const CartPage = () => {
                     aria-label="Supprimer l'article"
                     className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 rounded-full bg-red-50 dark:bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center"
                   >
-                    <X size={9} md:size={10} lg:size={12}/>
+                    <X size={10}/>
                   </button>
                 </div>
               </div>
@@ -377,7 +377,7 @@ const CartPage = () => {
             {/* SECTION 1 : CLIENT */}
             <div className="space-y-3 md:space-y-4 lg:space-y-6">
               <div className="flex items-center gap-2 border-b border-dakora-green/10 pb-2 md:pb-3 lg:pb-4">
-                <User size={12} md:size={14} lg:size={18} className="text-dakora-green"/>
+                <User size={14} className="text-dakora-green"/>
                 <h3 className="text-[9px] md:text-[10px] lg:text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white italic">Informations Client</h3>
               </div>
               <div className="grid grid-cols-2 gap-2 md:gap-3 lg:gap-4">
@@ -413,7 +413,7 @@ const CartPage = () => {
             {/* SECTION 2 : LIVRAISON + MAP */}
             <div className="space-y-3 md:space-y-4 lg:space-y-6">
               <div className="flex items-center gap-2 border-b border-dakora-green/10 pb-2 md:pb-3 lg:pb-4">
-                <MapPin size={12} md:size={14} lg:size={18} className="text-dakora-green"/>
+                <MapPin size={14} className="text-dakora-green"/>
                 <h3 className="text-[9px] md:text-[10px] lg:text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white italic">
                   Mode de Livraison <span className="text-red-500 text-[9px] md:text-[10px] lg:text-xs">★</span>
                 </h3>
@@ -445,7 +445,7 @@ const CartPage = () => {
                   {/* Bandeau état géolocalisation */}
                   {geoLoading && (
                     <div className="flex items-center gap-2 px-2 md:px-3 lg:px-4 py-1.5 md:py-2 lg:py-3 bg-dakora-green/5 border border-dakora-green/20 rounded-lg md:rounded-xl lg:rounded-2xl animate-pulse">
-                      <Loader2 size={10} md:size={12} lg:size={14} className="animate-spin text-dakora-green flex-shrink-0"/>
+                      <Loader2 size={12} className="animate-spin text-dakora-green flex-shrink-0"/>
                       <p className="text-[8px] md:text-[9px] lg:text-[10px] font-bold text-dakora-green">
                         {language === 'fr' ? 'Récupération de votre position GPS...' : 'Getting your GPS location...'}
                       </p>
@@ -453,7 +453,7 @@ const CartPage = () => {
                   )}
                   {geoError && (
                     <div className="flex items-center gap-2 px-2 md:px-3 lg:px-4 py-1.5 md:py-2 lg:py-3 bg-orange-50 dark:bg-orange-500/5 border border-orange-200 dark:border-orange-500/20 rounded-lg md:rounded-xl lg:rounded-2xl">
-                      <MapPin size={10} md:size={12} lg:size={14} className="text-orange-500 flex-shrink-0"/>
+                      <MapPin size={12} className="text-orange-500 flex-shrink-0"/>
                       <p className="text-[8px] md:text-[9px] lg:text-[10px] font-bold text-orange-600">{geoError}</p>
                     </div>
                   )}
@@ -468,8 +468,8 @@ const CartPage = () => {
                       <button type="button" onClick={requestGeolocation} disabled={geoLoading}
                         className="flex items-center justify-center gap-1 md:gap-1.5 px-2 md:px-3 py-1 md:py-1.5 bg-dakora-green/10 text-dakora-green hover:bg-dakora-green hover:text-white rounded-lg md:rounded-xl text-[7px] md:text-[8px] lg:text-[9px] font-black uppercase tracking-widest transition-all disabled:opacity-50">
                         {geoLoading
-                          ? <Loader2 size={10} md:size={11} className="animate-spin"/>
-                          : <Navigation size={10} md:size={11}/>
+                          ? <Loader2 size={11} className="animate-spin"/>
+                          : <Navigation size={11}/>
                         }
                         {language === 'fr' ? 'Ma position' : 'My location'}
                       </button>
@@ -541,7 +541,7 @@ const CartPage = () => {
             {/* SECTION 3 : PAIEMENT */}
             <div className="space-y-3 md:space-y-4 lg:space-y-6">
               <div className="flex items-center gap-2 border-b border-dakora-green/10 pb-2 md:pb-3 lg:pb-4">
-                <CreditCard size={12} md:size={14} lg:size={18} className="text-dakora-green"/>
+                <CreditCard size={14} className="text-dakora-green"/>
                 <h3 className="text-[9px] md:text-[10px] lg:text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white italic">
                   Paiement <span className="text-red-500 text-[9px] md:text-[10px] lg:text-xs">★</span>
                 </h3>
@@ -579,7 +579,7 @@ const CartPage = () => {
               disabled={loading}
               className="w-full py-3 md:py-4 lg:py-6 bg-dakora-green text-white rounded-[1.2rem] md:rounded-[1.5rem] lg:rounded-[2rem] font-black uppercase tracking-[0.2em] text-[9px] md:text-[10px] lg:text-xs shadow-2xl hover:bg-green-700 transition-all flex items-center justify-center gap-2 md:gap-3 disabled:opacity-30 active:scale-95"
             >
-              {loading ? <Loader2 className="animate-spin" size={14} md:size={18} lg:size={24}/> : <><MessageCircle size={12} md:size={16} lg:size={20}/> Valider & WhatsApp</>}
+              {loading ? <Loader2 className="animate-spin" size={18}/> : <><MessageCircle size={16}/> Valider & WhatsApp</>}
             </button>
 
           </form>

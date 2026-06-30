@@ -86,7 +86,7 @@ const Orders = () => {
               <div className="flex-grow space-y-0.5 md:space-y-1 text-center md:text-left">
                 <span className="text-[8px] md:text-[10px] font-black text-dakora-green uppercase tracking-widest">{t('order_client')}</span>
                 <p className="font-black text-sm md:text-lg dark:text-white uppercase leading-none">{order.customer_first_name} {order.customer_last_name}</p>
-                <p className="text-[10px] md:text-xs text-gray-500 font-bold flex items-center justify-center md:justify-start gap-1 md:gap-2"><Phone size={10} md:size={12}/> {order.phone}</p>
+                <p className="text-[10px] md:text-xs text-gray-500 font-bold flex items-center justify-center md:justify-start gap-1 md:gap-2"><Phone size={11}/> {order.phone}</p>
               </div>
 
               {/* ARTICLES (VUE RAPIDE) */}
@@ -118,7 +118,7 @@ const Orders = () => {
                   onClick={() => { setSelectedOrder(order); setActiveTab('invoice'); }}
                   className="p-3 md:p-4 bg-dakora-green text-white rounded-xl md:rounded-2xl shadow-lg hover:scale-110 transition-all active:scale-95"
                 >
-                  <Eye size={16} md:size={20} />
+                  <Eye size={18} />
                 </button>
               </div>
             </div>

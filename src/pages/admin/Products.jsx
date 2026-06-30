@@ -299,7 +299,7 @@ const Products = () => {
                   )}
                   <button onClick={() => toggleActive(prod.id, prod.is_active)}
                     className={`absolute top-3 right-3 md:top-4 md:right-4 p-2 md:p-3 rounded-xl md:rounded-2xl backdrop-blur-md transition-all shadow-lg ${prod.is_active ? 'bg-green-500/80 text-white' : 'bg-gray-500/80 text-white'}`}>
-                    {prod.is_active ? <Eye size={14} md:size={18}/> : <EyeOff size={14} md:size={18}/>}
+                    {prod.is_active ? <Eye size={16}/> : <EyeOff size={16}/>}
                   </button>
                 </div>
                 <span className="text-[8px] md:text-[10px] font-black text-dakora-green uppercase tracking-[0.2em]">
@@ -326,15 +326,15 @@ const Products = () => {
                 <div className="flex gap-1.5 md:gap-2">
                   <button onClick={() => setShareProduct(prod)}
                     className="p-2.5 md:p-4 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-xl md:rounded-2xl hover:bg-blue-500 hover:text-white transition-all shadow-sm active:scale-90">
-                    <Share2 size={14} md:size={18}/>
+                    <Share2 size={16}/>
                   </button>
                   <button onClick={() => { setEditProduct(prod); setShowForm(true); }}
                     className="p-2.5 md:p-4 bg-dakora-green/10 text-dakora-green rounded-xl md:rounded-2xl hover:bg-dakora-green hover:text-white transition-all shadow-sm active:scale-90">
-                    <Pencil size={14} md:size={18}/>
+                    <Pencil size={16}/>
                   </button>
                   <button onClick={() => handleDelete(prod.id)}
                     className="p-2.5 md:p-4 bg-red-500/10 text-red-500 rounded-xl md:rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-90">
-                    <Trash2 size={14} md:size={18}/>
+                    <Trash2 size={16}/>
                   </button>
                 </div>
               </div>
