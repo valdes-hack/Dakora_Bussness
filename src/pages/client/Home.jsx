@@ -4,7 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import Hero from '../../components/layout/Hero.jsx';
 import Features from '../../components/layout/Features.jsx';
 import { useDataCache } from '../../context/DataCacheContext';
-import { ArrowRight, ShoppingCart } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export default function Home() {
   const { t, language } = useLanguage();
@@ -77,9 +77,10 @@ export default function Home() {
                 <div key={prod.id} className="group bg-white dark:bg-neutral-900 rounded-[2rem] md:rounded-[3.5rem] p-3 md:p-4 shadow-2xl border border-white/10 flex flex-col transition-all duration-500 hover:shadow-dakora-green/10">
                   <div className="relative aspect-square rounded-[1.8rem] md:rounded-[2.8rem] overflow-hidden mb-4 md:mb-6">
                     <img 
-                      src={prod.product_images?.[0]?.url || 'https://via.placeholder.com/500'} 
+                      src={prod.product_images?.[0]?.url} 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                       alt={prod.name_fr}
+                      onError={e => { e.target.style.display='none'; }}
                     />
                     {prod.badge && (
                       <div className="absolute top-4 left-4 md:top-6 md:left-6 px-2 py-1 md:px-4 md:py-2 bg-dakora-yellow text-yellow-900 text-[8px] md:text-[10px] font-black uppercase rounded-full shadow-xl">
@@ -95,8 +96,8 @@ export default function Home() {
                       <p className="text-sm md:text-xl font-black text-dakora-green">
                         {prod.variants?.[0]?.price?.toLocaleString()} <span className="text-[10px] md:text-xs uppercase">FCFA</span>
                       </p>
-                      <Link to={`/produit/${prod.id}`} className="p-3 md:p-4 bg-gray-100 dark:bg-white/5 rounded-xl md:rounded-2xl hover:bg-dakora-green hover:text-white transition-all">
-                        <ShoppingCart size={18} />
+                      <Link to={`/produit/${prod.id}`} className="p-3 md:p-4 bg-gray-100 dark:bg-white/5 rounded-xl md:rounded-2xl hover:bg-dakora-green hover:text-white transition-all dark:text-white">
+                        <ArrowRight size={18} />
                       </Link>
                     </div>
                   </div>
@@ -112,10 +113,12 @@ export default function Home() {
         <div className="relative bg-dakora-green rounded-[3.5rem] p-12 md:p-20 overflow-hidden shadow-2xl text-center">
            <div className="relative z-10 space-y-6">
               <h2 className="text-3xl md:text-5xl font-black text-white uppercase italic tracking-tighter">
-                Prêt à booster votre rendement ?
+                {language === 'fr' ? 'Prêt à booster votre rendement ?' : 'Ready to boost your yield?'}
               </h2>
               <p className="text-green-100 font-medium max-w-2xl mx-auto">
-                Rejoignez les centaines de producteurs qui font confiance à Dakora Business pour leur équipement.
+                {language === 'fr'
+                  ? 'Rejoignez les producteurs qui font confiance à Dakora Business pour leur équipement.'
+                  : 'Join the farmers who trust Dakora Business for their equipment.'}
               </p>
               <Link to="/boutique" className="inline-block bg-white text-dakora-green px-12 py-5 rounded-full font-black uppercase text-sm tracking-widest shadow-2xl hover:scale-105 transition-all active:scale-95">
                 {t('shop_now')}

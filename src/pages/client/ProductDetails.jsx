@@ -4,7 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useSettings } from '../../context/SettingsContext';
 import { useDataCache } from '../../context/DataCacheContext';
 import { useCart } from '../../context/CartContext';
-import { ChevronLeft, MessageCircle, Package, ArrowRight, ShoppingCart, Check, Share2, X, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, MessageCircle, Package, ArrowRight, ShoppingCart, Share2, X, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
 
 // ─── SKELETON ─────────────────────────────────────────────────────────────────
 const Skeleton = () => (
@@ -214,13 +214,20 @@ const ProductDetails = () => {
         {/* GALERIE */}
         <div className="space-y-2 md:space-y-3 lg:space-y-4">
           <div className="aspect-square rounded-[1.5rem] md:rounded-[2rem] lg:rounded-[3rem] overflow-hidden bg-gray-100 dark:bg-white/5 border border-white/20 shadow-2xl">
-            <img
-              src={mainImage || 'https://via.placeholder.com/800'}
-              alt={name}
-              loading="eager"
-              decoding="async"
-              className="w-full h-full object-cover transition-opacity duration-200"
-            />
+            {mainImage ? (
+              <img
+                src={mainImage}
+                alt={name}
+                loading="eager"
+                decoding="async"
+                className="w-full h-full object-cover transition-opacity duration-200"
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-neutral-800 dark:to-neutral-700">
+                <span className="text-6xl">📦</span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Image indisponible</span>
+              </div>
+            )}
           </div>
           {product.product_images?.length > 1 && (
             <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 no-scrollbar">

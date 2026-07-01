@@ -421,13 +421,13 @@ const CartPage = () => {
                 <OrderField label="Prénom" required value={orderData.customer_first_name} error={errors.customer_first_name}>
                   <input type="text" value={orderData.customer_first_name}
                     onChange={e => { setOrderData({...orderData, customer_first_name: e.target.value}); clearErr('customer_first_name'); }}
-                    className={`input-pro w-full ${errors.customer_first_name ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                    className={`input-pro w-full py-3 md:py-4 text-sm md:text-base ${errors.customer_first_name ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
                     placeholder="Jean"/>
                 </OrderField>
                 <OrderField label="Nom" required value={orderData.customer_last_name} error={errors.customer_last_name}>
                   <input type="text" value={orderData.customer_last_name}
                     onChange={e => { setOrderData({...orderData, customer_last_name: e.target.value}); clearErr('customer_last_name'); }}
-                    className={`input-pro w-full ${errors.customer_last_name ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                    className={`input-pro w-full py-3 md:py-4 text-sm md:text-base ${errors.customer_last_name ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
                     placeholder="Dupont"/>
                 </OrderField>
               </div>
@@ -435,13 +435,13 @@ const CartPage = () => {
                 <OrderField label="Téléphone" required value={orderData.phone} error={errors.phone}>
                   <input type="tel" value={orderData.phone}
                     onChange={e => { setOrderData({...orderData, phone: e.target.value}); clearErr('phone'); }}
-                    className={`input-pro w-full font-black ${errors.phone ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                    className={`input-pro w-full py-3 md:py-4 text-sm md:text-base font-black ${errors.phone ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
                     placeholder="690000000"/>
                 </OrderField>
                 <OrderField label="Email" value={orderData.email} error={errors.email}>
                   <input type="email" value={orderData.email}
                     onChange={e => { setOrderData({...orderData, email: e.target.value}); clearErr('email'); }}
-                    className={`input-pro w-full ${errors.email ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                    className={`input-pro w-full py-3 md:py-4 text-sm md:text-base ${errors.email ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
                     placeholder="jean@email.com"/>
                 </OrderField>
               </div>
@@ -556,7 +556,7 @@ const CartPage = () => {
                     <select
                       value={orderData.city}
                       onChange={e => { setOrderData(p => ({...p, city: e.target.value})); clearErr('city'); }}
-                      className={`input-pro w-full ${errors.city ? 'ring-2 ring-red-400 bg-red-50/50 dark:bg-red-500/5' : ''}`}
+                      className={`input-pro w-full py-3 md:py-4 text-sm md:text-base ${errors.city ? 'ring-2 ring-red-400 bg-red-50/50 dark:bg-red-500/5' : ''}`}
                     >
                       <option value="">{language === 'fr' ? 'Sélectionnez une ville' : 'Select a city'}</option>
                       {deliveryCities.map(city => (
@@ -579,7 +579,7 @@ const CartPage = () => {
                       value={orderData.address}
                       onChange={e => { setOrderData(p => ({...p, address: e.target.value})); clearErr('address'); }}
                       placeholder={language === 'fr' ? 'ex: Akwa, Rue de la Joie, porte 12' : 'ex: Akwa, Rue de la Joie, door 12'}
-                      className={`input-pro w-full ${errors.address ? 'ring-2 ring-red-400 bg-red-50/50 dark:bg-red-500/5' : ''}`}
+                      className={`input-pro w-full py-3 md:py-4 text-sm md:text-base ${errors.address ? 'ring-2 ring-red-400 bg-red-50/50 dark:bg-red-500/5' : ''}`}
                     />
                   </OrderField>
 
@@ -605,13 +605,11 @@ const CartPage = () => {
                 <select
                   value={orderData.payment_mode}
                   onChange={e => { setOrderData(p => ({...p, payment_mode: e.target.value})); clearErr('payment_mode'); }}
-                  className={`input-pro w-full font-black uppercase text-[9px] md:text-[10px] lg:text-xs ${errors.payment_mode ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                  className={`input-pro w-full font-black uppercase text-[10px] md:text-[11px] lg:text-sm py-3 md:py-4 ${errors.payment_mode ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
                 >
                   <option value="">— Choisir un mode de paiement —</option>
                   <option value="Cash">💵 Cash à la livraison</option>
                   <option value="WhatsApp">💬 Payer via WhatsApp</option>
-                  <option value="MoMo">📱 MTN Mobile Money</option>
-                  <option value="OM">🟠 Orange Money</option>
                 </select>
                 {errors.payment_mode && (
                   <p className="text-[8px] md:text-[9px] lg:text-[10px] text-red-500 font-bold ml-4 flex items-center gap-1">⚠ {errors.payment_mode}</p>
@@ -622,7 +620,7 @@ const CartPage = () => {
                     placeholder="Réf. transaction (optionnel)"
                     value={orderData.payment_ref}
                     onChange={e => setOrderData(p => ({...p, payment_ref: e.target.value}))}
-                    className="input-pro w-full text-[8px] md:text-[9px] lg:text-[10px]"
+                    className="input-pro w-full py-3 md:py-4 text-sm md:text-base"
                   />
                 )}
               </div>
