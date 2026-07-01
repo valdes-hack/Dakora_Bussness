@@ -85,8 +85,9 @@ const Header = () => {
           {/* LOGO + NOM */}
           <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-2 md:gap-3">
             <img src={logo} alt="Logo" className="h-9 md:h-10 lg:h-12 w-auto object-contain" />
-            <span className="font-black text-sm sm:text-base md:text-lg lg:text-xl tracking-tighter text-gray-900 dark:text-white uppercase italic">
-              {siteName.split(' ')[0]} <span className="text-dakora-green">{siteName.split(' ').slice(1).join(' ') || ''}</span>
+            <span className="font-black text-sm sm:text-base md:text-lg lg:text-xl tracking-tighter uppercase italic">
+              <span style={{color:'#A8DC00'}}>{siteName.split(' ')[0]}</span>{' '}
+              <span style={{color:'#159FFF'}}>{siteName.split(' ').slice(1).join(' ') || ''}</span>
             </span>
           </Link>
 

@@ -34,9 +34,9 @@ const Hero = () => {
 
   return (
     <section className="relative h-[85vh] w-full overflow-hidden px-0 md:px-6 mt-4">
-      {/* LOGO AU-DESSUS DE LA BANNIERE */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 z-30">
-        <img src={logo} alt="Logo" className="h-24 md:h-36 lg:h-48 w-auto object-contain drop-shadow-2xl" />
+      {/* LOGO seul — centré en haut de la bannière */}
+      <div className="absolute top-3 md:top-4 left-1/2 -translate-x-1/2 z-30">
+        <img src={logo} alt="Logo" className="h-40 md:h-56 lg:h-72 w-auto object-contain drop-shadow-2xl" />
       </div>
 
       <div className="relative h-full w-full md:rounded-[3.5rem] overflow-hidden shadow-2xl">
@@ -60,10 +60,13 @@ const Hero = () => {
             </div>
 
             {/* TEXTE AU CENTRE (Style Apple Glass) */}
-            <div className="relative h-full flex flex-col items-center justify-center text-center px-6 pt-20">
-              <div className="max-w-4xl space-y-4 md:space-y-6 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-                <h1 className="text-4xl md:text-7xl lg:text-8xl font-black text-white uppercase italic tracking-tighter leading-none drop-shadow-2xl">
-                  {language === 'fr' ? slide.title_fr : slide.title_en}
+            <div className="relative h-full flex flex-col items-center justify-center text-center px-6 pt-44 md:pt-60 lg:pt-72">
+              <div className="max-w-4xl space-y-2 md:space-y-3 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+                <h1 className="text-4xl md:text-7xl lg:text-8xl font-black uppercase italic tracking-tighter leading-none drop-shadow-2xl">
+                  {/* Couleurs du logo sur le titre de la bannière */}
+                  {(language === 'fr' ? slide.title_fr : slide.title_en)?.split(' ').map((word, i) => (
+                    <span key={i} style={{color: i === 0 ? '#A8DC00' : '#159FFF'}}>{word}{' '}</span>
+                  ))}
                 </h1>
                 
                 <p className="text-lg md:text-2xl text-white/90 font-medium tracking-tight max-w-2xl mx-auto drop-shadow-md">

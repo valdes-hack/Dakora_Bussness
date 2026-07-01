@@ -263,20 +263,32 @@ const CartPage = () => {
         productsDetails += `   ✅ Sous-total: ${subtotal} FCFA\n`;
       });
 
+      // Libellés lisibles pour le mode de paiement
+      const paymentLabels = {
+        'Cash':    '💵 Cash à la livraison',
+        'WhatsApp':'💬 Mode WhatsApp',
+      };
+      const paymentLabel = paymentLabels[orderData.payment_mode] || orderData.payment_mode;
+
+      // Libellés lisibles pour le mode de livraison
+      const deliveryLabel = orderData.delivery_mode === 'retrait'
+        ? '🏪 Retrait en boutique'
+        : '🏠 Livraison à domicile';
+
       const whatsappMsg = `*🛒 NOUVELLE COMMANDE #${ref}*\n\n` +
         `👤 *CLIENT*\n` +
         `   Nom: ${orderData.customer_first_name} ${orderData.customer_last_name}\n` +
         `   Tél: ${orderData.phone}\n` +
-        `   Email: ${orderData.email}\n\n` +
+        `   Email: ${orderData.email || 'Non renseigné'}\n\n` +
         `📍 *LIVRAISON*\n` +
-        `   Mode: ${orderData.delivery_mode}\n` +
+        `   Mode: ${deliveryLabel}\n` +
         `   Ville: ${orderData.city}\n` +
-        `   Adresse: ${orderData.address}\n` +
-        `   Position: https://www.google.com/maps?q=${orderData.latitude},${orderData.longitude}\n\n` +
+        (orderData.address ? `   Adresse: ${orderData.address}\n` : '') +
+        `   Position GPS: https://www.google.com/maps?q=${orderData.latitude},${orderData.longitude}\n\n` +
         `💳 *PAIEMENT*\n` +
-        `   Mode: ${orderData.payment_mode}\n` +
-        `   Réf: ${orderData.payment_ref || 'N/A'}\n\n` +
-        `📦 *COMMANDE*\n${productsDetails}\n` +
+        `   Mode: ${paymentLabel}\n` +
+        (orderData.payment_ref ? `   Réf. transaction: ${orderData.payment_ref}\n` : '') +
+        `\n📦 *ARTICLES COMMANDÉS*\n${productsDetails}\n` +
         `💵 *TOTAL: ${totalAmount.toLocaleString()} FCFA*`;
 
       window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(whatsappMsg)}`, '_blank');

@@ -7,7 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import { 
   Package, MapPin, Phone, Mail, User, 
   CheckCircle2, XCircle, Truck, Eye, X, FileText, Navigation, CreditCard,
-  MessageCircle, Calendar, Hash, Printer
+  MessageCircle, Calendar, Hash, Printer, Trash2
 } from 'lucide-react';
 import { createNotification } from '../../utils/notify';
 import logo from '../../assets/logos.png';
@@ -40,6 +40,74 @@ const Orders = () => {
     createNotification(`Commande #${ref} → ${newStatus} (${client})`, 'order', '/admin/commandes');
     fetchOrders();
     setSelectedOrder(null);
+  };
+
+  // ─── SUPPRESSION + RESTITUTION DU STOCK ─────────────────────────────────────
+  const [deleting, setDeleting] = useState(false);
+
+  const deleteOrder = async (order) => {
+    const ref = order.id.slice(0, 8).toUpperCase();
+    const confirmed = window.confirm(
+      language === 'fr'
+        ? `Supprimer la commande #${ref} ?\n\nLe stock des articles sera automatiquement restitué.`
+        : `Delete order #${ref}?\n\nStock for all items will be automatically restored.`
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    try {
+      // 1. Récupérer les articles de la commande avec les quantités
+      const { data: items, error: itemsErr } = await supabase
+        .from('order_items')
+        .select('variant_id, quantity')
+        .eq('order_id', order.id);
+
+      if (itemsErr) throw itemsErr;
+
+      // 2. Restituer le stock pour chaque variante
+      if (items && items.length > 0) {
+        for (const item of items) {
+          if (!item.variant_id) continue;
+          // Lire le stock actuel
+          const { data: variant } = await supabase
+            .from('variants')
+            .select('stock_quantity')
+            .eq('id', item.variant_id)
+            .single();
+
+          if (variant) {
+            const newQty = (variant.stock_quantity || 0) + item.quantity;
+            await supabase
+              .from('variants')
+              .update({ stock_quantity: newQty })
+              .eq('id', item.variant_id);
+          }
+        }
+      }
+
+      // 3. Supprimer la commande (cascade supprime order_items automatiquement)
+      const { error: delErr } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', order.id);
+
+      if (delErr) throw delErr;
+
+      // 4. Notification
+      createNotification(
+        `Commande #${ref} supprimée — stock restitué (${order.customer_first_name} ${order.customer_last_name})`,
+        'order', '/admin/commandes'
+      );
+
+      // 5. Mise à jour locale immédiate
+      setOrders(prev => prev.filter(o => o.id !== order.id));
+      setSelectedOrder(null);
+
+    } catch (err) {
+      alert((language === 'fr' ? 'Erreur : ' : 'Error: ') + err.message);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const getStatusColor = (status) => {
@@ -142,6 +210,14 @@ const Orders = () => {
                   className="p-3 md:p-4 bg-dakora-green text-white rounded-xl md:rounded-2xl shadow-lg hover:scale-110 transition-all active:scale-95"
                 >
                   <Eye size={18} />
+                </button>
+                <button
+                  onClick={() => deleteOrder(order)}
+                  disabled={deleting}
+                  className="p-3 md:p-4 bg-red-500/10 text-red-500 rounded-xl md:rounded-2xl hover:bg-red-500 hover:text-white transition-all active:scale-95 disabled:opacity-40"
+                  title={language === 'fr' ? 'Supprimer (stock restitué)' : 'Delete (stock restored)'}
+                >
+                  <Trash2 size={18}/>
                 </button>
               </div>
             </div>
@@ -428,14 +504,41 @@ const Orders = () => {
 
             </div>
 
-            {/* FOOTER ACTIONS : STATUS UPDATE */}
-            <div className="p-6 md:p-8 bg-gray-50 dark:bg-black/20 border-t border-black/5 dark:border-white/5">
-               <label className="text-[10px] font-black uppercase text-gray-400 tracking-[0.3em] mb-4 block text-center">{t('order_status_update')}</label>
-               <div className="grid grid-cols-3 gap-3">
-                  <button onClick={() => updateStatus(selectedOrder.id, 'Confirmée')} className="py-4 bg-blue-500 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg hover:bg-blue-600 transition-all flex items-center justify-center gap-2"><CheckCircle2 size={16}/> Confirmer</button>
-                  <button onClick={() => updateStatus(selectedOrder.id, 'Livrée')} className="py-4 bg-green-500 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg hover:bg-green-600 transition-all flex items-center justify-center gap-2"><Truck size={16}/> Livrée</button>
-                  <button onClick={() => updateStatus(selectedOrder.id, 'Annulée')} className="py-4 bg-red-500/10 text-red-500 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2"><XCircle size={16}/> Annuler</button>
-               </div>
+            {/* FOOTER ACTIONS */}
+            <div className="p-5 md:p-7 bg-gray-50 dark:bg-black/20 border-t border-black/5 dark:border-white/5 space-y-3">
+              {/* Statuts */}
+              <label className="text-[9px] font-black uppercase text-gray-400 tracking-[0.3em] block text-center">
+                {t('order_status_update')}
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                <button onClick={() => updateStatus(selectedOrder.id, 'Confirmée')}
+                  className="py-3.5 bg-blue-500 text-white rounded-2xl font-black uppercase text-[9px] tracking-widest shadow-lg hover:bg-blue-600 transition-all flex items-center justify-center gap-2 active:scale-95">
+                  <CheckCircle2 size={15}/> Confirmer
+                </button>
+                <button onClick={() => updateStatus(selectedOrder.id, 'Livrée')}
+                  className="py-3.5 bg-green-500 text-white rounded-2xl font-black uppercase text-[9px] tracking-widest shadow-lg hover:bg-green-600 transition-all flex items-center justify-center gap-2 active:scale-95">
+                  <Truck size={15}/> Livrée
+                </button>
+                <button onClick={() => updateStatus(selectedOrder.id, 'Annulée')}
+                  className="py-3.5 bg-red-500/10 text-red-500 rounded-2xl font-black uppercase text-[9px] tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95">
+                  <XCircle size={15}/> Annuler
+                </button>
+              </div>
+
+              {/* Ligne séparatrice + bouton supprimer */}
+              <div className="pt-2 border-t border-black/5 dark:border-white/5">
+                <button
+                  onClick={() => deleteOrder(selectedOrder)}
+                  disabled={deleting}
+                  className="w-full py-3.5 rounded-2xl font-black uppercase text-[9px] tracking-widest transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-40 bg-red-50 dark:bg-red-500/5 text-red-500 border border-red-200 dark:border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500"
+                >
+                  {deleting
+                    ? <div className="w-4 h-4 border-2 border-red-300 border-t-red-500 rounded-full animate-spin"/>
+                    : <Trash2 size={15}/>
+                  }
+                  {language === 'fr' ? 'Supprimer la commande (stock restitué)' : 'Delete order (stock restored)'}
+                </button>
+              </div>
             </div>
 
           </div>
