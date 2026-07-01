@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../api/supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
 import { useSettings } from '../../context/SettingsContext';
@@ -7,7 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import { 
   Package, MapPin, Phone, Mail, User, 
   CheckCircle2, XCircle, Truck, Eye, X, FileText, Navigation, CreditCard,
-  MessageCircle, Calendar, Hash, Printer, Trash2
+  Calendar, Hash, Printer, Trash2, Search, SlidersHorizontal, ChevronDown
 } from 'lucide-react';
 import { createNotification } from '../../utils/notify';
 import logo from '../../assets/logos.png';
@@ -20,6 +20,15 @@ const Orders = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [activeTab, setActiveTab] = useState('invoice');
 
+  // ─── FILTRES ────────────────────────────────────────────────────────────────
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterDelivery, setFilterDelivery] = useState('all');
+  const [filterPayment, setFilterPayment] = useState('all');
+  const [filterDateFrom, setFilterDateFrom] = useState('');
+  const [filterDateTo, setFilterDateTo]     = useState('');
+  const [search, setSearch]                 = useState('');
+  const [showFilters, setShowFilters]       = useState(true);
+
   useEffect(() => { fetchOrders(); }, []);
 
   const fetchOrders = async () => {
@@ -31,6 +40,58 @@ const Orders = () => {
     setOrders(data || []);
     setLoading(false);
   };
+
+  // ─── FILTRAGE MÉMORISÉ ───────────────────────────────────────────────────────
+  const filteredOrders = useMemo(() => {
+    let list = [...orders];
+
+    // Statut
+    if (filterStatus !== 'all') list = list.filter(o => o.status === filterStatus);
+
+    // Livraison
+    if (filterDelivery !== 'all') list = list.filter(o => o.delivery_mode === filterDelivery);
+
+    // Paiement
+    if (filterPayment !== 'all') list = list.filter(o => o.payment_mode === filterPayment);
+
+    // Date début
+    if (filterDateFrom) {
+      const from = new Date(filterDateFrom);
+      from.setHours(0, 0, 0, 0);
+      list = list.filter(o => new Date(o.created_at) >= from);
+    }
+
+    // Date fin
+    if (filterDateTo) {
+      const to = new Date(filterDateTo);
+      to.setHours(23, 59, 59, 999);
+      list = list.filter(o => new Date(o.created_at) <= to);
+    }
+
+    // Recherche texte
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(o =>
+        o.customer_first_name?.toLowerCase().includes(q) ||
+        o.customer_last_name?.toLowerCase().includes(q) ||
+        o.phone?.includes(q) ||
+        o.id.slice(0, 8).toLowerCase().includes(q)
+      );
+    }
+
+    return list;
+  }, [orders, filterStatus, filterDelivery, filterPayment, filterDateFrom, filterDateTo, search]);
+
+  const hasActiveFilters = filterStatus !== 'all' || filterDelivery !== 'all' ||
+    filterPayment !== 'all' || filterDateFrom || filterDateTo || search.trim();
+
+  const resetFilters = () => {
+    setFilterStatus('all'); setFilterDelivery('all'); setFilterPayment('all');
+    setFilterDateFrom(''); setFilterDateTo(''); setSearch('');
+  };
+
+  // Stats rapides pour les badges des filtres
+  const countByStatus = (s) => orders.filter(o => o.status === s).length;
 
   const updateStatus = async (id, newStatus) => {
     await supabase.from('orders').update({ status: newStatus }).eq('id', id);
@@ -141,84 +202,234 @@ const Orders = () => {
   return (
     <div className="space-y-10 animate-in fade-in duration-700">
       
-      {/* HEADER PREMIUM */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <div>
-          <h1 className="text-4xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter leading-none">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter leading-none">
             {t('orders_title')?.split(' ')[0]} <span className="text-dakora-green">{t('orders_title')?.split(' ').slice(1).join(' ')}</span>
           </h1>
-          <p className="text-gray-500 font-medium mt-2">{t('orders_subtitle')}</p>
+          <p className="text-xs sm:text-sm md:text-base text-gray-500 font-medium mt-1 sm:mt-2">{t('orders_subtitle')}</p>
         </div>
+        {/* Bouton toggle filtres */}
+        <button onClick={() => setShowFilters(f => !f)}
+          className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest transition-all border ${
+            hasActiveFilters
+              ? 'bg-dakora-green text-white border-dakora-green shadow-lg'
+              : showFilters
+                ? 'bg-gray-100 dark:bg-white/10 border-transparent text-gray-600 dark:text-gray-300'
+                : 'bg-white/70 dark:bg-white/5 border-white/20 text-gray-500'
+          }`}>
+          <SlidersHorizontal size={12} sm:size={14}/>
+          <span className="hidden sm:inline">{language === 'fr' ? 'Filtres' : 'Filters'}</span>
+          {hasActiveFilters && <span className="w-2 h-2 rounded-full bg-white animate-pulse"/>}
+          <ChevronDown size={11} sm:size={13} className={`transition-transform ${showFilters ? 'rotate-180' : ''}`}/>
+        </button>
       </div>
 
-      {/* LISTE DES COMMANDES (RESPONSIVE) */}
+      {/* BARRE DE FILTRES — collapsible */}
+      {showFilters && (
+        <div className="bg-white/60 dark:bg-white/5 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2rem] border border-white/20 shadow p-3 sm:p-5 animate-in slide-in-from-top-2 duration-200">
+
+          {/* Ligne 1 : Recherche */}
+          <div className="relative mb-3 sm:mb-4">
+            <Search size={12} sm:size={14} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400"/>
+            <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+              placeholder={language === 'fr' ? 'Rechercher...' : 'Search...'}
+              className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-3 rounded-xl bg-gray-50 dark:bg-neutral-800 text-[10px] sm:text-xs font-bold dark:text-white border-none focus:ring-2 focus:ring-dakora-green outline-none"/>
+            {search && <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><X size={11} sm:size={13}/></button>}
+          </div>
+
+          {/* Grille de filtres */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+
+            {/* Statut */}
+            <div>
+              <p className="text-[8px] sm:text-[9px] font-black uppercase text-gray-400 tracking-widest mb-2">
+                {language === 'fr' ? 'Statut' : 'Status'}
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1 sm:gap-1.5">
+                {[
+                  { v: 'all', label: language === 'fr' ? 'Tous' : 'All', color: 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300' },
+                  { v: 'En attente', label: language === 'fr' ? 'En attente' : 'Pending', color: 'bg-orange-100 text-orange-600 dark:bg-orange-500/10' },
+                  { v: 'Confirmée', label: language === 'fr' ? 'Confirmée' : 'Confirmed', color: 'bg-blue-100 text-blue-600 dark:bg-blue-500/10' },
+                  { v: 'Livrée', label: language === 'fr' ? 'Livrée' : 'Delivered', color: 'bg-dakora-green/10 text-dakora-green' },
+                  { v: 'Annulée', label: language === 'fr' ? 'Annulée' : 'Cancelled', color: 'bg-red-100 text-red-500 dark:bg-red-500/10' },
+                ].map(opt => (
+                  <button key={opt.v} onClick={() => setFilterStatus(opt.v)}
+                    className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[7px] sm:text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-0.5 sm:gap-1 ${
+                      filterStatus === opt.v ? 'ring-2 ring-offset-1 ring-dakora-green ' + opt.color : opt.color + ' opacity-60 hover:opacity-100'
+                    }`}>
+                    {opt.label}
+                    {opt.v !== 'all' && <span className="text-[6px] sm:text-[8px] font-bold">({countByStatus(opt.v)})</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Livraison */}
+            <div>
+              <p className="text-[8px] sm:text-[9px] font-black uppercase text-gray-400 tracking-widest mb-2">
+                {language === 'fr' ? 'Livraison' : 'Delivery'}
+              </p>
+              <div className="grid grid-cols-3 gap-1 sm:gap-1.5">
+                {[
+                  { v: 'all', label: language === 'fr' ? 'Tous' : 'All' },
+                  { v: 'retrait', label: '🏪 ' + (language === 'fr' ? 'Retrait' : 'Pickup') },
+                  { v: 'domicile', label: '🏠 ' + (language === 'fr' ? 'Domicile' : 'Home') },
+                ].map(opt => (
+                  <button key={opt.v} onClick={() => setFilterDelivery(opt.v)}
+                    className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[7px] sm:text-[9px] font-black uppercase transition-all ${
+                      filterDelivery === opt.v
+                        ? 'bg-dakora-green text-white shadow'
+                        : 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-300 hover:bg-dakora-green/10 hover:text-dakora-green'
+                    }`}>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Paiement */}
+            <div>
+              <p className="text-[8px] sm:text-[9px] font-black uppercase text-gray-400 tracking-widest mb-2">
+                {language === 'fr' ? 'Paiement' : 'Payment'}
+              </p>
+              <div className="grid grid-cols-3 gap-1 sm:gap-1.5">
+                {[
+                  { v: 'all', label: language === 'fr' ? 'Tous' : 'All' },
+                  { v: 'Cash', label: '💵 Cash' },
+                  { v: 'WhatsApp', label: '💬 WhatsApp' },
+                ].map(opt => (
+                  <button key={opt.v} onClick={() => setFilterPayment(opt.v)}
+                    className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[7px] sm:text-[9px] font-black uppercase transition-all ${
+                      filterPayment === opt.v
+                        ? 'bg-dakora-green text-white shadow'
+                        : 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-300 hover:bg-dakora-green/10 hover:text-dakora-green'
+                    }`}>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Ligne 3 : Filtre par date + actions */}
+          <div className="flex flex-col sm:flex-row items-end gap-2 sm:gap-3 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-black/5 dark:border-white/5">
+            <div className="space-y-1.5 w-full sm:w-auto">
+              <p className="text-[8px] sm:text-[9px] font-black uppercase text-gray-400 tracking-widest">
+                {language === 'fr' ? 'Date début' : 'From date'}
+              </p>
+              <input type="date" value={filterDateFrom} onChange={e => setFilterDateFrom(e.target.value)}
+                className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-neutral-800 text-[10px] sm:text-xs font-bold dark:text-white border-none focus:ring-2 focus:ring-dakora-green outline-none cursor-pointer"/>
+            </div>
+            <div className="space-y-1.5 w-full sm:w-auto">
+              <p className="text-[8px] sm:text-[9px] font-black uppercase text-gray-400 tracking-widest">
+                {language === 'fr' ? 'Date fin' : 'To date'}
+              </p>
+              <input type="date" value={filterDateTo} onChange={e => setFilterDateTo(e.target.value)}
+                className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-neutral-800 text-[10px] sm:text-xs font-bold dark:text-white border-none focus:ring-2 focus:ring-dakora-green outline-none cursor-pointer"/>
+            </div>
+
+            {/* Reset + compteur */}
+            <div className="flex items-center gap-2 sm:gap-3 sm:ml-auto w-full sm:w-auto justify-between sm:justify-end">
+              <span className="text-[9px] sm:text-[10px] font-bold text-gray-400">
+                {filteredOrders.length} / {orders.length} {language === 'fr' ? 'commande(s)' : 'order(s)'}
+              </span>
+              {hasActiveFilters && (
+                <button onClick={resetFilters}
+                  className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-red-50 dark:bg-red-500/10 text-red-400 rounded-lg sm:rounded-xl text-[8px] sm:text-[10px] font-black uppercase hover:bg-red-100 transition-all">
+                  <X size={10} sm:size={11}/> {language === 'fr' ? 'Réinitialiser' : 'Reset'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* LISTE DES COMMANDES */}
       {loading ? (
         <div className="p-20 text-center animate-pulse text-dakora-green font-black uppercase tracking-widest">{t('msg_loading')}</div>
-      ) : orders.length === 0 ? (
+      ) : filteredOrders.length === 0 ? (
         <div className="p-20 bg-white/40 dark:bg-white/5 rounded-[3rem] text-center border border-dashed border-gray-300 dark:border-white/10">
           <Package size={48} className="mx-auto text-gray-300 mb-4"/>
-          <p className="text-gray-400 font-bold uppercase italic text-sm">{t('no_orders_found')}</p>
+          <p className="text-gray-400 font-bold uppercase italic text-sm">
+            {hasActiveFilters
+              ? (language === 'fr' ? 'Aucune commande pour ces filtres.' : 'No orders match these filters.')
+              : t('no_orders_found')
+            }
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:gap-6">
-          {orders.map(order => (
-            <div key={order.id} className="group bg-white/70 dark:bg-neutral-900/70 backdrop-blur-xl rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-6 lg:p-8 border border-white/20 shadow-xl hover:shadow-dakora-green/10 transition-all flex flex-col md:flex-row items-center gap-4 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+          {filteredOrders.map(order => (
+            <div key={order.id} className="group bg-white/70 dark:bg-neutral-900/70 backdrop-blur-xl rounded-lg sm:rounded-xl md:rounded-2xl p-2 sm:p-3 md:p-4 border border-white/20 shadow hover:shadow-dakora-green/10 transition-all flex flex-col gap-1.5 sm:gap-2">
               
-              {/* STATUT & RÉF */}
-              <div className="flex flex-row md:flex-col items-center md:items-start gap-2 md:gap-0 min-w-[80px] md:min-w-[120px]">
-                <div className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full ${getStatusColor(order.status)} shadow-lg animate-pulse flex-shrink-0`}/>
-                <div className="text-center md:text-left">
-                  <span className="text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest block">Référence</span>
-                  <p className="font-black dark:text-white text-xs md:text-sm">#{order.id.slice(0,8).toUpperCase()}</p>
+              {/* HEADER CARTE : STATUT & RÉF */}
+              <div className="flex items-center justify-between gap-1.5">
+                <div className="flex items-center gap-1">
+                  <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${getStatusColor(order.status)} shadow animate-pulse flex-shrink-0`}/>
+                  <div>
+                    <span className="text-[6px] sm:text-[7px] font-black text-gray-400 uppercase tracking-widest block">Réf</span>
+                    <p className="font-black dark:text-white text-[9px] sm:text-[10px]">#{order.id.slice(0,8).toUpperCase()}</p>
+                  </div>
                 </div>
+                <span className={`px-1 sm:px-1.5 py-0.5 rounded text-[6px] sm:text-[7px] font-black uppercase ${getStatusColor(order.status).replace('bg-', 'bg-').replace('500', '500/10')} text-gray-700 dark:text-gray-300`}>
+                  {order.status}
+                </span>
               </div>
 
               {/* CLIENT */}
-              <div className="flex-grow space-y-0.5 md:space-y-1 text-center md:text-left">
-                <span className="text-[8px] md:text-[10px] font-black text-dakora-green uppercase tracking-widest">{t('order_client')}</span>
-                <p className="font-black text-sm md:text-lg dark:text-white uppercase leading-none">{order.customer_first_name} {order.customer_last_name}</p>
-                <p className="text-[10px] md:text-xs text-gray-500 font-bold flex items-center justify-center md:justify-start gap-1 md:gap-2"><Phone size={11}/> {order.phone}</p>
+              <div className="space-y-0.5">
+                <p className="font-black text-[10px] sm:text-xs dark:text-white uppercase leading-none truncate">{order.customer_first_name} {order.customer_last_name}</p>
+                <p className="text-[7px] sm:text-[8px] text-gray-500 font-bold flex items-center gap-0.5"><Phone size={7} sm:size={8}/> {order.phone}</p>
               </div>
 
               {/* ARTICLES (VUE RAPIDE) */}
-              <div className="hidden lg:block flex-grow max-w-xs">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('order_items')}</span>
-                <p className="text-xs dark:text-gray-300 font-medium truncate mt-1">
-                  {order.order_items?.map(i => i.variants?.products?.name_fr).join(', ')}
+              <div>
+                <p className="text-[7px] sm:text-[8px] dark:text-gray-300 font-medium truncate">
+                  {order.order_items?.slice(0, 2).map(i => language === 'fr' ? i.variants?.products?.name_fr : i.variants?.products?.name_en).join(', ')}
+                  {order.order_items?.length > 2 && ` +${order.order_items.length - 2}`}
                 </p>
               </div>
 
-              {/* MONTANT */}
-              <div className="text-center md:text-right min-w-[100px] md:min-w-[140px]">
-                 <span className="text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('order_total')}</span>
-                 <p className="text-base md:text-xl font-black text-dakora-green">{order.total_amount?.toLocaleString()} <span className="text-[8px] md:text-[10px]">FCFA</span></p>
+              {/* LIVRAISON & PAIEMENT */}
+              <div className="flex items-center gap-1 text-[6px] sm:text-[7px]">
+                <span className={`px-1 sm:px-1.5 py-0.5 rounded font-bold uppercase ${order.delivery_mode === 'retrait' ? 'bg-blue-100 dark:bg-blue-500/10 text-blue-600' : 'bg-purple-100 dark:bg-purple-500/10 text-purple-600'}`}>
+                  {order.delivery_mode === 'retrait' ? '🏪' : '🏠'}
+                </span>
+                <span className={`px-1 sm:px-1.5 py-0.5 rounded font-bold uppercase ${order.payment_mode === 'Cash' ? 'bg-green-100 dark:bg-green-500/10 text-green-600' : 'bg-orange-100 dark:bg-orange-500/10 text-orange-600'}`}>
+                  {order.payment_mode === 'Cash' ? '💵' : '💬'}
+                </span>
               </div>
 
-              {/* ACTION */}
-              <div className="flex gap-2">
-                <a 
-                  href={`https://wa.me/${order.phone.replace(/[^0-9]/g, '').length === 9 ? '237' + order.phone.replace(/[^0-9]/g, '') : order.phone.replace(/[^0-9]/g, '')}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="p-3 md:p-4 bg-[#25D366] text-white rounded-xl md:rounded-2xl shadow-lg hover:scale-110 transition-all active:scale-95 flex items-center justify-center"
-                  title="Discuter sur WhatsApp"
-                >
-                  <svg viewBox="0 0 32 32" className="w-4 h-4 md:w-5 md:h-5 fill-current"><path d="M16.004 2C8.28 2 2 8.28 2 16.004c0 2.46.643 4.867 1.864 6.99L2 30l7.228-1.895A13.94 13.94 0 0016.004 30C23.72 30 30 23.72 30 16.004 30 8.28 23.72 2 16.004 2zm6.27 19.878c-.343-.172-2.034-1.003-2.348-1.118-.314-.115-.544-.172-.773.172-.229.344-.887 1.118-1.088 1.348-.2.23-.4.258-.743.086-.344-.172-1.452-.535-2.766-1.708-1.022-.913-1.713-2.04-1.913-2.383-.2-.344-.022-.53.15-.7.155-.154.344-.402.516-.603.172-.2.229-.344.344-.573.115-.23.057-.43-.029-.602-.086-.173-.773-1.862-1.059-2.551-.279-.67-.562-.579-.773-.59l-.657-.011a1.261 1.261 0 00-.916.43c-.314.343-1.203 1.175-1.203 2.866s1.23 3.322 1.402 3.552c.172.23 2.42 3.695 5.866 5.183.82.354 1.46.566 1.96.724.824.261 1.573.224 2.165.136.66-.099 2.034-.831 2.32-1.634.286-.802.286-1.49.2-1.634-.085-.143-.314-.229-.657-.4z"/></svg>
-                </a>
-                <button 
-                  onClick={() => { setSelectedOrder(order); setActiveTab('invoice'); }}
-                  className="p-3 md:p-4 bg-dakora-green text-white rounded-xl md:rounded-2xl shadow-lg hover:scale-110 transition-all active:scale-95"
-                >
-                  <Eye size={18} />
-                </button>
-                <button
-                  onClick={() => deleteOrder(order)}
-                  disabled={deleting}
-                  className="p-3 md:p-4 bg-red-500/10 text-red-500 rounded-xl md:rounded-2xl hover:bg-red-500 hover:text-white transition-all active:scale-95 disabled:opacity-40"
-                  title={language === 'fr' ? 'Supprimer (stock restitué)' : 'Delete (stock restored)'}
-                >
-                  <Trash2 size={18}/>
-                </button>
+              {/* FOOTER CARTE : MONTANT + ACTIONS */}
+              <div className="flex items-center justify-between pt-1.5 border-t border-black/5 dark:border-white/5">
+                <div>
+                  <p className="text-xs sm:text-sm font-black text-dakora-green">{order.total_amount?.toLocaleString()} <span className="text-[6px] sm:text-[7px]">FCFA</span></p>
+                </div>
+                <div className="flex gap-1">
+                  <a 
+                    href={`https://wa.me/${order.phone.replace(/[^0-9]/g, '').length === 9 ? '237' + order.phone.replace(/[^0-9]/g, '') : order.phone.replace(/[^0-9]/g, '')}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="p-1 sm:p-1.5 bg-[#25D366] text-white rounded shadow hover:scale-110 transition-all active:scale-95 flex items-center justify-center"
+                  >
+                    <svg viewBox="0 0 32 32" className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-current"><path d="M16.004 2C8.28 2 2 8.28 2 16.004c0 2.46.643 4.867 1.864 6.99L2 30l7.228-1.895A13.94 13.94 0 0016.004 30C23.72 30 30 23.72 30 16.004 30 8.28 23.72 2 16.004 2zm6.27 19.878c-.343-.172-2.034-1.003-2.348-1.118-.314-.115-.544-.172-.773.172-.229.344-.887 1.118-1.088 1.348-.c-.23-.4.258-.743.086-.344-.172-1.452-.535-2.766-1.708-1.022-.913-1.713-2.04-1.913-2.383-.c-.344-.022-.53.15-.7.155-.154.344-.402.516-.603.172-.2.229-.344.344-.573.115-.23.057-.43-.029-.602-.086-.173-.773-1.862-1.059-2.551-.279-.67-.562-.579-.773-.59l-.657-.011a1.261 1.261 0 00-.916.43c-.314.343-1.203 1.175-1.203 2.866s1.23 3.322 1.402 3.552c.172.23 2.42 3.695 5.866 5.183.82.354 1.46.566 1.96.724.824.261 1.573.224 2.165.136.66-.099 2.034-.831 2.32-1.634.286-.802.286-1.49.2-1.634-.085-.143-.314-.229-.657-.4z"/></svg>
+                  </a>
+                  <button 
+                    onClick={() => { setSelectedOrder(order); setActiveTab('invoice'); }}
+                    className="p-1 sm:p-1.5 bg-dakora-green text-white rounded shadow hover:scale-110 transition-all active:scale-95"
+                  >
+                    <Eye size={10} sm:size={12} />
+                  </button>
+                  <button
+                    onClick={() => deleteOrder(order)}
+                    disabled={deleting}
+                    className="p-1 sm:p-1.5 bg-red-500/10 text-red-500 rounded hover:bg-red-500 hover:text-white transition-all active:scale-95 disabled:opacity-40"
+                  >
+                    <Trash2 size={10} sm:size={12}/>
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -289,7 +500,7 @@ const Orders = () => {
             </div>
 
             {/* CONTENU VARIABLE */}
-            <div className="flex-grow overflow-y-auto p-8 custom-scrollbar">
+            <div className="flex-grow overflow-y-auto p-4 md:p-8 custom-scrollbar">
               
               {/* ONGLET FACTURE */}
               {activeTab === 'invoice' && (
@@ -362,8 +573,8 @@ const Orders = () => {
 
                   {/* TABLEAU DES ARTICLES */}
                   <div className="space-y-3 mb-6">
-                    {/* En-têtes */}
-                    <div className="grid grid-cols-12 pb-2 border-b-2 border-black/5 dark:border-white/5 text-[9px] font-black uppercase text-gray-400 tracking-widest px-2">
+                    {/* En-têtes — desktop seulement */}
+                    <div className="hidden sm:grid grid-cols-12 pb-2 border-b-2 border-black/5 dark:border-white/5 text-[9px] font-black uppercase text-gray-400 tracking-widest px-2">
                       <div className="col-span-6">Article / Variante</div>
                       <div className="col-span-2 text-center">P.U. (FCFA)</div>
                       <div className="col-span-2 text-center">Qté</div>
@@ -372,35 +583,35 @@ const Orders = () => {
 
                     {selectedOrder.order_items && selectedOrder.order_items.length > 0 ? (
                       selectedOrder.order_items.map((item, idx) => (
-                        <div key={idx} className="grid grid-cols-12 py-3 px-2 items-center border-b border-black/5 dark:border-white/5 hover:bg-gray-50/50 dark:hover:bg-white/5 rounded-xl transition-colors">
-                          <div className="col-span-6 flex items-center gap-3">
-                            <div className="w-8 h-8 bg-dakora-green/10 text-dakora-green rounded-xl flex items-center justify-center font-black text-xs flex-shrink-0">
-                              {idx + 1}
+                        /* Desktop : ligne grid / Mobile : carte */
+                        <div key={idx} className="border-b border-black/5 dark:border-white/5 last:border-0">
+                          {/* Desktop */}
+                          <div className="hidden sm:grid grid-cols-12 py-3 px-2 items-center hover:bg-gray-50/50 dark:hover:bg-white/5 rounded-xl transition-colors">
+                            <div className="col-span-6 flex items-center gap-3">
+                              <div className="w-8 h-8 bg-dakora-green/10 text-dakora-green rounded-xl flex items-center justify-center font-black text-xs flex-shrink-0">{idx + 1}</div>
+                              <div className="min-w-0">
+                                <p className="font-black dark:text-white text-sm truncate">{language === 'fr' ? item.variants?.products?.name_fr : item.variants?.products?.name_en}</p>
+                                <p className="text-[9px] font-bold text-dakora-green uppercase tracking-widest truncate">{language === 'fr' ? item.variants?.label_fr : item.variants?.label_en}</p>
+                              </div>
                             </div>
-                            <div className="min-w-0">
-                              <p className="font-black dark:text-white text-sm truncate">
-                                {language === 'fr' ? item.variants?.products?.name_fr : item.variants?.products?.name_en}
-                              </p>
-                              <p className="text-[9px] font-bold text-dakora-green uppercase tracking-widest truncate">
-                                {language === 'fr' ? item.variants?.label_fr : item.variants?.label_en}
-                              </p>
+                            <div className="col-span-2 text-center text-xs font-bold dark:text-white">{item.unit_price?.toLocaleString()}</div>
+                            <div className="col-span-2 text-center"><span className="px-2.5 py-1 bg-gray-100 dark:bg-white/10 rounded-lg text-xs font-black dark:text-white">×{item.quantity}</span></div>
+                            <div className="col-span-2 text-right font-black dark:text-white text-sm">{(item.unit_price * item.quantity).toLocaleString()}</div>
+                          </div>
+                          {/* Mobile */}
+                          <div className="flex sm:hidden items-center gap-3 py-3 px-1">
+                            <div className="w-7 h-7 bg-dakora-green/10 text-dakora-green rounded-xl flex items-center justify-center font-black text-xs flex-shrink-0">{idx + 1}</div>
+                            <div className="flex-grow min-w-0">
+                              <p className="font-black dark:text-white text-xs truncate">{language === 'fr' ? item.variants?.products?.name_fr : item.variants?.products?.name_en}</p>
+                              <p className="text-[9px] text-dakora-green font-bold truncate">{language === 'fr' ? item.variants?.label_fr : item.variants?.label_en}</p>
+                              <p className="text-[9px] text-gray-400 font-bold">{item.unit_price?.toLocaleString()} × {item.quantity}</p>
                             </div>
-                          </div>
-                          <div className="col-span-2 text-center text-xs font-bold dark:text-white">
-                            {item.unit_price?.toLocaleString()}
-                          </div>
-                          <div className="col-span-2 text-center">
-                            <span className="px-2.5 py-1 bg-gray-100 dark:bg-white/10 rounded-lg text-xs font-black dark:text-white">
-                              ×{item.quantity}
-                            </span>
-                          </div>
-                          <div className="col-span-2 text-right font-black dark:text-white text-sm">
-                            {(item.unit_price * item.quantity).toLocaleString()}
+                            <p className="font-black dark:text-white text-sm flex-shrink-0">{(item.unit_price * item.quantity).toLocaleString()}</p>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <div className="py-10 text-center text-gray-400 italic text-xs bg-gray-50 dark:bg-white/5 rounded-2xl">
+                      <div className="py-8 text-center text-gray-400 italic text-xs bg-gray-50 dark:bg-white/5 rounded-2xl">
                         Aucun article enregistré pour cette commande.
                       </div>
                     )}
@@ -408,7 +619,7 @@ const Orders = () => {
 
                   {/* TOTAL */}
                   <div className="flex justify-end">
-                    <div className="w-64 space-y-3">
+                    <div className="w-full sm:w-64 space-y-3">
                       <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase">
                         <span>Sous-total</span>
                         <span>{selectedOrder.total_amount?.toLocaleString()} FCFA</span>

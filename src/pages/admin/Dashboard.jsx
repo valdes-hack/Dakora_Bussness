@@ -247,15 +247,18 @@ const Dashboard = () => {
               {language === 'fr' ? 'Voir tout' : 'View all'} <ArrowRight size={12}/>
             </Link>
           </div>
-          <div className="h-52">
-            {loading
-              ? <div className="h-full flex items-end gap-1.5 pl-6 pb-6">
-                  {Array.from({length:12}).map((_,i) => (
-                    <div key={i} className="flex-1 bg-gray-100 dark:bg-white/5 rounded-xl animate-pulse" style={{height:`${20+Math.random()*60}%`}}/>
-                  ))}
-                </div>
-              : <SalesChart data={chartData} language={language}/>
-            }
+          {/* Wrapper scrollable sur mobile */}
+          <div className="overflow-x-auto -mx-2 px-2">
+            <div className="min-w-[340px] h-52">
+              {loading
+                ? <div className="h-full flex items-end gap-1.5 pl-6 pb-6">
+                    {Array.from({length:12}).map((_,i) => (
+                      <div key={i} className="flex-1 bg-gray-100 dark:bg-white/5 rounded-xl animate-pulse" style={{height:`${20+Math.random()*60}%`}}/>
+                    ))}
+                  </div>
+                : <SalesChart data={chartData} language={language}/>
+              }
+            </div>
           </div>
         </div>
 

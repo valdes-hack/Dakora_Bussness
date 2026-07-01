@@ -5,6 +5,7 @@ import { useDataCache } from '../../context/DataCacheContext';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import logo from '../../assets/logos.png';
+import dbLogo from '../../assets/db.png';
 
 const Hero = () => {
   const { t, language } = useLanguage();
@@ -33,10 +34,15 @@ const Hero = () => {
   if (!ready) return <div className="h-[70vh] bg-gray-100 dark:bg-neutral-900 animate-pulse rounded-[3rem] m-6" />;
 
   return (
-    <section className="relative h-[85vh] w-full overflow-hidden px-0 md:px-6 mt-4">
-      {/* LOGO seul — centré en haut de la bannière */}
-      <div className="absolute top-3 md:top-4 left-1/2 -translate-x-1/2 z-30">
-        <img src={logo} alt="Logo" className="h-40 md:h-56 lg:h-72 w-auto object-contain drop-shadow-2xl" />
+    <section className="relative h-[60vh] sm:h-[70vh] md:h-[85vh] w-full overflow-hidden px-0 md:px-6 mt-2 sm:mt-4">
+      {/* LOGO + NOM — logo au-dessus, centré en haut de la bannière */}
+      <div className="absolute top-2 sm:top-4 md:top-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 sm:gap-2 md:gap-3">
+        <img src={dbLogo} alt="Logo" className="h-20 sm:h-28 md:h-40 lg:h-56 w-auto object-contain drop-shadow-2xl" />
+        <div className="flex leading-none items-center">
+          <span className="font-black text-lg sm:text-2xl md:text-3xl lg:text-4xl uppercase tracking-tighter drop-shadow-2xl whitespace-nowrap">
+            <span style={{color:'#A8DC00'}}>DAKORA</span> <span style={{color:'#159FFF'}}>BUSINESS</span>
+          </span>
+        </div>
       </div>
 
       <div className="relative h-full w-full md:rounded-[3.5rem] overflow-hidden shadow-2xl">
@@ -59,30 +65,27 @@ const Hero = () => {
               <div className="absolute inset-0 bg-black/30 dark:bg-black/50 backdrop-brightness-90"></div>
             </div>
 
-            {/* TEXTE AU CENTRE (Style Apple Glass) */}
-            <div className="relative h-full flex flex-col items-center justify-center text-center px-6 pt-44 md:pt-60 lg:pt-72">
-              <div className="max-w-4xl space-y-2 md:space-y-3 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-                <h1 className="text-4xl md:text-7xl lg:text-8xl font-black uppercase italic tracking-tighter leading-none drop-shadow-2xl">
-                  {/* Couleurs du logo sur le titre de la bannière */}
-                  {(language === 'fr' ? slide.title_fr : slide.title_en)?.split(' ').map((word, i) => (
-                    <span key={i} style={{color: i === 0 ? '#A8DC00' : '#159FFF'}}>{word}{' '}</span>
-                  ))}
-                </h1>
+            {/* TEXTE — collé juste sous le logo */}
+            <div className="relative h-full flex flex-col items-center justify-center text-center px-4 sm:px-6">
+              {/* Spacer calculé = hauteur logo + texte + top offset */}
+              <div className="h-28 sm:h-36 md:h-48 lg:h-60 flex-shrink-0" />
+              <div className="max-w-4xl w-full space-y-1.5 sm:space-y-2 md:space-y-3 animate-in fade-in slide-in-from-bottom-10 duration-1000 -mt-1 sm:-mt-2 md:-mt-4">
+                {/* Le titre h1 est masqué car déjà affiché côte à côte avec le logo au-dessus */}
                 
-                <p className="text-lg md:text-2xl text-white/90 font-medium tracking-tight max-w-2xl mx-auto drop-shadow-md">
+                <p className="text-sm sm:text-base md:text-lg lg:text-2xl text-white/90 font-medium tracking-tight max-w-2xl mx-auto drop-shadow-md">
                    {language === 'fr'
                      ? (slide.subtitle_fr || settings.slogan_fr || t('slogan'))
                      : (slide.subtitle_en || settings.slogan_en || t('slogan'))
                    }
                 </p>
 
-                <div className="pt-8">
+                <div className="pt-4 sm:pt-6 md:pt-8">
                   <Link
                     to="/boutique"
-                    className="group inline-flex items-center gap-3 bg-white text-gray-900 hover:bg-dakora-green hover:text-white font-black py-4 px-10 rounded-full shadow-2xl transition-all hover:scale-105 active:scale-95 text-sm uppercase tracking-widest"
+                    className="group inline-flex items-center gap-2 sm:gap-3 bg-white text-gray-900 hover:bg-dakora-green hover:text-white font-black py-2.5 sm:py-3 md:py-4 px-6 sm:px-8 md:px-10 rounded-full shadow-2xl transition-all hover:scale-105 active:scale-95 text-xs sm:text-sm uppercase tracking-widest"
                   >
                     {t('shop')}
-                    <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+                    <ArrowRight size={14} sm:size={16} md:size={18} className="group-hover:translate-x-2 transition-transform" />
                   </Link>
                 </div>
               </div>
@@ -92,13 +95,13 @@ const Hero = () => {
 
         {/* INDICATEURS (Points en bas) */}
         {slides.length > 1 && (
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+          <div className="absolute bottom-6 sm:bottom-8 md:bottom-10 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 z-20">
             {slides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`h-1.5 rounded-full transition-all duration-500 ${
-                  index === currentSlide ? 'bg-white w-12' : 'bg-white/30 w-3 hover:bg-white/50'
+                className={`h-1 sm:h-1.5 rounded-full transition-all duration-500 ${
+                  index === currentSlide ? 'bg-white w-8 sm:w-10 md:w-12' : 'bg-white/30 w-2 sm:w-3 hover:bg-white/50'
                 }`}
               />
             ))}
