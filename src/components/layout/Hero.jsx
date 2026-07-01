@@ -11,7 +11,7 @@ const Hero = () => {
   const { settings } = useSettings();
   const { banners, ready } = useDataCache();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [animationReset, setAnimationReset] = useState(0);
+  // animationReset supprimé — causait un re-mount du DOM toutes les 30s (removeChild error)
 
   const slides = banners.length > 0 ? banners : [{
     id: 'default',
@@ -30,14 +30,6 @@ const Hero = () => {
     }, 6000);
     return () => clearInterval(timer);
   }, [slides.length]);
-
-  // Réinitialisation des animations toutes les 30 secondes pour créer un rythme vivant
-  useEffect(() => {
-    const animationInterval = setInterval(() => {
-      setAnimationReset(prev => prev + 1);
-    }, 30000);
-    return () => clearInterval(animationInterval);
-  }, []);
 
   if (!ready) return <div className="h-[70vh] bg-gray-100 dark:bg-neutral-900 animate-pulse rounded-[3rem] m-6" />;
 
@@ -65,11 +57,8 @@ const Hero = () => {
               <div className="absolute inset-0 backdrop-brightness-95 dark:backdrop-brightness-90"></div>
             </div>
 
-            {/* CONTENU TEXTE — Centré avec effet de profondeur (Glassmorphism subtil) */}
-            <div 
-              key={`content-${slide.id}-${animationReset}`}
-              className="relative h-full flex flex-col items-center justify-center text-center px-4 sm:px-6 z-20"
-            >
+            {/* CONTENU TEXTE */}
+            <div className="relative h-full flex flex-col items-center justify-center text-center px-4 sm:px-6 z-20">
               
               {/* Logo + Nom enchaînés avec transition élastique moderne */}
               <div className="flex flex-col items-center gap-0 mb-4 sm:mb-6 md:mb-8 anim-logo group cursor-pointer">
