@@ -8,7 +8,8 @@ import { rules } from '../../utils/validation';
 import FieldInput from '../../components/ui/FieldInput';
 import {
   Save, Image as ImageIcon, Plus, Trash2, Phone,
-  Type, UploadCloud, User, CheckCircle2, Star, Bell, AlertCircle, MapPin
+  Type, UploadCloud, User, CheckCircle2, Star, Bell, AlertCircle, MapPin,
+  Lock, Eye, EyeOff
 } from 'lucide-react';
 
 const ProfileSettings = () => {
@@ -34,6 +35,16 @@ const ProfileSettings = () => {
   // BANNIÈRES
   const [banners, setBanners] = useState([]);
   const [bannerLoading, setBannerLoading] = useState(false);
+
+  // MOT DE PASSE
+  const [showPwdSection, setShowPwdSection] = useState(false);
+  const [pwdData, setPwdData]   = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [pwdErrors, setPwdErrors] = useState({});
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [pwdSaved, setPwdSaved]   = useState(false);
+  const [showCurrentPwd, setShowCurrentPwd] = useState(false);
+  const [showNewPwd, setShowNewPwd]         = useState(false);
+  const [showConfirmPwd, setShowConfirmPwd] = useState(false);
 
   // PRÉFÉRENCES NOTIFICATIONS — map { type: bool }
   const [notifPrefs, setNotifPrefs] = useState(
@@ -118,6 +129,43 @@ const ProfileSettings = () => {
       createNotification(`Profil mis à jour : ${profileData.username}`, 'settings', '/admin/profil');
     } catch (err) { alert('Erreur : ' + err.message); }
     finally { setLoading(false); }
+  };
+
+  // ─── CHANGEMENT MOT DE PASSE ──────────────────────────
+  const changePassword = async () => {
+    const errors = {};
+    if (!pwdData.currentPassword) errors.currentPassword = 'L\'ancien mot de passe est obligatoire';
+    if (!pwdData.newPassword || pwdData.newPassword.length < 6) errors.newPassword = 'Minimum 6 caractères';
+    if (pwdData.newPassword !== pwdData.confirmPassword) errors.confirmPassword = 'Les mots de passe ne correspondent pas';
+    setPwdErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    setPwdLoading(true);
+    try {
+      // Vérifier l'ancien mot de passe en se reconnectant
+      const { error: verifyErr } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: pwdData.currentPassword
+      });
+      if (verifyErr) {
+        setPwdErrors({ currentPassword: 'Mot de passe incorrect' });
+        setPwdLoading(false);
+        return;
+      }
+      // Changer le mot de passe
+      const { error } = await supabase.auth.updateUser({ password: pwdData.newPassword });
+      if (error) throw error;
+
+      // Reset
+      setPwdData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setPwdErrors({});
+      setPwdSaved(true);
+      setTimeout(() => { setPwdSaved(false); setShowPwdSection(false); }, 2500);
+    } catch (err) {
+      alert('Erreur : ' + err.message);
+    } finally {
+      setPwdLoading(false);
+    }
   };
 
   // ─── SAUVEGARDE RÉGLAGES GÉNÉRAUX ─────────────────────
@@ -338,6 +386,111 @@ const ProfileSettings = () => {
               placeholder="ex: Valdes Dakora"
             />
           </div>
+
+          {/* ── CHANGEMENT MOT DE PASSE ── */}
+          <div className="space-y-4 pt-4 border-t border-black/5 dark:border-white/5">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                <Lock size={14} className="text-dakora-green"/>
+                {language === 'fr' ? 'Changer le mot de passe' : 'Change password'}
+              </h4>
+              <button
+                type="button"
+                onClick={() => setShowPwdSection(s => !s)}
+                className={`text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl transition-all ${showPwdSection ? 'bg-gray-100 dark:bg-white/10 text-gray-500' : 'bg-dakora-green/10 text-dakora-green hover:bg-dakora-green hover:text-white'}`}
+              >
+                {showPwdSection ? (language === 'fr' ? 'Masquer' : 'Hide') : (language === 'fr' ? 'Modifier' : 'Edit')}
+              </button>
+            </div>
+
+            {showPwdSection && (
+              <div className="space-y-4 animate-in slide-in-from-top-2 duration-200">
+                {/* Ancien mot de passe */}
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
+                    {language === 'fr' ? 'Ancien mot de passe' : 'Current password'}
+                    <span className="text-red-500 text-xs">★</span>
+                  </label>
+                  <div className="relative">
+                    <Lock size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+                    <input
+                      type={showCurrentPwd ? 'text' : 'password'}
+                      value={pwdData.currentPassword}
+                      onChange={e => { setPwdData(p => ({...p, currentPassword: e.target.value})); setPwdErrors(p => ({...p, currentPassword: null})); }}
+                      placeholder={language === 'fr' ? 'Votre mot de passe actuel' : 'Your current password'}
+                      className={`w-full pl-9 pr-10 py-3 rounded-2xl border text-sm font-bold dark:text-white bg-gray-50 dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-dakora-green transition-all ${pwdErrors.currentPassword ? 'border-red-400 bg-red-50/50 dark:bg-red-500/5' : 'border-gray-200 dark:border-white/10'}`}
+                    />
+                    <button type="button" onClick={() => setShowCurrentPwd(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                      {showCurrentPwd ? <EyeOff size={15}/> : <Eye size={15}/>}
+                    </button>
+                  </div>
+                  {pwdErrors.currentPassword && <p className="text-[10px] text-red-500 font-bold ml-1 flex items-center gap-1">⚠ {pwdErrors.currentPassword}</p>}
+                </div>
+
+                {/* Nouveau mot de passe */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
+                      {language === 'fr' ? 'Nouveau mot de passe' : 'New password'}
+                      <span className="text-red-500 text-xs">★</span>
+                    </label>
+                    <div className="relative">
+                      <Lock size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+                      <input
+                        type={showNewPwd ? 'text' : 'password'}
+                        value={pwdData.newPassword}
+                        onChange={e => { setPwdData(p => ({...p, newPassword: e.target.value})); setPwdErrors(p => ({...p, newPassword: null, confirmPassword: null})); }}
+                        placeholder="Min. 6 caractères"
+                        className={`w-full pl-9 pr-10 py-3 rounded-2xl border text-sm font-bold dark:text-white bg-gray-50 dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-dakora-green transition-all ${pwdErrors.newPassword ? 'border-red-400 bg-red-50/50' : 'border-gray-200 dark:border-white/10'}`}
+                      />
+                      <button type="button" onClick={() => setShowNewPwd(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        {showNewPwd ? <EyeOff size={15}/> : <Eye size={15}/>}
+                      </button>
+                    </div>
+                    {pwdErrors.newPassword && <p className="text-[10px] text-red-500 font-bold ml-1 flex items-center gap-1">⚠ {pwdErrors.newPassword}</p>}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
+                      {language === 'fr' ? 'Confirmer' : 'Confirm'}
+                      <span className="text-red-500 text-xs">★</span>
+                      {!pwdErrors.confirmPassword && pwdData.confirmPassword && pwdData.newPassword === pwdData.confirmPassword && (
+                        <span className="text-dakora-green text-xs">✓</span>
+                      )}
+                    </label>
+                    <div className="relative">
+                      <Lock size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+                      <input
+                        type={showConfirmPwd ? 'text' : 'password'}
+                        value={pwdData.confirmPassword}
+                        onChange={e => { setPwdData(p => ({...p, confirmPassword: e.target.value})); setPwdErrors(p => ({...p, confirmPassword: null})); }}
+                        placeholder={language === 'fr' ? 'Répéter le nouveau' : 'Repeat new password'}
+                        className={`w-full pl-9 pr-10 py-3 rounded-2xl border text-sm font-bold dark:text-white bg-gray-50 dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-dakora-green transition-all ${pwdErrors.confirmPassword ? 'border-red-400 bg-red-50/50' : 'border-gray-200 dark:border-white/10'}`}
+                      />
+                      <button type="button" onClick={() => setShowConfirmPwd(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        {showConfirmPwd ? <EyeOff size={15}/> : <Eye size={15}/>}
+                      </button>
+                    </div>
+                    {pwdErrors.confirmPassword && <p className="text-[10px] text-red-500 font-bold ml-1 flex items-center gap-1">⚠ {pwdErrors.confirmPassword}</p>}
+                  </div>
+                </div>
+
+                {/* Bouton changer mot de passe */}
+                <div className="flex justify-end">
+                  <button onClick={changePassword} disabled={pwdLoading}
+                    className="flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-all disabled:opacity-50">
+                    {pwdLoading
+                      ? <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin"/>
+                      : pwdSaved
+                        ? <><CheckCircle2 size={14}/> {language === 'fr' ? 'Modifié !' : 'Changed!'}</>
+                        : <><Lock size={14}/> {language === 'fr' ? 'Changer le mot de passe' : 'Change password'}</>
+                    }
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="flex justify-end pt-4 border-t border-black/5 dark:border-white/5">
             <button onClick={saveProfile} disabled={loading}
               className="px-6 md:px-10 py-3 md:py-4 bg-dakora-green text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs shadow-xl hover:bg-green-700 transition-all flex items-center gap-2 md:gap-3 disabled:opacity-50">

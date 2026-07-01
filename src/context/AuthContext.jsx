@@ -15,9 +15,18 @@ export const AuthProvider = ({ children }) => {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .maybeSingle(); // <--- On remplace single() par maybeSingle() !
+        .maybeSingle();
 
       if (error) throw error;
+
+      // Si l'utilisateur est bloqué → déconnecter immédiatement
+      if (data?.is_blocked) {
+        await supabase.auth.signOut();
+        setUser(null);
+        setProfile(null);
+        return;
+      }
+
       setProfile(data);
     } catch (err) {
       console.warn('Profil non trouvé ou erreur RLS:', err.message);
