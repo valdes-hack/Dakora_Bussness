@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import logo from '../../assets/logos.png';
 
 const Login = () => {
   const { login } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
 
   const [identifier, setIdentifier] = useState('');
@@ -92,6 +92,15 @@ const Login = () => {
           >
             {loading ? '...' : t('login_btn')}
           </button>
+
+          {/* Retour boutique */}
+          <Link
+            to="/"
+            className="flex items-center justify-center gap-2 w-full py-3 text-gray-500 dark:text-gray-400 hover:text-dakora-green dark:hover:text-dakora-green font-bold text-[10px] md:text-xs uppercase tracking-widest transition-colors"
+          >
+            <ArrowLeft size={14}/>
+            {language === 'fr' ? 'Retour à la boutique' : 'Back to shop'}
+          </Link>
         </form>
       </div>
     </div>

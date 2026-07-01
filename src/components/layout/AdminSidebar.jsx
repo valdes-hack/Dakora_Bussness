@@ -31,11 +31,11 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     navigate('/boutique');
   };
 
-  // Déconnexion (Nettoie la session et sort de l'Admin)
+  // Déconnexion → retour à l'accueil (boutique)
   const handleLogout = async () => {
     if (setIsOpen) setIsOpen(false);
     await logout();
-    navigate('/boutique');
+    navigate('/');
   };
 
   // --- LOGIQUE REDIMENSIONNEMENT ---
