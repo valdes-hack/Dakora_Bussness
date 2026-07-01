@@ -10,7 +10,7 @@ import {
   MessageCircle, Calendar, Hash, Printer
 } from 'lucide-react';
 import { createNotification } from '../../utils/notify';
-import logo from '../../assets/logo.jpeg';
+import logo from '../../assets/logos.png';
 
 const Orders = () => {
   const { t, language } = useLanguage();
