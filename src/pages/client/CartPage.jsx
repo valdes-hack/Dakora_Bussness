@@ -240,10 +240,45 @@ const CartPage = () => {
 
       const ref = orderId.slice(0, 8).toUpperCase();
       setOrderNum(ref);
-      
+
       // WhatsApp — utilise le numéro configuré dans les settings
       const waNumber = settings.whatsapp_number || '237690000000';
-      const whatsappMsg = `*NOUVELLE COMMANDE #${ref}*\nClient: ${orderData.customer_first_name} ${orderData.customer_last_name}\nTél: ${orderData.phone}\nLivraison: ${orderData.delivery_mode}\nPaiement: ${orderData.payment_mode}\nMontant: ${totalAmount.toLocaleString()} FCFA\nPosition: https://www.google.com/maps?q=${orderData.latitude},${orderData.longitude}`;
+
+      // Construire le message avec tous les détails des produits
+      let productsDetails = '';
+      cart.forEach((item, index) => {
+        const categoryName = item.category?.name_fr || item.category?.name_en || 'Catégorie';
+        const variantLabel = item.variant ? (item.variant.label_fr || item.variant.label_en || item.variant.label) : '';
+        const price = item.price.toLocaleString();
+        const subtotal = (item.price * item.quantity).toLocaleString();
+
+        productsDetails += `\n📦 *Produit ${index + 1}*\n`;
+        productsDetails += `   🏷️ ${categoryName}\n`;
+        productsDetails += `   🔹 ${item.name_fr || item.name_en || item.name}\n`;
+        if (variantLabel) {
+          productsDetails += `   ⚡ Variant: ${variantLabel}\n`;
+        }
+        productsDetails += `   💰 Prix: ${price} FCFA\n`;
+        productsDetails += `   📊 Quantité: ${item.quantity}\n`;
+        productsDetails += `   ✅ Sous-total: ${subtotal} FCFA\n`;
+      });
+
+      const whatsappMsg = `*🛒 NOUVELLE COMMANDE #${ref}*\n\n` +
+        `👤 *CLIENT*\n` +
+        `   Nom: ${orderData.customer_first_name} ${orderData.customer_last_name}\n` +
+        `   Tél: ${orderData.phone}\n` +
+        `   Email: ${orderData.email}\n\n` +
+        `📍 *LIVRAISON*\n` +
+        `   Mode: ${orderData.delivery_mode}\n` +
+        `   Ville: ${orderData.city}\n` +
+        `   Adresse: ${orderData.address}\n` +
+        `   Position: https://www.google.com/maps?q=${orderData.latitude},${orderData.longitude}\n\n` +
+        `💳 *PAIEMENT*\n` +
+        `   Mode: ${orderData.payment_mode}\n` +
+        `   Réf: ${orderData.payment_ref || 'N/A'}\n\n` +
+        `📦 *COMMANDE*\n${productsDetails}\n` +
+        `💵 *TOTAL: ${totalAmount.toLocaleString()} FCFA*`;
+
       window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(whatsappMsg)}`, '_blank');
       
       setIsSuccess(true);
