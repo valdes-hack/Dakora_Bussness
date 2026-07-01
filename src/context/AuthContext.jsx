@@ -51,30 +51,40 @@ export const AuthProvider = ({ children }) => {
     return () => authListener.subscription.unsubscribe();
   }, []);
 
-  // 3. FONCTION LOGIN MAGIQUE (Nom ou Email)
+  // 3. Connexion par email ou nom d'utilisateur
   const login = async (identifier, password) => {
-    let email = identifier;
+    let email = identifier.trim();
 
-    // Si l'identifiant ne contient pas de "@", on suppose que c'est un "username"
-    if (!identifier.includes('@')) {
+    if (!email.includes('@')) {
       const { data, error } = await supabase
         .from('profiles')
         .select('id')
-        .eq('username', identifier)
-        .single();
-      
+        .eq('username', identifier.trim())
+        .maybeSingle();
+
       if (error || !data) throw new Error("Nom d'utilisateur non trouvé");
 
-      // On récupère l'email via l'ID trouvé (Supabase Auth demande l'email)
-      // Note: On pourrait aussi stocker l'email dans la table profiles pour aller plus vite
-      const { data: userData, error: userError } = await supabase.rpc('get_email_by_id', { user_id: data.id });
-      // Si tu n'as pas créé de fonction RPC, on utilisera une astuce simple :
-      // On demande à l'admin de l'enregistrer dans les profiles ou on utilise l'email directement.
+      const { data: emailRow } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', data.id)
+        .maybeSingle();
+
+      if (emailRow?.email) {
+        email = emailRow.email;
+      } else {
+        const { data: rpcEmail, error: rpcError } = await supabase.rpc('get_email_by_id', { user_id: data.id });
+        if (!rpcError && rpcEmail) {
+          email = String(rpcEmail);
+        } else {
+          throw new Error("Connexion par nom d'utilisateur indisponible — utilisez votre email");
+        }
+      }
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
+      email,
+      password,
     });
 
     if (error) throw error;
@@ -83,7 +93,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     await supabase.auth.signOut();
-    window.location.href = '/boutique';
+    setUser(null);
+    setProfile(null);
   };
 
   return (

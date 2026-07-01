@@ -131,7 +131,7 @@ const Header = () => {
                 {profile ? (
                   <Link to="/admin/profil" className="flex items-center group">
                     <img 
-                      src={profile.profile_photo_url} 
+                      src={profile.profile_photo_url || logo} 
                       alt="Boss" 
                       className="w-7 h-7 md:w-9 md:h-9 rounded-full object-cover border-2 border-dakora-green group-hover:scale-110 transition-transform shadow-md"
                     />

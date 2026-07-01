@@ -33,8 +33,8 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
 
   // Déconnexion (Nettoie la session et sort de l'Admin)
   const handleLogout = async () => {
-    await logout();
     if (setIsOpen) setIsOpen(false);
+    await logout();
     navigate('/boutique');
   };
 
@@ -111,8 +111,8 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
         {/* PROFIL ADMIN */}
         {(!isCollapsed || window.innerWidth < 768) && profile && (
           <div className="p-6 text-center animate-in fade-in duration-500 border-b border-gray-100 dark:border-white/5">
-            <img src={profile.profile_photo_url} alt="Boss" className="w-16 h-16 rounded-full mx-auto border-2 border-dakora-green mb-3 object-cover shadow-md" />
-            <p className="font-bold text-gray-900 dark:text-white text-xs uppercase tracking-widest truncate">{profile.username}</p>
+            <img src={profile.profile_photo_url || logo} alt="Boss" className="w-16 h-16 rounded-full mx-auto border-2 border-dakora-green mb-3 object-cover shadow-md" />
+            <p className="font-bold text-gray-900 dark:text-white text-xs uppercase tracking-widest truncate">{profile.username || profile.full_name || 'Admin'}</p>
           </div>
         )}
 

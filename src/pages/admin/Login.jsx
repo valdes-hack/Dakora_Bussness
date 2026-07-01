@@ -23,9 +23,10 @@ const Login = () => {
 
     try {
       await login(identifier, password);
-      navigate('/admin/dashboard'); // Redirection vers le dashboard
+      navigate('/admin/dashboard');
     } catch (err) {
       setError(t('login_error'));
+    } finally {
       setLoading(false);
     }
   };

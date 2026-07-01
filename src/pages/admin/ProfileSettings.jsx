@@ -109,6 +109,7 @@ const ProfileSettings = () => {
         username: profileData.username,
         full_name: profileData.full_name,
         profile_photo_url: photoUrl,
+        email: user.email,
         updated_at: new Date().toISOString()
       });
       if (error) throw error;

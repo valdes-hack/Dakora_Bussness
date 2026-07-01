@@ -8,7 +8,6 @@ import Home from '../pages/client/Home'; // Home reste eager (page d'accueil)
 const Shop         = lazy(() => import('../pages/client/Shop'));
 const ProductDetails = lazy(() => import('../pages/client/ProductDetails'));
 const CartPage     = lazy(() => import('../pages/client/CartPage'));
-const Checkout     = lazy(() => import('../pages/client/Checkout'));
 
 // Pages Admin — lazy loading
 import Login from '../pages/admin/Login';
@@ -44,9 +43,7 @@ const AppRoutes = () => {
         <Route path="/panier" element={
           <Suspense fallback={<PageLoader />}><CartPage /></Suspense>
         } />
-        <Route path="/commande" element={
-          <Suspense fallback={<PageLoader />}><Checkout /></Suspense>
-        } />
+        <Route path="/commande" element={<Navigate to="/panier" replace />} />
       </Route>
 
       {/* 2. AUTHENTIFICATION */}
