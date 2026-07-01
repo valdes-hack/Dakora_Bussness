@@ -4,7 +4,7 @@ import { useSettings } from '../../context/SettingsContext';
 import { useDataCache } from '../../context/DataCacheContext';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import logo from '../../assets/logo.jpeg';
+import logo from '../../assets/logos.png';
 
 const Hero = () => {
   const { t, language } = useLanguage();

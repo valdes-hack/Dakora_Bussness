@@ -7,7 +7,7 @@ import { useCart } from '../../context/CartContext';
 import { useDataCache } from '../../context/DataCacheContext';
 import { useTheme } from '../../context/ThemeContext';
 import { ShoppingCart, Moon, Sun, Menu, X, LayoutGrid, Search } from 'lucide-react';
-import logo from '../../assets/logo.jpeg';
+import logo from '../../assets/logos.png';
 
 const Header = () => {
   const { language, setLanguage, t } = useLanguage();
@@ -84,7 +84,7 @@ const Header = () => {
           
           {/* LOGO + NOM */}
           <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-2 md:gap-3">
-            <img src={logo} alt="Logo" className="h-9 md:h-10 lg:h-12 w-auto object-contain mix-blend-multiply" />
+            <img src={logo} alt="Logo" className="h-9 md:h-10 lg:h-12 w-auto object-contain" />
             <span className="font-black text-sm sm:text-base md:text-lg lg:text-xl tracking-tighter text-gray-900 dark:text-white uppercase italic">
               {siteName.split(' ')[0]} <span className="text-dakora-green">{siteName.split(' ').slice(1).join(' ') || ''}</span>
             </span>

@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useSettings } from '../../context/SettingsContext';
 import { Download, X } from 'lucide-react';
-import logo from '../../assets/logo.jpeg';
+import logo from '../../assets/logos.png';
 
 const Footer = () => {
   const { user } = useAuth();

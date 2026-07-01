@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Boxes, Package, Settings, LogOut, 
   Store, X, Tag, ShoppingBag, ChevronLeft, Layers
 } from 'lucide-react';
-import logo from '../../assets/logo.jpeg';
+import logo from '../../assets/logos.png';
 
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const { profile, logout } = useAuth();

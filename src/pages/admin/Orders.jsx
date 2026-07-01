@@ -1,20 +1,24 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../api/supabaseClient';
 import { useLanguage } from '../../context/LanguageContext';
+import { useSettings } from '../../context/SettingsContext';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { 
   Package, MapPin, Phone, Mail, User, 
-  CheckCircle2, XCircle, Truck, Eye, X, FileText, Navigation, CreditCard
+  CheckCircle2, XCircle, Truck, Eye, X, FileText, Navigation, CreditCard,
+  MessageCircle, Calendar, Hash, Printer
 } from 'lucide-react';
 import { createNotification } from '../../utils/notify';
+import logo from '../../assets/logo.jpeg';
 
 const Orders = () => {
   const { t, language } = useLanguage();
+  const { settings } = useSettings();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [activeTab, setActiveTab] = useState('invoice'); // 'invoice', 'client', 'map'
+  const [activeTab, setActiveTab] = useState('invoice');
 
   useEffect(() => { fetchOrders(); }, []);
 
@@ -46,6 +50,25 @@ const Orders = () => {
       default: return 'bg-orange-500';
     }
   };
+
+  // Formate le numéro pour WhatsApp (ajoute 237 si numéro local camerounais)
+  const formatWaNumber = (phone) => {
+    if (!phone) return '';
+    const digits = phone.replace(/[^0-9]/g, '');
+    if (digits.length === 9) return `237${digits}`;
+    return digits;
+  };
+
+  // Message WhatsApp vers le client depuis l'admin
+  const clientWaLink = (order) => {
+    const num = formatWaNumber(order.phone);
+    const ref = order.id.slice(0, 8).toUpperCase();
+    const msg = `Bonjour ${order.customer_first_name} 👋\nVotre commande *#${ref}* (${order.total_amount?.toLocaleString()} FCFA) est actuellement : *${order.status}*.\nMerci pour votre confiance — Dakora Business 🌿`;
+    return `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+  };
+
+  // Impression de la facture
+  const printInvoice = () => window.print();
 
   return (
     <div className="space-y-10 animate-in fade-in duration-700">
@@ -132,17 +155,48 @@ const Orders = () => {
           <div className="bg-white/95 dark:bg-neutral-900/95 w-full max-w-5xl h-full md:h-auto md:max-h-[90vh] md:rounded-[3rem] shadow-2xl border border-white/20 flex flex-col overflow-hidden animate-in zoom-in duration-300">
             
             {/* HEADER MODALE */}
-            <div className="p-6 md:p-8 border-b border-black/5 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20">
-              <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-2xl ${getStatusColor(selectedOrder.status)} text-white shadow-lg`}>
-                  <Package size={24}/>
+            <div className="p-5 md:p-7 border-b border-black/5 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20">
+              <div className="flex items-center gap-3 md:gap-4 min-w-0">
+                <div className={`p-2.5 md:p-3 rounded-2xl ${getStatusColor(selectedOrder.status)} text-white shadow-lg flex-shrink-0`}>
+                  <Package size={20}/>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-black uppercase italic dark:text-white">Commande #{selectedOrder.id.slice(0,8).toUpperCase()}</h2>
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{selectedOrder.status}</p>
+                <div className="min-w-0">
+                  <h2 className="text-lg md:text-2xl font-black uppercase italic dark:text-white truncate">
+                    Commande #{selectedOrder.id.slice(0,8).toUpperCase()}
+                  </h2>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">{selectedOrder.status}</p>
+                    <span className="text-gray-300 dark:text-white/20">·</span>
+                    <p className="text-[10px] text-gray-400 font-bold">
+                      {new Date(selectedOrder.created_at).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <button onClick={() => setSelectedOrder(null)} className="p-3 bg-gray-100 dark:bg-white/10 rounded-full dark:text-white hover:rotate-90 transition-all"><X /></button>
+
+              {/* Actions header */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {/* WhatsApp client */}
+                <a href={clientWaLink(selectedOrder)} target="_blank" rel="noopener noreferrer"
+                  title={`Contacter ${selectedOrder.customer_first_name} sur WhatsApp`}
+                  className="flex items-center gap-2 px-3 py-2 bg-[#25D366] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow hover:bg-[#1ebe5d] transition-all active:scale-95">
+                  <svg viewBox="0 0 32 32" className="w-4 h-4 fill-current flex-shrink-0">
+                    <path d="M16.004 2C8.28 2 2 8.28 2 16.004c0 2.46.643 4.867 1.864 6.99L2 30l7.228-1.895A13.94 13.94 0 0016.004 30C23.72 30 30 23.72 30 16.004 30 8.28 23.72 2 16.004 2zm6.27 19.878c-.343-.172-2.034-1.003-2.348-1.118-.314-.115-.544-.172-.773.172-.229.344-.887 1.118-1.088 1.348-.2.23-.4.258-.743.086-.344-.172-1.452-.535-2.766-1.708-1.022-.913-1.713-2.04-1.913-2.383-.2-.344-.022-.53.15-.7.155-.154.344-.402.516-.603.172-.2.229-.344.344-.573.115-.23.057-.43-.029-.602-.086-.173-.773-1.862-1.059-2.551-.279-.67-.562-.579-.773-.59l-.657-.011a1.261 1.261 0 00-.916.43c-.314.343-1.203 1.175-1.203 2.866s1.23 3.322 1.402 3.552c.172.23 2.42 3.695 5.866 5.183.82.354 1.46.566 1.96.724.824.261 1.573.224 2.165.136.66-.099 2.034-.831 2.32-1.634.286-.802.286-1.49.2-1.634-.085-.143-.314-.229-.657-.4z"/>
+                  </svg>
+                  <span className="hidden sm:inline">{selectedOrder.customer_first_name}</span>
+                </a>
+                {/* Imprimer */}
+                <button onClick={printInvoice}
+                  className="p-2.5 bg-gray-100 dark:bg-white/10 rounded-2xl text-gray-500 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20 transition-all print:hidden"
+                  title="Imprimer la facture">
+                  <Printer size={18}/>
+                </button>
+                {/* Fermer */}
+                <button onClick={() => setSelectedOrder(null)}
+                  className="p-2.5 bg-gray-100 dark:bg-white/10 rounded-2xl dark:text-white hover:rotate-90 transition-all">
+                  <X size={18}/>
+                </button>
+              </div>
             </div>
 
             {/* ONGLET DE NAVIGATION (TABS) */}
@@ -161,98 +215,197 @@ const Orders = () => {
             {/* CONTENU VARIABLE */}
             <div className="flex-grow overflow-y-auto p-8 custom-scrollbar">
               
-              {/* TABS : FACTURE (ARTICLES & INFOS) */}
+              {/* ONGLET FACTURE */}
               {activeTab === 'invoice' && (
-                <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="animate-in fade-in duration-300" id="invoice-print">
                   
-                  {/* Résumé des informations saisies par le client */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50 dark:bg-neutral-800/50 rounded-[2rem] border border-black/5 dark:border-white/5">
-                    <div className="space-y-1.5">
-                      <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Facturé à (Client) :</p>
-                      <p className="text-base font-black dark:text-white uppercase">
+                  {/* EN-TÊTE FACTURE PRO-FORMA */}
+                  <div className="flex justify-between items-start mb-8 pb-6 border-b border-black/5 dark:border-white/5">
+                    <div>
+                      <img src={logo} alt="Logo" className="h-14 mb-2"/>
+                      <p className="font-black text-gray-900 dark:text-white uppercase tracking-tight text-base">
+                        {settings.business_name || 'Dakora Business'}
+                      </p>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Expertise Agricole · Douala, CM</p>
+                    </div>
+                    <div className="text-right space-y-1">
+                      <span className="inline-block px-4 py-1.5 bg-dakora-green text-white rounded-full text-[10px] font-black uppercase tracking-[0.15em]">
+                        Facture Pro-Forma
+                      </span>
+                      <p className="text-[10px] text-gray-400 font-bold flex items-center gap-1.5 justify-end mt-2">
+                        <Hash size={10}/> {selectedOrder.id.slice(0,8).toUpperCase()}
+                      </p>
+                      <p className="text-[10px] text-gray-400 font-bold flex items-center gap-1.5 justify-end">
+                        <Calendar size={10}/>
+                        {new Date(selectedOrder.created_at).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { day: '2-digit', month: 'long', year: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* BLOC CLIENT + LIVRAISON */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 p-5 bg-gray-50 dark:bg-white/5 rounded-[1.5rem] border border-black/5 dark:border-white/5 border-l-4 border-l-dakora-green">
+                    {/* Client */}
+                    <div className="space-y-2">
+                      <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Facturé à :</p>
+                      <p className="text-xl font-black dark:text-white uppercase tracking-tight leading-tight">
                         {selectedOrder.customer_first_name} {selectedOrder.customer_last_name}
                       </p>
-                      <a href={`tel:${selectedOrder.phone}`} className="text-xs font-bold text-dakora-green hover:underline flex items-center gap-1.5">
-                        <Phone size={12}/> {selectedOrder.phone}
+                      <a href={`tel:${selectedOrder.phone}`}
+                        className="inline-flex items-center gap-2 text-sm font-bold text-dakora-green hover:underline">
+                        <Phone size={14}/> {selectedOrder.phone}
                       </a>
                       {selectedOrder.email && (
-                        <p className="text-xs text-gray-400 flex items-center gap-1.5">
+                        <p className="flex items-center gap-2 text-xs text-gray-400">
                           <Mail size={12}/> {selectedOrder.email}
                         </p>
                       )}
                     </div>
-                    <div className="space-y-1.5 md:text-right flex flex-col md:items-end">
+                    {/* Livraison & Paiement */}
+                    <div className="space-y-2 sm:border-l sm:border-black/5 sm:dark:border-white/5 sm:pl-5">
                       <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Livraison & Paiement :</p>
-                      <p className="text-xs font-black dark:text-white uppercase flex items-center gap-1.5">
-                        <Truck size={12} className="text-dakora-green"/> {selectedOrder.delivery_mode === 'retrait' ? 'Retrait en boutique' : 'Livraison à domicile'}
-                      </p>
-                      <p className="text-[10px] text-gray-400 italic max-w-xs">{selectedOrder.address || 'Aucune adresse fournie'}</p>
-                      <p className="text-xs font-bold text-dakora-green mt-1 flex items-center gap-1.5">
-                        <CreditCard size={12}/> Mode : {selectedOrder.payment_mode}
-                      </p>
-                      {selectedOrder.payment_ref && (
-                        <p className="text-[9px] font-mono bg-orange-500/10 text-orange-500 px-2 py-0.5 rounded-md">
-                          RÉF: {selectedOrder.payment_ref}
-                        </p>
+                      <div className="flex items-center gap-2">
+                        <Truck size={14} className="text-dakora-green flex-shrink-0"/>
+                        <span className="text-sm font-black dark:text-white uppercase">
+                          {selectedOrder.delivery_mode === 'retrait' ? 'Retrait en boutique' : 'Livraison à domicile'}
+                        </span>
+                      </div>
+                      {selectedOrder.address && (
+                        <p className="text-xs text-gray-400 italic ml-5">{selectedOrder.address}</p>
                       )}
+                      <div className="flex items-center gap-2 mt-1">
+                        <CreditCard size={14} className="text-dakora-green flex-shrink-0"/>
+                        <span className="text-sm font-bold dark:text-white">{selectedOrder.payment_mode}</span>
+                        {selectedOrder.payment_ref && (
+                          <span className="text-[9px] font-mono bg-orange-500/10 text-orange-500 px-2 py-0.5 rounded-md">
+                            Réf: {selectedOrder.payment_ref}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Liste des articles */}
-                  <div className="space-y-4">
+                  {/* TABLEAU DES ARTICLES */}
+                  <div className="space-y-3 mb-6">
+                    {/* En-têtes */}
+                    <div className="grid grid-cols-12 pb-2 border-b-2 border-black/5 dark:border-white/5 text-[9px] font-black uppercase text-gray-400 tracking-widest px-2">
+                      <div className="col-span-6">Article / Variante</div>
+                      <div className="col-span-2 text-center">P.U. (FCFA)</div>
+                      <div className="col-span-2 text-center">Qté</div>
+                      <div className="col-span-2 text-right">Total</div>
+                    </div>
+
                     {selectedOrder.order_items && selectedOrder.order_items.length > 0 ? (
                       selectedOrder.order_items.map((item, idx) => (
-                        <div key={idx} className="flex justify-between items-center p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-black/5">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-dakora-green text-white rounded-xl flex items-center justify-center font-black">{idx + 1}</div>
-                            <div>
-                              <p className="font-black dark:text-white uppercase text-sm">
+                        <div key={idx} className="grid grid-cols-12 py-3 px-2 items-center border-b border-black/5 dark:border-white/5 hover:bg-gray-50/50 dark:hover:bg-white/5 rounded-xl transition-colors">
+                          <div className="col-span-6 flex items-center gap-3">
+                            <div className="w-8 h-8 bg-dakora-green/10 text-dakora-green rounded-xl flex items-center justify-center font-black text-xs flex-shrink-0">
+                              {idx + 1}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-black dark:text-white text-sm truncate">
                                 {language === 'fr' ? item.variants?.products?.name_fr : item.variants?.products?.name_en}
                               </p>
-                              <p className="text-[10px] font-bold text-dakora-green uppercase tracking-widest">
+                              <p className="text-[9px] font-bold text-dakora-green uppercase tracking-widest truncate">
                                 {language === 'fr' ? item.variants?.label_fr : item.variants?.label_en}
                               </p>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-xs font-black dark:text-white">x{item.quantity}</p>
-                            <p className="text-xs font-bold text-gray-400">{(item.unit_price * item.quantity).toLocaleString()} FCFA</p>
+                          <div className="col-span-2 text-center text-xs font-bold dark:text-white">
+                            {item.unit_price?.toLocaleString()}
+                          </div>
+                          <div className="col-span-2 text-center">
+                            <span className="px-2.5 py-1 bg-gray-100 dark:bg-white/10 rounded-lg text-xs font-black dark:text-white">
+                              ×{item.quantity}
+                            </span>
+                          </div>
+                          <div className="col-span-2 text-right font-black dark:text-white text-sm">
+                            {(item.unit_price * item.quantity).toLocaleString()}
                           </div>
                         </div>
                       ))
                     ) : (
-                      <div className="p-10 text-center bg-gray-50 dark:bg-white/5 rounded-[2rem] border border-dashed border-gray-200 dark:border-white/10 text-gray-400 italic text-xs">
-                        Aucun article enregistré pour cette commande (RLS bloquant lors de l'achat).
+                      <div className="py-10 text-center text-gray-400 italic text-xs bg-gray-50 dark:bg-white/5 rounded-2xl">
+                        Aucun article enregistré pour cette commande.
                       </div>
                     )}
                   </div>
 
-                  {/* Montant total */}
-                  <div className="p-6 bg-dakora-green/10 rounded-[2rem] flex justify-between items-end border border-dakora-green/20">
-                     <span className="text-xs font-black text-dakora-green uppercase tracking-widest">{t('order_total')}</span>
-                     <span className="text-3xl font-black text-dakora-green tracking-tighter">{selectedOrder.total_amount?.toLocaleString()} FCFA</span>
+                  {/* TOTAL */}
+                  <div className="flex justify-end">
+                    <div className="w-64 space-y-3">
+                      <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase">
+                        <span>Sous-total</span>
+                        <span>{selectedOrder.total_amount?.toLocaleString()} FCFA</span>
+                      </div>
+                      <div className="flex justify-between items-center p-4 bg-dakora-green/10 rounded-2xl border border-dakora-green/20">
+                        <span className="text-[10px] font-black uppercase text-dakora-green">Total Net</span>
+                        <span className="text-2xl font-black text-dakora-green tracking-tighter">
+                          {selectedOrder.total_amount?.toLocaleString()} <span className="text-xs">FCFA</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Signature / Note de bas */}
+                  <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 flex justify-between items-end text-[9px] text-gray-300 dark:text-white/20 font-bold uppercase tracking-widest">
+                    <span>{settings.business_name || 'Dakora Business'} — Douala, Cameroun</span>
+                    <span>Merci de votre confiance 🌿</span>
                   </div>
                 </div>
               )}
 
-              {/* TABS : INFOS CLIENT */}
+              {/* ONGLET INFOS CLIENT */}
               {activeTab === 'client' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in slide-in-from-bottom-4">
-                   <div className="p-6 bg-gray-50 dark:bg-white/5 rounded-3xl space-y-4">
-                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Contact Direct</label>
-                      <p className="text-xl font-black dark:text-white uppercase italic">{selectedOrder.customer_first_name} {selectedOrder.customer_last_name}</p>
-                      <a href={`tel:${selectedOrder.phone}`} className="flex items-center gap-3 text-dakora-green font-bold hover:underline"><Phone size={16}/> {selectedOrder.phone}</a>
-                      {selectedOrder.email && <p className="flex items-center gap-3 text-gray-500 text-sm"><Mail size={16}/> {selectedOrder.email}</p>}
-                   </div>
-                   <div className="p-6 bg-gray-50 dark:bg-white/5 rounded-3xl space-y-4">
-                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Expédition & Paiement</label>
-                      <p className="text-sm font-bold dark:text-white uppercase"><Truck className="inline mr-2 text-dakora-green" size={16}/> {selectedOrder.delivery_mode}</p>
-                      <p className="text-xs text-gray-500 italic">{selectedOrder.address || 'Aucune adresse fournie'}</p>
-                      <div className="pt-4 border-t border-black/5">
-                        <p className="text-sm font-bold dark:text-white uppercase"><CreditCard className="inline mr-2 text-dakora-green" size={16}/> {selectedOrder.payment_mode}</p>
-                        {selectedOrder.payment_ref && <p className="text-[10px] font-mono text-orange-500 mt-1">RÉF: {selectedOrder.payment_ref}</p>}
+                <div className="space-y-4 animate-in slide-in-from-bottom-4">
+                  {/* Contact */}
+                  <div className="p-6 bg-gray-50 dark:bg-white/5 rounded-[2rem] space-y-4 border border-black/5 dark:border-white/5">
+                    <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Contact Direct</p>
+                    <p className="text-2xl font-black dark:text-white uppercase italic tracking-tight">
+                      {selectedOrder.customer_first_name} {selectedOrder.customer_last_name}
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      <a href={`tel:${selectedOrder.phone}`}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-white/10 rounded-2xl font-bold text-sm text-dakora-green border border-dakora-green/20 hover:bg-dakora-green hover:text-white transition-all shadow-sm">
+                        <Phone size={15}/> {selectedOrder.phone}
+                      </a>
+                      <a href={clientWaLink(selectedOrder)} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-4 py-2.5 bg-[#25D366] text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#1ebe5d] transition-all shadow-sm">
+                        <svg viewBox="0 0 32 32" className="w-4 h-4 fill-current"><path d="M16.004 2C8.28 2 2 8.28 2 16.004c0 2.46.643 4.867 1.864 6.99L2 30l7.228-1.895A13.94 13.94 0 0016.004 30C23.72 30 30 23.72 30 16.004 30 8.28 23.72 2 16.004 2zm6.27 19.878c-.343-.172-2.034-1.003-2.348-1.118-.314-.115-.544-.172-.773.172-.229.344-.887 1.118-1.088 1.348-.2.23-.4.258-.743.086-.344-.172-1.452-.535-2.766-1.708-1.022-.913-1.713-2.04-1.913-2.383-.2-.344-.022-.53.15-.7.155-.154.344-.402.516-.603.172-.2.229-.344.344-.573.115-.23.057-.43-.029-.602-.086-.173-.773-1.862-1.059-2.551-.279-.67-.562-.579-.773-.59l-.657-.011a1.261 1.261 0 00-.916.43c-.314.343-1.203 1.175-1.203 2.866s1.23 3.322 1.402 3.552c.172.23 2.42 3.695 5.866 5.183.82.354 1.46.566 1.96.724.824.261 1.573.224 2.165.136.66-.099 2.034-.831 2.32-1.634.286-.802.286-1.49.2-1.634-.085-.143-.314-.229-.657-.4z"/></svg>
+                        WhatsApp
+                      </a>
+                      {selectedOrder.email && (
+                        <a href={`mailto:${selectedOrder.email}`}
+                          className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-white/10 rounded-2xl font-bold text-xs text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/20 transition-all shadow-sm">
+                          <Mail size={14}/> {selectedOrder.email}
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Livraison & Paiement */}
+                  <div className="p-6 bg-gray-50 dark:bg-white/5 rounded-[2rem] space-y-3 border border-black/5 dark:border-white/5">
+                    <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Expédition & Paiement</p>
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-dakora-green/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Truck size={16} className="text-dakora-green"/>
                       </div>
-                   </div>
+                      <div>
+                        <p className="text-sm font-black dark:text-white uppercase">{selectedOrder.delivery_mode === 'retrait' ? 'Retrait en boutique' : 'Livraison à domicile'}</p>
+                        {selectedOrder.address && <p className="text-xs text-gray-400 italic">{selectedOrder.address}</p>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 pt-3 border-t border-black/5 dark:border-white/5">
+                      <div className="w-9 h-9 bg-dakora-green/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <CreditCard size={16} className="text-dakora-green"/>
+                      </div>
+                      <div>
+                        <p className="text-sm font-black dark:text-white uppercase">{selectedOrder.payment_mode}</p>
+                        {selectedOrder.payment_ref && (
+                          <p className="text-[9px] font-mono text-orange-500">Réf: {selectedOrder.payment_ref}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -289,11 +442,16 @@ const Orders = () => {
         </div>
       )}
       
-      {/* STYLE SCROLLBAR */}
+      {/* STYLE */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+        @media print {
+          body * { visibility: hidden; }
+          #invoice-print, #invoice-print * { visibility: visible; }
+          #invoice-print { position: fixed; left: 0; top: 0; width: 100%; padding: 40px; background: white; }
+        }
       `}</style>
     </div>
   );

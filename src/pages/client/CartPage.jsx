@@ -12,7 +12,7 @@ import {
   ShoppingBag, User, MapPin, Navigation,
   CreditCard, CheckCircle2, Loader2, MessageCircle, Printer, X, Plus, Minus
 } from 'lucide-react';
-import logo from '../../assets/logo.jpeg';
+import logo from '../../assets/logos.png';
 
 // Correction icône Marker Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
