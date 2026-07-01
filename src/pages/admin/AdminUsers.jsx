@@ -349,11 +349,35 @@ const AdminUsers = () => {
 
     setToggling(admin.id);
     try {
-      await supabase.from('profiles').update({ is_blocked: newState }).eq('id', admin.id);
-      setAdmins(prev => prev.map(a => a.id === admin.id ? { ...a, is_blocked: newState } : a));
-      showSuccess(newState ? `🚫 ${admin.username} bloqué` : `✅ ${admin.username} débloqué`);
-    } catch (err) { alert('Erreur : ' + err.message); }
-    finally { setToggling(null); }
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_blocked: newState, updated_at: new Date().toISOString() })
+        .eq('id', admin.id);
+
+      if (error) throw error;
+
+      // Rafraîchir depuis Supabase pour s'assurer que la valeur est bien persistée
+      const { data: updated } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', admin.id)
+        .single();
+
+      if (updated) {
+        setAdmins(prev => prev.map(a => a.id === admin.id ? updated : a));
+        showSuccess(updated.is_blocked ? `🚫 ${admin.username || admin.email} bloqué` : `✅ ${admin.username || admin.email} débloqué`);
+      } else {
+        // Fallback : mise à jour locale
+        setAdmins(prev => prev.map(a => a.id === admin.id ? { ...a, is_blocked: newState } : a));
+        showSuccess(newState ? `🚫 Bloqué` : `✅ Débloqué`);
+      }
+    } catch (err) {
+      alert(`Erreur : ${err.message}\n\nVérifiez que les policies RLS sont bien configurées dans Supabase.`);
+      // Recharger la liste pour s'assurer que l'état est cohérent
+      fetchAdmins();
+    } finally {
+      setToggling(null);
+    }
   };
 
   const handleDelete = async (admin) => {
@@ -366,16 +390,20 @@ const AdminUsers = () => {
       alert('Impossible de supprimer un Super Admin.');
       return;
     }
-    const confirmed = window.confirm(`Supprimer définitivement "${admin.username || admin.email}" ?`);
+    const confirmed = window.confirm(`Supprimer définitivement "${admin.username || admin.email}" ?\n\nCette action supprime le profil. L'accès admin sera révoqué immédiatement.`);
     if (!confirmed) return;
 
     setDeleting(admin.id);
     try {
-      await supabase.from('profiles').delete().eq('id', admin.id);
+      const { error } = await supabase.from('profiles').delete().eq('id', admin.id);
+      if (error) throw error;
       setAdmins(prev => prev.filter(a => a.id !== admin.id));
-      showSuccess('Profil supprimé.');
-    } catch (err) { alert('Erreur : ' + err.message); }
-    finally { setDeleting(null); }
+      showSuccess('Profil supprimé — l\'accès admin est révoqué.');
+    } catch (err) {
+      alert(`Erreur : ${err.message}\n\nVérifiez que les policies RLS sont bien configurées dans Supabase (policy profiles_delete).`);
+    } finally {
+      setDeleting(null);
+    }
   };
 
   return (
@@ -469,16 +497,16 @@ const AdminUsers = () => {
 
                 {/* ACTIONS */}
                 <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
-                  {/* Changer mot de passe — soi-même seulement ou super_admin */}
-                  {(isMe || isSuperAdmin) && (
+                  {/* Changer son propre mot de passe uniquement */}
+                  {isMe && (
                     <button onClick={() => setPwdModal(admin)}
                       className="p-2 md:p-2.5 bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-300 rounded-xl hover:bg-dakora-green hover:text-white transition-all"
-                      title="Changer le mot de passe">
+                      title="Changer mon mot de passe">
                       <Lock size={15}/>
                     </button>
                   )}
 
-                  {/* Bloquer / Débloquer — super_admin seulement, pas sur soi-même, pas sur autre super_admin */}
+                  {/* Bloquer / Débloquer — super_admin seulement */}
                   {isSuperAdmin && !isMe && !isSA && (
                     <button onClick={() => handleToggleBlock(admin)} disabled={toggling === admin.id}
                       className={`p-2 md:p-2.5 rounded-xl transition-all disabled:opacity-40 ${
@@ -486,7 +514,7 @@ const AdminUsers = () => {
                           ? 'bg-dakora-green/10 text-dakora-green hover:bg-dakora-green hover:text-white'
                           : 'bg-orange-100 dark:bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-white'
                       }`}
-                      title={isBlocked ? 'Débloquer' : 'Bloquer'}>
+                      title={isBlocked ? 'Débloquer cet admin' : 'Bloquer cet admin'}>
                       {toggling === admin.id
                         ? <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin"/>
                         : isBlocked ? <UserCheck size={15}/> : <UserX size={15}/>
@@ -494,11 +522,11 @@ const AdminUsers = () => {
                     </button>
                   )}
 
-                  {/* Supprimer — super_admin seulement, pas sur soi-même, pas sur autre super_admin */}
+                  {/* Supprimer — super_admin seulement */}
                   {isSuperAdmin && !isMe && !isSA && (
                     <button onClick={() => handleDelete(admin)} disabled={deleting === admin.id}
                       className="p-2 md:p-2.5 bg-red-50 dark:bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all active:scale-90 disabled:opacity-40"
-                      title="Supprimer">
+                      title="Supprimer ce profil">
                       {deleting === admin.id
                         ? <div className="w-4 h-4 border-2 border-red-300 border-t-red-500 rounded-full animate-spin"/>
                         : <Trash2 size={15}/>

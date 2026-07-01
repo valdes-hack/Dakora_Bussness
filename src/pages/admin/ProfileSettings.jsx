@@ -142,7 +142,7 @@ const ProfileSettings = () => {
 
     setPwdLoading(true);
     try {
-      // Vérifier l'ancien mot de passe en se reconnectant
+      // 1. Vérifier l'ancien mot de passe
       const { error: verifyErr } = await supabase.auth.signInWithPassword({
         email: user.email,
         password: pwdData.currentPassword
@@ -152,11 +152,23 @@ const ProfileSettings = () => {
         setPwdLoading(false);
         return;
       }
-      // Changer le mot de passe
-      const { error } = await supabase.auth.updateUser({ password: pwdData.newPassword });
-      if (error) throw error;
 
-      // Reset
+      // 2. Changer le mot de passe (on est maintenant connecté avec la session vérifiée)
+      const { error: updateErr } = await supabase.auth.updateUser({ password: pwdData.newPassword });
+      if (updateErr) throw updateErr;
+
+      // 3. Se reconnecter avec le NOUVEAU mot de passe pour établir une session fraîche
+      //    (Supabase invalide les tokens après updateUser — nécessaire pour éviter de redemander l'ancien)
+      const { error: reSignErr } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: pwdData.newPassword
+      });
+      if (reSignErr) {
+        // Le changement a réussi mais la reconnexion a échoué — rare, on informe
+        console.warn('Reconnexion après changement de mot de passe échouée:', reSignErr.message);
+      }
+
+      // 4. Reset UI
       setPwdData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setPwdErrors({});
       setPwdSaved(true);
