@@ -10,6 +10,7 @@ export const SettingsProvider = ({ children }) => {
     slogan_fr: '',
     slogan_en: ''
   });
+  const [deliveryCities, setDeliveryCities] = useState([]);
   const [loadingSettings, setLoadingSettings] = useState(true);
 
   const fetchSettings = async () => {
@@ -22,12 +23,20 @@ export const SettingsProvider = ({ children }) => {
     setLoadingSettings(false);
   };
 
+  const fetchDeliveryCities = async () => {
+    const { data } = await supabase.from('delivery_cities').select('*').eq('is_active', true).order('name_fr');
+    if (data) {
+      setDeliveryCities(data);
+    }
+  };
+
   useEffect(() => {
     fetchSettings();
+    fetchDeliveryCities();
   }, []);
 
   return (
-    <SettingsContext.Provider value={{ settings, loadingSettings, refreshSettings: fetchSettings }}>
+    <SettingsContext.Provider value={{ settings, deliveryCities, loadingSettings, refreshSettings: fetchSettings, refreshCities: fetchDeliveryCities }}>
       {children}
     </SettingsContext.Provider>
   );

@@ -86,7 +86,7 @@ const OrderField = ({ label, required, value, error, children, className = '' })
 const CartPage = () => {
   const { cart, updateQuantity, removeFromCart, totalAmount, clearCart } = useCart();
   const { t, language } = useLanguage();
-  const { settings } = useSettings();
+  const { settings, deliveryCities } = useSettings();
   const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [orderNum, setOrderNum] = useState('');
@@ -105,7 +105,7 @@ const CartPage = () => {
     email: '',
     delivery_mode: 'retrait',
     address: '',
-    city: 'Douala',
+    city: '',
     payment_mode: '',
     payment_ref: '',
     latitude: 4.0511,
@@ -184,8 +184,10 @@ const CartPage = () => {
     if (emailErr)     newErrors.email               = emailErr;
     if (!orderData.delivery_mode) newErrors.delivery_mode = 'Choisissez un mode de livraison';
     if (!orderData.payment_mode)  newErrors.payment_mode  = 'Choisissez un mode de paiement';
-    if (orderData.delivery_mode === 'domicile' && !orderData.address.trim())
-      newErrors.address = "L'adresse est obligatoire pour la livraison à domicile";
+    if (orderData.delivery_mode === 'domicile') {
+      if (!orderData.city.trim()) newErrors.city = 'La ville est obligatoire pour la livraison à domicile';
+      if (!orderData.address.trim()) newErrors.address = "L'adresse est obligatoire pour la livraison à domicile";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -467,10 +469,7 @@ const CartPage = () => {
                       {/* Bouton "Ma position" */}
                       <button type="button" onClick={requestGeolocation} disabled={geoLoading}
                         className="flex items-center justify-center gap-1 md:gap-1.5 px-2 md:px-3 py-1 md:py-1.5 bg-dakora-green/10 text-dakora-green hover:bg-dakora-green hover:text-white rounded-lg md:rounded-xl text-[7px] md:text-[8px] lg:text-[9px] font-black uppercase tracking-widest transition-all disabled:opacity-50">
-                        {geoLoading
-                          ? <Loader2 size={11} className="animate-spin"/>
-                          : <Navigation size={11}/>
-                        }
+                        <Navigation size={11} className={geoLoading ? 'animate-spin' : ''}/>
                         {language === 'fr' ? 'Ma position' : 'My location'}
                       </button>
                     </div>
@@ -511,6 +510,27 @@ const CartPage = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Champ ville — sélection depuis la liste admin */}
+                  <OrderField
+                    label={language === 'fr' ? 'Ville de livraison' : 'Delivery City'}
+                    required
+                    value={orderData.city}
+                    error={errors.city}
+                  >
+                    <select
+                      value={orderData.city}
+                      onChange={e => { setOrderData(p => ({...p, city: e.target.value})); clearErr('city'); }}
+                      className={`input-pro w-full ${errors.city ? 'ring-2 ring-red-400 bg-red-50/50 dark:bg-red-500/5' : ''}`}
+                    >
+                      <option value="">{language === 'fr' ? 'Sélectionnez une ville' : 'Select a city'}</option>
+                      {deliveryCities.map(city => (
+                        <option key={city.id} value={language === 'fr' ? city.name_fr : city.name_en}>
+                          {language === 'fr' ? city.name_fr : city.name_en}
+                        </option>
+                      ))}
+                    </select>
+                  </OrderField>
 
                   {/* Champ adresse — pré-rempli par reverse geocoding, modifiable */}
                   <OrderField

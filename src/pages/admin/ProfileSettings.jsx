@@ -8,7 +8,7 @@ import { rules } from '../../utils/validation';
 import FieldInput from '../../components/ui/FieldInput';
 import {
   Save, Image as ImageIcon, Plus, Trash2, Phone,
-  Type, UploadCloud, User, CheckCircle2, Star, Bell, AlertCircle
+  Type, UploadCloud, User, CheckCircle2, Star, Bell, AlertCircle, MapPin
 } from 'lucide-react';
 
 const ProfileSettings = () => {
@@ -41,6 +41,12 @@ const ProfileSettings = () => {
   );
   const [notifLoading, setNotifLoading] = useState(false);
 
+  // VILLES DE LIVRAISON
+  const [cities, setCities] = useState([]);
+  const [cityLoading, setCityLoading] = useState(false);
+  const [newCityFr, setNewCityFr] = useState('');
+  const [newCityEn, setNewCityEn] = useState('');
+
   useEffect(() => {
     if (profile) {
       setProfileData({
@@ -52,6 +58,7 @@ const ProfileSettings = () => {
     }
     fetchSettings();
     fetchBanners();
+    fetchCities();
   }, [profile]);
 
   const fetchSettings = async () => {
@@ -74,6 +81,11 @@ const ProfileSettings = () => {
   const fetchBanners = async () => {
     const { data } = await supabase.from('stories').select('*').order('created_at', { ascending: false });
     setBanners(data || []);
+  };
+
+  const fetchCities = async () => {
+    const { data } = await supabase.from('delivery_cities').select('*').order('name_fr');
+    setCities(data || []);
   };
 
   // ─── SAUVEGARDE PROFIL ────────────────────────────────
@@ -221,6 +233,39 @@ const ProfileSettings = () => {
     finally { setNotifLoading(false); }
   };
 
+  // ─── GESTION DES VILLES ────────────────────────────────
+  const addCity = async () => {
+    if (!newCityFr || !newCityEn) {
+      alert('Veuillez remplir les noms en français et en anglais');
+      return;
+    }
+    setCityLoading(true);
+    try {
+      const { error } = await supabase.from('delivery_cities').insert({
+        name_fr: newCityFr,
+        name_en: newCityEn
+      });
+      if (error) throw error;
+      setNewCityFr('');
+      setNewCityEn('');
+      fetchCities();
+      showSaved();
+    } catch (err) { alert('Erreur : ' + err.message); }
+    finally { setCityLoading(false); }
+  };
+
+  const deleteCity = async (id) => {
+    if (window.confirm('Supprimer cette ville ?')) {
+      await supabase.from('delivery_cities').delete().eq('id', id);
+      fetchCities();
+    }
+  };
+
+  const toggleCityActive = async (id, isActive) => {
+    await supabase.from('delivery_cities').update({ is_active: !isActive }).eq('id', id);
+    fetchCities();
+  };
+
   const showSaved = () => { setSaved(true); setTimeout(() => setSaved(false), 2500); };
   const handlePhotoSelect = (file) => { setPhotoFile(file); setPhotoPreview(URL.createObjectURL(file)); };
 
@@ -228,6 +273,7 @@ const ProfileSettings = () => {
     { id: 'profile', label: t('tab_profile'), icon: <User size={14}/> },
     { id: 'general', label: t('tab_general'), icon: <Phone size={14}/> },
     { id: 'banners', label: t('tab_banners'), icon: <ImageIcon size={14}/> },
+    { id: 'cities', label: language === 'fr' ? 'Villes' : 'Cities', icon: <MapPin size={14}/> },
     { id: 'notifications', label: language === 'fr' ? 'Notifications' : 'Notifications', icon: <Bell size={14}/> },
   ];
 
@@ -416,6 +462,83 @@ const ProfileSettings = () => {
                       <Star size={11}/> {banner.is_active ? 'Active' : 'Inactive'}
                     </button>
                     <button onClick={() => deleteBanner(banner.id)} className="p-2 md:p-2.5 bg-red-100 dark:bg-red-500/10 text-red-500 rounded-lg md:rounded-xl hover:bg-red-500 hover:text-white transition-all">
+                      <Trash2 size={15}/>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── VILLES DE LIVRAISON ── */}
+      {activeTab === 'cities' && (
+        <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-6 md:p-8 lg:p-10 rounded-[2rem] md:rounded-[3rem] border border-white/20 shadow-2xl space-y-6 md:space-y-8">
+          <div>
+            <h3 className="font-black text-gray-900 dark:text-white text-base md:text-lg uppercase tracking-tight flex items-center gap-2 md:gap-3">
+              <MapPin size={18} className="text-dakora-green"/> {language === 'fr' ? 'Villes de Livraison' : 'Delivery Cities'}
+            </h3>
+            <p className="text-xs md:text-sm text-gray-400 mt-1">
+              {language === 'fr'
+                ? 'Gérez les villes où vous effectuez des livraisons. Les clients pourront sélectionner leur ville lors de la commande.'
+                : 'Manage the cities where you deliver. Customers can select their city when ordering.'}
+            </p>
+          </div>
+
+          {/* Formulaire d'ajout */}
+          <div className="p-4 md:p-6 bg-gray-50 dark:bg-white/5 rounded-xl md:rounded-2xl border border-black/5 dark:border-white/5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <FieldInput
+                label={language === 'fr' ? 'Nom (Français)' : 'Name (French)'}
+                value={newCityFr}
+                onChange={e => setNewCityFr(e.target.value)}
+                placeholder="ex: Douala"
+              />
+              <FieldInput
+                label={language === 'fr' ? 'Nom (Anglais)' : 'Name (English)'}
+                value={newCityEn}
+                onChange={e => setNewCityEn(e.target.value)}
+                placeholder="ex: Douala"
+              />
+            </div>
+            <button
+              onClick={addCity}
+              disabled={cityLoading}
+              className="flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-dakora-green text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs shadow-xl hover:bg-green-700 transition-all disabled:opacity-50"
+            >
+              {cityLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : <><Plus size={15}/> {language === 'fr' ? 'Ajouter la ville' : 'Add City'}</>}
+            </button>
+          </div>
+
+          {/* Liste des villes */}
+          {cities.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-12 md:p-20 bg-white/40 dark:bg-white/5 rounded-[2rem] md:rounded-[3rem] border border-dashed border-gray-300 dark:border-white/10">
+              <MapPin size={40} className="text-gray-300 mb-4"/>
+              <p className="text-gray-400 italic font-bold text-center text-xs md:text-sm">{language === 'fr' ? 'Aucune ville configurée' : 'No cities configured'}</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {cities.map(city => (
+                <div key={city.id} className={`flex items-center justify-between p-4 md:p-5 bg-white/40 dark:bg-white/5 rounded-xl md:rounded-2xl border-2 transition-all ${city.is_active ? 'border-dakora-green' : 'border-gray-200 dark:border-white/10 opacity-60'}`}>
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <MapPin size={18} className={city.is_active ? 'text-dakora-green' : 'text-gray-400'}/>
+                    <div>
+                      <p className="font-black text-gray-900 dark:text-white text-sm md:text-base">{city.name_fr}</p>
+                      <p className="text-[10px] md:text-xs text-gray-400">{city.name_en}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => toggleCityActive(city.id, city.is_active)}
+                      className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase transition-all ${city.is_active ? 'bg-dakora-green/10 text-dakora-green hover:bg-dakora-green hover:text-white' : 'bg-gray-100 dark:bg-white/5 text-gray-400 hover:bg-dakora-green hover:text-white'}`}
+                    >
+                      {city.is_active ? 'Active' : 'Inactive'}
+                    </button>
+                    <button
+                      onClick={() => deleteCity(city.id)}
+                      className="p-2 md:p-2.5 bg-red-100 dark:bg-red-500/10 text-red-500 rounded-lg md:rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                    >
                       <Trash2 size={15}/>
                     </button>
                   </div>
