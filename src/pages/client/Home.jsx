@@ -4,7 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import Hero from '../../components/layout/Hero.jsx';
 import Features from '../../components/layout/Features.jsx';
 import { useDataCache } from '../../context/DataCacheContext';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ShoppingCart } from 'lucide-react';
 
 export default function Home() {
   const { t, language } = useLanguage();

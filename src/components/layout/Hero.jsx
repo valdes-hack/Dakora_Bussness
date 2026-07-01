@@ -36,10 +36,10 @@ const Hero = () => {
   return (
     <section className="relative h-[60vh] sm:h-[70vh] md:h-[85vh] w-full overflow-hidden px-0 md:px-6 mt-2 sm:mt-4">
       {/* LOGO + NOM — logo au-dessus, centré en haut de la bannière */}
-      <div className="absolute top-2 sm:top-4 md:top-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 sm:gap-2 md:gap-3">
-        <img src={dbLogo} alt="Logo" className="h-20 sm:h-28 md:h-40 lg:h-56 w-auto object-contain drop-shadow-2xl" />
-        <div className="flex leading-none items-center">
-          <span className="font-black text-lg sm:text-2xl md:text-3xl lg:text-4xl uppercase tracking-tighter drop-shadow-2xl whitespace-nowrap">
+      <div className="absolute top-4 sm:top-6 md:top-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 sm:gap-3 md:gap-4 w-full px-4 text-center">
+        <img src={dbLogo} alt="Logo" className="h-28 sm:h-36 md:h-48 lg:h-64 w-auto object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] transition-transform duration-500 hover:scale-105" />
+        <div className="flex leading-none items-center justify-center">
+          <span className="font-black text-2xl sm:text-3xl md:text-5xl lg:text-6xl uppercase tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.7)] whitespace-nowrap">
             <span style={{color:'#A8DC00'}}>DAKORA</span> <span style={{color:'#159FFF'}}>BUSINESS</span>
           </span>
         </div>
@@ -68,7 +68,7 @@ const Hero = () => {
             {/* TEXTE — collé juste sous le logo */}
             <div className="relative h-full flex flex-col items-center justify-center text-center px-4 sm:px-6">
               {/* Spacer calculé = hauteur logo + texte + top offset */}
-              <div className="h-28 sm:h-36 md:h-48 lg:h-60 flex-shrink-0" />
+              <div className="h-44 sm:h-52 md:h-64 lg:h-80 flex-shrink-0" />
               <div className="max-w-4xl w-full space-y-1.5 sm:space-y-2 md:space-y-3 animate-in fade-in slide-in-from-bottom-10 duration-1000 -mt-1 sm:-mt-2 md:-mt-4">
                 {/* Le titre h1 est masqué car déjà affiché côte à côte avec le logo au-dessus */}
                 

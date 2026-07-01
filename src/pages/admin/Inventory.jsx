@@ -207,13 +207,9 @@ export default function Inventory() {
                       {isOut ? 'Rupture' : isLow ? `${v.stock_quantity}` : `${v.stock_quantity}`}
                     </span>
                   </div>
-                  {/* Ligne 2 : contrôle stock full-width */}
-                  <div className="flex items-center gap-2 w-full">
-                    <button onClick={() => { const qty = Math.max(0, (parseInt(saving === v.id ? v.stock_quantity : v.stock_quantity)||0) - 1); updateStock(v.id, qty, name, varLabel); }}
-                      className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 font-black flex items-center justify-center hover:bg-red-100 hover:text-red-500 transition-all text-base sm:text-lg flex-shrink-0">−</button>
+                  {/* Ligne 2 : contrôle stock centré et compact pour mobile */}
+                  <div className="flex justify-center w-full mt-3 pt-3 border-t border-black/5 dark:border-white/5">
                     <StockInput value={v.stock_quantity} onSave={(qty) => updateStock(v.id, qty, name, varLabel)} isSaving={isSaving} isSaved={isSaved} language={language} mobileMode/>
-                    <button onClick={() => { const qty = (v.stock_quantity || 0) + 1; updateStock(v.id, qty, name, varLabel); }}
-                      className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 font-black flex items-center justify-center hover:bg-dakora-green/10 hover:text-dakora-green transition-all text-base sm:text-lg flex-shrink-0">+</button>
                   </div>
                 </div>
               );
@@ -278,23 +274,27 @@ function StockInput({ value, onSave, isSaving, isSaved, language, mobileMode = f
   useEffect(() => { setLocalVal(String(value)); }, [value]);
 
   if (mobileMode) {
-    // Sur mobile : juste l'input centré avec le bouton save
+    // Sur mobile : contrôle complet [ - ] [ input ] [ + ] [ save ] centré et compact
     return (
-      <div className="flex-1 flex items-center gap-2">
+      <div className="flex items-center gap-2">
+        <button onClick={() => { const n = Math.max(0, (parseInt(localVal)||0) - 1); setLocalVal(String(n)); }}
+          className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 font-black flex items-center justify-center hover:bg-red-100 hover:text-red-500 transition-all text-lg flex-shrink-0">−</button>
         <input
           type="number" min="0" value={localVal}
           onChange={e => setLocalVal(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && changed && onSave(localVal)}
-          className="flex-1 text-center px-2 sm:px-3 py-2 sm:py-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800 text-sm sm:text-base font-black dark:text-white border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-dakora-green focus:outline-none min-w-0"
+          className="w-16 text-center py-2 rounded-xl bg-gray-50 dark:bg-neutral-800 text-sm font-black dark:text-white border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-dakora-green focus:outline-none"
         />
+        <button onClick={() => { const n = (parseInt(localVal)||0) + 1; setLocalVal(String(n)); }}
+          className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 font-black flex items-center justify-center hover:bg-dakora-green/10 hover:text-dakora-green transition-all text-lg flex-shrink-0">+</button>
         <button onClick={() => changed && onSave(localVal)} disabled={!changed || isSaving}
-          className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center transition-all flex-shrink-0 ${
+          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all flex-shrink-0 ${
             isSaved ? 'bg-dakora-green text-white' :
             changed ? 'bg-dakora-green text-white hover:bg-green-700 shadow-md' :
             'bg-gray-100 dark:bg-white/5 text-gray-300 cursor-not-allowed'
           }`}>
-          {isSaving ? <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
-            : isSaved ? <CheckCircle2 size={14} sm:size={16}/> : <Save size={14} sm:size={16}/>}
+          {isSaving ? <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
+            : isSaved ? <CheckCircle2 size={16}/> : <Save size={16}/>}
         </button>
       </div>
     );

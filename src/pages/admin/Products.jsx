@@ -316,25 +316,25 @@ const Products = () => {
                   </button>
                 </div>
               </div>
-              <div className="mt-4 md:mt-8 flex items-center justify-between pt-4 md:pt-6 border-t border-black/5 dark:border-white/5">
+              <div className="mt-4 md:mt-8 flex flex-col xl:flex-row xl:items-center justify-between gap-4 pt-4 md:pt-6 border-t border-black/5 dark:border-white/5">
                 <div>
                   <p className="text-[8px] md:text-[10px] font-bold text-gray-400 uppercase">{t('variant_price')}</p>
-                  <p className="text-base md:text-xl font-black text-gray-900 dark:text-white tracking-tighter">
+                  <p className="text-sm md:text-lg font-black text-gray-900 dark:text-white tracking-tighter">
                     {prod.variants?.[0]?.price?.toLocaleString() || '---'} <span className="text-[10px] md:text-xs text-dakora-green">FCFA</span>
                   </p>
                 </div>
-                <div className="flex gap-1.5 md:gap-2">
+                <div className="flex gap-1.5 justify-end">
                   <button onClick={() => setShareProduct(prod)}
-                    className="p-2.5 md:p-4 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-xl md:rounded-2xl hover:bg-blue-500 hover:text-white transition-all shadow-sm active:scale-90">
-                    <Share2 size={16}/>
+                    className="p-2.5 md:p-3 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-xl hover:bg-blue-500 hover:text-white transition-all shadow-sm active:scale-95">
+                    <Share2 size={14}/>
                   </button>
                   <button onClick={() => { setEditProduct(prod); setShowForm(true); }}
-                    className="p-2.5 md:p-4 bg-dakora-green/10 text-dakora-green rounded-xl md:rounded-2xl hover:bg-dakora-green hover:text-white transition-all shadow-sm active:scale-90">
-                    <Pencil size={16}/>
+                    className="p-2.5 md:p-3 bg-dakora-green/10 text-dakora-green rounded-xl hover:bg-dakora-green hover:text-white transition-all shadow-sm active:scale-95">
+                    <Pencil size={14}/>
                   </button>
                   <button onClick={() => handleDelete(prod.id)}
-                    className="p-2.5 md:p-4 bg-red-500/10 text-red-500 rounded-xl md:rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-90">
-                    <Trash2 size={16}/>
+                    className="p-2.5 md:p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-95">
+                    <Trash2 size={14}/>
                   </button>
                 </div>
               </div>
@@ -352,43 +352,45 @@ const Products = () => {
             const price = prod.variants?.[0]?.price;
             return (
               <div key={prod.id}
-                className={`flex items-center gap-4 bg-white/70 dark:bg-neutral-900/80 backdrop-blur-xl rounded-[2rem] px-5 py-4 border border-white/20 shadow transition-all ${!prod.is_active ? 'opacity-60' : ''}`}>
-                {/* Image */}
-                <div className="w-16 h-16 flex-shrink-0 rounded-[1.2rem] overflow-hidden bg-gray-100 dark:bg-black/40">
-                  {imgUrl ? (
-                    <img src={imgUrl} loading="lazy" className="w-full h-full object-cover" alt=""/>
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-2xl">📦</div>
-                  )}
-                </div>
-                {/* Infos */}
-                <div className="flex-grow min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[9px] font-black text-dakora-green uppercase tracking-widest">{catName}</span>
-                    {prod.badge && <span className="px-2 py-0.5 bg-dakora-yellow text-yellow-900 text-[9px] font-black uppercase rounded-full">{prod.badge}</span>}
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${prod.is_active ? 'bg-dakora-green/10 text-dakora-green' : 'bg-gray-100 dark:bg-white/5 text-gray-400'}`}>
-                      {prod.is_active ? t('prod_active') : t('prod_hidden')}
-                    </span>
+                className={`flex flex-col sm:flex-row sm:items-center gap-4 bg-white/70 dark:bg-neutral-900/80 backdrop-blur-xl rounded-[1.5rem] md:rounded-[2rem] p-4 md:px-5 md:py-4 border border-white/20 shadow transition-all ${!prod.is_active ? 'opacity-60' : ''}`}>
+                <div className="flex items-center gap-4 flex-grow min-w-0 w-full">
+                  {/* Image */}
+                  <div className="w-16 h-16 flex-shrink-0 rounded-[1.2rem] overflow-hidden bg-gray-100 dark:bg-black/40">
+                    {imgUrl ? (
+                      <img src={imgUrl} loading="lazy" className="w-full h-full object-cover" alt=""/>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-2xl">📦</div>
+                    )}
                   </div>
-                  <p className="font-black text-gray-900 dark:text-white text-sm truncate mt-0.5">{name}</p>
-                  <p className="text-dakora-green font-black text-xs">{price ? `${price.toLocaleString()} FCFA` : '---'}</p>
+                  {/* Infos */}
+                  <div className="flex-grow min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[9px] font-black text-dakora-green uppercase tracking-widest">{catName}</span>
+                      {prod.badge && <span className="px-2 py-0.5 bg-dakora-yellow text-yellow-900 text-[9px] font-black uppercase rounded-full">{prod.badge}</span>}
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${prod.is_active ? 'bg-dakora-green/10 text-dakora-green' : 'bg-gray-100 dark:bg-white/5 text-gray-400'}`}>
+                        {prod.is_active ? t('prod_active') : t('prod_hidden')}
+                      </span>
+                    </div>
+                    <p className="font-black text-gray-900 dark:text-white text-sm truncate mt-0.5">{name}</p>
+                    <p className="text-dakora-green font-black text-xs">{price ? `${price.toLocaleString()} FCFA` : '---'}</p>
+                  </div>
                 </div>
                 {/* Actions */}
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 justify-end w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0 border-black/5 dark:border-white/5 flex-shrink-0">
                   <button onClick={() => toggleActive(prod.id, prod.is_active)}
                     className={`p-2.5 rounded-xl transition-all ${prod.is_active ? 'bg-dakora-green/10 text-dakora-green hover:bg-dakora-green hover:text-white' : 'bg-gray-100 dark:bg-white/5 text-gray-400 hover:bg-dakora-green hover:text-white'}`}>
                     {prod.is_active ? <Eye size={16}/> : <EyeOff size={16}/>}
                   </button>
                   <button onClick={() => setShareProduct(prod)}
-                    className="p-2.5 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-xl hover:bg-blue-500 hover:text-white transition-all active:scale-90">
+                    className="p-2.5 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-xl hover:bg-blue-500 hover:text-white transition-all active:scale-95">
                     <Share2 size={16}/>
                   </button>
                   <button onClick={() => { setEditProduct(prod); setShowForm(true); }}
-                    className="p-2.5 bg-dakora-green/10 text-dakora-green rounded-xl hover:bg-dakora-green hover:text-white transition-all active:scale-90">
+                    className="p-2.5 bg-dakora-green/10 text-dakora-green rounded-xl hover:bg-dakora-green hover:text-white transition-all active:scale-95">
                     <Pencil size={16}/>
                   </button>
                   <button onClick={() => handleDelete(prod.id)}
-                    className="p-2.5 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all active:scale-90">
+                    className="p-2.5 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all active:scale-95">
                     <Trash2 size={16}/>
                   </button>
                 </div>
