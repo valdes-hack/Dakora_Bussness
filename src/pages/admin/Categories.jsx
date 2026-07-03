@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../api/supabaseClient';
-import { Plus, Trash2, Folder, X, Edit2 } from 'lucide-react';
+import { Plus, Trash2, Folder, X, Edit2, LayoutGrid, List, Filter, X as FilterX } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useDataCache } from '../../context/DataCacheContext';
 import { createNotification } from '../../utils/notify';
@@ -17,15 +17,28 @@ const catSchema = {
 
 const EMPTY_ERRORS = { name_fr: null, name_en: null, slug: null, icon_url: null };
 
-// Liste d'emojis agricoles pour l'admin
+// Liste d'emojis agricoles descriptifs pour l'admin
 const AGRICULTURAL_EMOJIS = [
-  '🚜', '🌾', '🌽', '🥕', '🍅', '🥔', '🍆', '🌶️', '🥒', '🥬',
-  '🍎', '🍊', '🍋', '🍇', '🍓', '🍒', '🥝', '🍑', '🥭', '🍍',
-  '🌻', '🌸', '🌺', '🌹', '🌷', '💐', '🌿', '🍀', '🌴', '🌵',
+  // Équipements lourds
+  '🚜', '🚛', '🚚', '🚙', '🛻', '�️', '�',
+  // Outils et machines
+  '⛏️', '🔨', '�', '🔧', '🧰', '⚙️', '🔩', '�', '�', '🪜',
+  // Cultures et récolte
+  '�', '�', '�', '�', '�', '�', '🌳', '🍄', '🌻', '🌷',
+  // Légumes
+  '�', '�', '�', '�', '🌶️', '🥒', '🥬', '🧅', '🧄', '🥦',
+  // Fruits
+  '�', '�', '�', '�', '�', '🍒', '🥝', '�', '🥭', '�', '�',
+  // Élevage
   '🐄', '🐖', '🐓', '🐑', '🐐', '🐔', '🐣', '🐤', '🥚', '🧀',
-  '🥛', '🍯', '🌰', '🥜', '🌱', '🌲', '🌳', '🍄', '🌾', '🌾',
-  '🔨', '⛏️', '🪚', '🔧', '🧰', '⚙️', '🏭', '🏗️', '🏠', '🏡',
-  '💧', '☀️', '🌧️', '⛈️', '❄️', '🌈', '🌤️', '⛅', '🌥️', '🌦️'
+  // Produits laitiers et autres
+  '🥛', '🍯', '🌰', '🥜', '�', '🧈', '🥩', '�',
+  // Irrigation et météo
+  '💧', '☀️', '🌧️', '⛈️', '❄️', '🌈', '🌤️', '⛅', '�️', '�️',
+  // Stockage et bâtiments
+  '🏠', '🏡', '🏢', '🏣', '🏤', '�', '🏦',
+  // Autres équipements
+  '🔋', '💡', '🔌', '📱', '💻', '📷', '�', '📡'
 ];
 
 const Categories = () => {
@@ -37,6 +50,9 @@ const Categories = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' ou 'list'
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [form, setForm] = useState({ name_fr: '', name_en: '', slug: '', icon_url: '' });
   const [errors, setErrors] = useState(EMPTY_ERRORS);
@@ -184,10 +200,36 @@ const Categories = () => {
           </h1>
           <p className="text-gray-500 font-medium text-xs md:text-sm">{t('cat_subtitle')}</p>
         </div>
-        <button onClick={handleOpen}
-          className="flex items-center gap-2 bg-dakora-green hover:bg-green-700 text-white font-black py-2.5 md:py-3 px-4 md:px-6 rounded-xl md:rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 text-[10px] md:text-sm uppercase tracking-wider">
-          <Plus size={16}/> {t('cat_add')}
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Toggle filtre */}
+          <button
+            onClick={() => setFilterOpen(!filterOpen)}
+            className={`p-2.5 md:p-3 rounded-xl md:rounded-2xl transition-all ${
+              filterOpen
+                ? 'bg-dakora-green text-white shadow-lg shadow-dakora-green/20'
+                : 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/20'
+            }`}
+            title={filterOpen ? 'Masquer les filtres' : 'Afficher les filtres'}
+          >
+            {filterOpen ? <FilterX size={18} /> : <Filter size={18} />}
+          </button>
+          {/* Toggle vue grille/liste */}
+          <button
+            onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+            className={`p-2.5 md:p-3 rounded-xl md:rounded-2xl transition-all ${
+              viewMode === 'grid'
+                ? 'bg-dakora-green text-white shadow-lg shadow-dakora-green/20'
+                : 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/20'
+            }`}
+            title={viewMode === 'grid' ? 'Vue liste' : 'Vue grille'}
+          >
+            {viewMode === 'grid' ? <List size={18} /> : <LayoutGrid size={18} />}
+          </button>
+          <button onClick={handleOpen}
+            className="flex items-center gap-2 bg-dakora-green hover:bg-green-700 text-white font-black py-2.5 md:py-3 px-4 md:px-6 rounded-xl md:rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 text-[10px] md:text-sm uppercase tracking-wider">
+            <Plus size={16}/> {t('cat_add')}
+          </button>
+        </div>
       </div>
 
       {/* MODAL AJOUT/ÉDITION */}
@@ -288,19 +330,53 @@ const Categories = () => {
         </div>
       )}
 
+      {/* FILTRE LATÉRAL */}
+      {filterOpen && (
+        <div className="bg-white/60 dark:bg-white/5 backdrop-blur-md p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-white/20 shadow-xl animate-in slide-in-from-right duration-300">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-black text-gray-900 dark:text-white uppercase italic">Filtres</h3>
+            <button onClick={() => setFilterOpen(false)} className="p-2 text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full transition-all">
+              <X size={16}/>
+            </button>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-300 mb-2">
+                Rechercher
+              </label>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Nom de catégorie..."
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-dakora-green dark:text-white"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* LISTE */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-          {[1,2,3].map(n => <div key={n} className="h-20 sm:h-24 md:h-32 rounded-[1.5rem] sm:rounded-2xl md:rounded-3xl bg-white/40 dark:bg-white/5 border border-white/20 animate-pulse"/>)}
+        <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6" : "space-y-3 sm:space-y-4"}>
+          {[1,2,3].map(n => (
+            <div key={n} className={viewMode === 'grid' ? "h-20 sm:h-24 md:h-32 rounded-[1.5rem] sm:rounded-2xl md:rounded-3xl bg-white/40 dark:bg-white/5 border border-white/20 animate-pulse" : "h-16 sm:h-20 rounded-xl bg-white/40 dark:bg-white/5 border border-white/20 animate-pulse"}/>
+          ))}
         </div>
       ) : categories.length === 0 ? (
         <div className="bg-white/40 dark:bg-black/20 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[2.5rem] p-4 sm:p-6 md:p-10 border border-white/20 border-dashed text-center">
           <p className="text-gray-400 italic font-medium text-xs sm:text-sm md:text-base">{t('cat_empty')}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-          {categories.map(cat => (
-            <div key={cat.id} className="bg-white/60 dark:bg-white/5 backdrop-blur-md p-3 sm:p-4 md:p-6 rounded-[1.2rem] sm:rounded-[1.5rem] md:rounded-[2rem] border border-white/20 shadow-xl flex items-center justify-between group hover:scale-[1.02] transition-all">
+        <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6" : "space-y-3 sm:space-y-4"}>
+          {categories.filter(cat => 
+            !searchQuery || 
+            cat.name_fr.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (cat.name_en && cat.name_en.toLowerCase().includes(searchQuery.toLowerCase()))
+          ).map(cat => (
+            <div key={cat.id} className={`bg-white/60 dark:bg-white/5 backdrop-blur-md p-3 sm:p-4 md:p-6 rounded-[1.2rem] sm:rounded-[1.5rem] md:rounded-[2rem] border border-white/20 shadow-xl group hover:scale-[1.02] transition-all ${
+              viewMode === 'grid' ? 'flex items-center justify-between' : 'flex items-center justify-between'
+            }`}>
               <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-1 min-w-0">
                 <div className="text-xl sm:text-2xl md:text-3xl p-1.5 sm:p-2 md:p-3 bg-gray-100 dark:bg-white/10 rounded-lg sm:rounded-xl md:rounded-2xl flex-shrink-0">
                   {cat.icon_url || <Folder className="text-dakora-green w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8"/>}

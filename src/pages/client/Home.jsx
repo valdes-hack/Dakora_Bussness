@@ -42,7 +42,7 @@ export default function Home() {
                 to="/boutique" 
                 className="group flex flex-col items-center p-8 bg-white/60 dark:bg-white/5 backdrop-blur-md border border-white/20 rounded-[2.5rem] shadow-xl hover:shadow-dakora-green/20 hover:-translate-y-2 transition-all duration-500"
               >
-                <span className="text-5xl mb-4 group-hover:scale-125 transition-transform duration-500">{cat.icon_url || '🚜'}</span>
+                <span className="text-5xl mb-4 group-hover:scale-125 transition-transform duration-500">{cat.icon_url || '🌾'}</span>
                 <span className="font-black text-[10px] uppercase tracking-widest text-center dark:text-white leading-tight">
                   {language === 'fr' ? cat.name_fr : cat.name_en}
                 </span>
