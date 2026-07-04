@@ -128,7 +128,7 @@ const ProductDetails = () => {
   const navigate     = useNavigate();
   const { t, language } = useLanguage();
   const { settings } = useSettings();
-  const { products } = useDataCache(); // ← lecture cache, instantané
+  const { products, ready } = useDataCache(); // ← lecture cache, instantané
   const { addToCart } = useCart();
 
   const [selectedVariant, setSelectedVariant] = useState(null);
@@ -183,7 +183,7 @@ const ProductDetails = () => {
   }, [product, selectedVariant, addToCart]);
 
   // Cache pas encore prêt → skeleton
-  if (!product && products.length === 0) return <Skeleton />;
+  if (!ready) return <Skeleton />;
 
   // Produit introuvable
   if (!product) return (

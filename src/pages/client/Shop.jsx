@@ -256,9 +256,17 @@ const Shop = () => {
     } else if (filters.sort === 'price_desc') {
       list.sort((a, b) => Math.min(...(b.variants?.map(v => Number(v.price)) || [0])) - Math.min(...(a.variants?.map(v => Number(v.price)) || [0])));
     } else if (filters.sort === 'name_asc') {
-      list.sort((a, b) => (language === 'fr' ? a.name_fr : a.name_en)?.localeCompare(language === 'fr' ? b.name_fr : b.name_en));
+      list.sort((a, b) => {
+        const nameA = (language === 'fr' ? a.name_fr : (a.name_en || a.name_fr)) || '';
+        const nameB = (language === 'fr' ? b.name_fr : (b.name_en || b.name_fr)) || '';
+        return nameA.localeCompare(nameB);
+      });
     } else if (filters.sort === 'name_desc') {
-      list.sort((a, b) => (language === 'fr' ? b.name_fr : b.name_en)?.localeCompare(language === 'fr' ? a.name_fr : a.name_en));
+      list.sort((a, b) => {
+        const nameA = (language === 'fr' ? a.name_fr : (a.name_en || a.name_fr)) || '';
+        const nameB = (language === 'fr' ? b.name_fr : (b.name_en || b.name_fr)) || '';
+        return nameB.localeCompare(nameA);
+      });
     }
     return list;
   }, [products, filters, language]);

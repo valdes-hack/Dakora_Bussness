@@ -80,10 +80,10 @@ const Orders = () => {
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(o =>
-        o.customer_first_name?.toLowerCase().includes(q) ||
-        o.customer_last_name?.toLowerCase().includes(q) ||
-        o.phone?.includes(q) ||
-        o.id.slice(0, 8).toLowerCase().includes(q)
+        (o.customer_first_name || '').toLowerCase().includes(q) ||
+        (o.customer_last_name || '').toLowerCase().includes(q) ||
+        (o.phone || '').includes(q) ||
+        (o.id || '').slice(0, 8).toLowerCase().includes(q)
       );
     }
 

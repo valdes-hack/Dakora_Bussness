@@ -76,10 +76,10 @@ export default function Inventory() {
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(v =>
-        v.products?.name_fr?.toLowerCase().includes(q) ||
-        v.products?.name_en?.toLowerCase().includes(q) ||
-        v.label_fr?.toLowerCase().includes(q) ||
-        v.label_en?.toLowerCase().includes(q)
+        (v.products?.name_fr || '').toLowerCase().includes(q) ||
+        (v.products?.name_en || '').toLowerCase().includes(q) ||
+        (v.label_fr || '').toLowerCase().includes(q) ||
+        (v.label_en || '').toLowerCase().includes(q)
       );
     }
     list.sort((a, b) => {

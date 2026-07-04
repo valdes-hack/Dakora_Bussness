@@ -182,9 +182,9 @@ const Products = () => {
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(p =>
-        p.name_fr?.toLowerCase().includes(q) ||
-        p.name_en?.toLowerCase().includes(q) ||
-        p.badge?.toLowerCase().includes(q)
+        (p.name_fr || '').toLowerCase().includes(q) ||
+        (p.name_en || '').toLowerCase().includes(q) ||
+        (p.badge || '').toLowerCase().includes(q)
       );
     }
     return list;

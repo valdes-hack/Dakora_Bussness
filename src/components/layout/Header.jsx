@@ -58,16 +58,16 @@ const Header = () => {
     debounceRef.current = setTimeout(() => {
       const lower = q.toLowerCase();
       const matchedProducts = products.filter(p =>
-        (p.name_fr?.toLowerCase().includes(lower)) ||
-        (p.name_en?.toLowerCase().includes(lower)) ||
-        (p.description_fr?.toLowerCase().includes(lower)) ||
-        (p.description_en?.toLowerCase().includes(lower)) ||
-        (p.categories?.name_fr?.toLowerCase().includes(lower)) ||
-        (p.categories?.name_en?.toLowerCase().includes(lower))
+        (p.name_fr || '').toLowerCase().includes(lower) ||
+        (p.name_en || '').toLowerCase().includes(lower) ||
+        (p.description_fr || '').toLowerCase().includes(lower) ||
+        (p.description_en || '').toLowerCase().includes(lower) ||
+        (p.categories?.name_fr || '').toLowerCase().includes(lower) ||
+        (p.categories?.name_en || '').toLowerCase().includes(lower)
       ).slice(0, 5);
       const matchedCats = categories.filter(c =>
-        (c.name_fr?.toLowerCase().includes(lower)) ||
-        (c.name_en?.toLowerCase().includes(lower))
+        (c.name_fr || '').toLowerCase().includes(lower) ||
+        (c.name_en || '').toLowerCase().includes(lower)
       ).slice(0, 3);
       setSearchResults({ products: matchedProducts, categories: matchedCats });
     }, 300);

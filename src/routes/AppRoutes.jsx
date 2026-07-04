@@ -1,24 +1,50 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ClientLayout from '../components/layout/ClientLayout';
 import AdminLayout from '../components/layout/AdminLayout';
 
+// Wrapper pour intercepter les ChunkLoadError et forcer le rechargement de la page
+const lazyWithRetry = (componentImport) => {
+  return lazy(async () => {
+    try {
+      return await componentImport();
+    } catch (error) {
+      console.error("Erreur de chargement du chunk dynamique:", error);
+      const isChunkError = 
+        error.name === 'ChunkLoadError' || 
+        error.message?.includes('Failed to fetch dynamically imported module') ||
+        error.message?.includes('Failed to fetch dynamic');
+        
+      if (isChunkError) {
+        const retryKey = 'chunk-load-retry-count';
+        const retryCount = parseInt(sessionStorage.getItem(retryKey) || '0', 10);
+        if (retryCount < 2) {
+          sessionStorage.setItem(retryKey, (retryCount + 1).toString());
+          window.location.reload();
+          return new Promise(() => {}); // Évite de crasher en attendant le reload
+        }
+      }
+      throw error;
+    }
+  });
+};
+
 // Pages Client — lazy loading (chargées uniquement quand visitées)
 import Home from '../pages/client/Home'; // Home reste eager (page d'accueil)
-const Shop         = lazy(() => import('../pages/client/Shop'));
-const ProductDetails = lazy(() => import('../pages/client/ProductDetails'));
-const CartPage     = lazy(() => import('../pages/client/CartPage'));
+const Shop         = lazyWithRetry(() => import('../pages/client/Shop'));
+const ProductDetails = lazyWithRetry(() => import('../pages/client/ProductDetails'));
+const CartPage     = lazyWithRetry(() => import('../pages/client/CartPage'));
 
 // Pages Admin — lazy loading
 import Login from '../pages/admin/Login';
-const Dashboard      = lazy(() => import('../pages/admin/Dashboard'));
-const Inventory      = lazy(() => import('../pages/admin/Inventory'));
-const Orders         = lazy(() => import('../pages/admin/Orders'));
-const ProfileSettings = lazy(() => import('../pages/admin/ProfileSettings'));
-const Categories     = lazy(() => import('../pages/admin/Categories'));
-const Products       = lazy(() => import('../pages/admin/Products'));
-const Stories        = lazy(() => import('../pages/admin/Stories'));
-const AdminUsers     = lazy(() => import('../pages/admin/AdminUsers'));
+const Dashboard      = lazyWithRetry(() => import('../pages/admin/Dashboard'));
+const Inventory      = lazyWithRetry(() => import('../pages/admin/Inventory'));
+const Orders         = lazyWithRetry(() => import('../pages/admin/Orders'));
+const ProfileSettings = lazyWithRetry(() => import('../pages/admin/ProfileSettings'));
+const Categories     = lazyWithRetry(() => import('../pages/admin/Categories'));
+const Products       = lazyWithRetry(() => import('../pages/admin/Products'));
+const Stories        = lazyWithRetry(() => import('../pages/admin/Stories'));
+const AdminUsers     = lazyWithRetry(() => import('../pages/admin/AdminUsers'));
 
 // Skeleton générique pendant le chargement d'une page
 const PageLoader = () => (
@@ -30,6 +56,10 @@ const PageLoader = () => (
 );
 
 const AppRoutes = () => {
+  useEffect(() => {
+    sessionStorage.removeItem('chunk-load-retry-count');
+  }, []);
+
   return (
     <Routes>
       {/* 1. MONDE CLIENT */}
