@@ -68,7 +68,7 @@ const Hero = () => {
                   className="h-48 sm:h-64 md:h-80 lg:h-[26rem] w-auto object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.55)] transition-all duration-700 group-hover:scale-105 group-hover:rotate-[1deg]" 
                 />
                 <span className="font-black text-4xl sm:text-6xl md:text-8xl lg:text-[7rem] uppercase tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)] whitespace-nowrap leading-none -mt-6 sm:-mt-10 md:-mt-12 lg:-mt-16 transition-all duration-500 group-hover:text-shadow-glow">
-                  <span style={{color:'#A8DC00'}}>DAKORA</span> <span style={{color:'#159FFF'}}>BUSINESS</span>
+                  <span style={{color:'#A8DC00'}}>{(settings.business_name || 'Dakora Business').split(' ')[0]}</span> <span style={{color:'#159FFF'}}>{(settings.business_name || 'Dakora Business').split(' ').slice(1).join(' ')}</span>
                 </span>
               </div>
 
