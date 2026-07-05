@@ -10,9 +10,10 @@ const WhatsAppFloat = () => {
   const { settings } = useSettings();
   const { language } = useLanguage();
   const waNumber = settings.whatsapp_number || '237690000000';
+  const siteName = settings.business_name || 'Dakora Business';
   const msg = language === 'fr'
-    ? 'Bonjour Dakora Business 👋 Je souhaite obtenir des informations sur vos équipements agricoles.'
-    : 'Hello Dakora Business 👋 I would like to get information about your agricultural equipment.';
+    ? `Bonjour ${siteName} 👋 Je souhaite obtenir des informations sur vos équipements agricoles.`
+    : `Hello ${siteName} 👋 I would like to get information about your agricultural equipment.`;
 
   return (
     <a

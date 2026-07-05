@@ -16,7 +16,7 @@ export const DataCacheProvider = ({ children }) => {
   const [products, setProducts]     = useState([]);
   const [categories, setCategories] = useState([]);
   const [banners, setBanners]       = useState([]);
-  const [ready, setReady]           = useState(false);
+  const [ready, setReady]           = useState(true); // Commence à true pour éviter la page blanche
   const [error, setError]           = useState(null);
   const lastFetch = useRef(0);
   // On garde les produits dans un ref pour éviter les closures stales

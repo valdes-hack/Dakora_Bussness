@@ -228,11 +228,12 @@ const Shop = () => {
 
   const handleWhatsApp = useCallback((product) => {
     const waNumber = settings.whatsapp_number || '237690000000';
+    const siteName = settings.business_name || 'Dakora Business';
     const name = language === 'fr' ? product.name_fr : product.name_en;
     const minPrice = product.variants?.length ? Math.min(...product.variants.map(v => Number(v.price))) : 0;
-    const msg = `Bonjour Dakora Business 👋\nJe suis intéressé(e) par :\n*${name}* — à partir de ${minPrice.toLocaleString()} FCFA\nPouvez-vous m'en dire plus ?`;
+    const msg = `Bonjour ${siteName} 👋\nJe suis intéressé(e) par :\n*${name}* — à partir de ${minPrice.toLocaleString()} FCFA\nPouvez-vous m'en dire plus ?`;
     window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`, '_blank');
-  }, [settings.whatsapp_number, language]);
+  }, [settings.whatsapp_number, settings.business_name, language]);
 
   const filteredProducts = useMemo(() => {
     let list = [...products];

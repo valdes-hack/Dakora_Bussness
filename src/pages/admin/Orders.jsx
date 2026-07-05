@@ -200,7 +200,8 @@ const Orders = () => {
   const clientWaLink = (order) => {
     const num = formatWaNumber(order.phone);
     const ref = order.id.slice(0, 8).toUpperCase();
-    const msg = `Bonjour ${order.customer_first_name} 👋\nVotre commande *#${ref}* (${order.total_amount?.toLocaleString()} FCFA) est actuellement : *${order.status}*.\nMerci pour votre confiance — Dakora Business 🌿`;
+    const siteName = settings.business_name || 'Dakora Business';
+    const msg = `Bonjour ${order.customer_first_name} 👋\nVotre commande *#${ref}* (${order.total_amount?.toLocaleString()} FCFA) est actuellement : *${order.status}*.\nMerci pour votre confiance — ${siteName} 🌿`;
     return `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
   };
 

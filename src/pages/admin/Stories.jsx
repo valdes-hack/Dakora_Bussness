@@ -10,11 +10,11 @@ import {
 } from 'lucide-react';
 
 // ─── PANNEAU DE PARTAGE ───────────────────────────────────────────────────────
-const SharePanel = ({ story, onClose, whatsappNumber, onShare }) => {
+const SharePanel = ({ story, onClose, whatsappNumber, businessName, onShare }) => {
   const storyUrl = story.redirect_link
     ? `${window.location.origin}${story.redirect_link}`
     : window.location.origin;
-  const title = story.title_fr || 'Dakora Business';
+  const title = story.title_fr || businessName || 'Dakora Business';
   const [copied, setCopied] = useState(false);
   const [nativeShareSupported, setNativeShareSupported] = useState(false);
   const [sharingNatively, setSharingNatively] = useState(false);
@@ -630,7 +630,7 @@ const Stories = () => {
         </div>
       )}
 
-      {shareStory && <SharePanel story={shareStory} whatsappNumber={waNumber} onClose={() => setShareStory(null)}
+      {shareStory && <SharePanel story={shareStory} whatsappNumber={waNumber} businessName={settings.business_name} onClose={() => setShareStory(null)}
         onShare={(network) => {
           createNotification(`Story partagée sur ${network} : ${shareStory.title_fr}`, 'share', '/admin/stories');
         }}

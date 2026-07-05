@@ -6,7 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Commence à false pour éviter le blocage
 
   // 1. Fonction pour récupérer le profil complet (avec la photo)
   const fetchProfile = async (userId) => {

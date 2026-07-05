@@ -7,7 +7,7 @@ import { Download, X, Smartphone, Monitor, Share } from 'lucide-react';
 import logo from '../../assets/logos.png';
 
 // ─── DRAWER D'AIDE À L'INSTALLATION (Safari / Firefox) ───────────────────────
-const InstallGuide = ({ onClose, language }) => {
+const InstallGuide = ({ onClose, language, siteName }) => {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   const isIOS    = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -27,7 +27,7 @@ const InstallGuide = ({ onClose, language }) => {
               <p className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-tight">
                 {language === 'fr' ? 'Installer l\'app' : 'Install App'}
               </p>
-              <p className="text-[10px] text-gray-400 font-medium">Dakora Business</p>
+              <p className="text-[10px] text-gray-400 font-medium">{siteName || 'Dakora Business'}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 transition-all">
@@ -211,7 +211,7 @@ const Footer = () => {
 
       {/* Guide d'installation (uniquement pour Safari/Firefox, sans alert) */}
       {showGuide && (
-        <InstallGuide language={language} onClose={() => setShowGuide(false)}/>
+        <InstallGuide language={language} siteName={siteName} onClose={() => setShowGuide(false)}/>
       )}
     </>
   );

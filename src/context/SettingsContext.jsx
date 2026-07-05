@@ -11,7 +11,7 @@ export const SettingsProvider = ({ children }) => {
     slogan_en: ''
   });
   const [deliveryCities, setDeliveryCities] = useState([]);
-  const [loadingSettings, setLoadingSettings] = useState(true);
+  const [loadingSettings, setLoadingSettings] = useState(false); // Commence à false pour éviter le blocage
 
   const fetchSettings = async () => {
     const { data } = await supabase.from('settings').select('*');
