@@ -1,8 +1,10 @@
 /**
  * DataCacheContext — Cache global des données Supabase
  *
- * Principe : on charge produits + catégories UNE SEULE FOIS au démarrage
- * de l'app. Toutes les pages lisent depuis ce cache en mémoire → 0ms d'attente.
+ * Principe : on charge produits + catégories au démarrage de l'app.
+ * Rafraîchissement automatique silencieux toutes les 5s pour le backend.
+ * Rafraîchissement plus fréquent (2s) pour boutique/accueil si demandé.
+ * Toutes les pages lisent depuis ce cache en mémoire → 0ms d'attente.
  * Le cache est invalidé uniquement quand l'admin sauvegarde une modification.
  */
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
@@ -10,7 +12,8 @@ import { supabase } from '../api/supabaseClient';
 
 const DataCacheContext = createContext({});
 
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL = 5 * 1000; // 5 secondes (rafraîchissement automatique)
+const FAST_REFRESH_TTL = 2 * 1000; // 2 secondes (pour boutique/accueil)
 
 export const DataCacheProvider = ({ children }) => {
   const [products, setProducts]     = useState([]);
@@ -19,17 +22,24 @@ export const DataCacheProvider = ({ children }) => {
   const [ready, setReady]           = useState(true); // Commence à true pour éviter la page blanche
   const [error, setError]           = useState(null);
   const lastFetch = useRef(0);
+  const isRefreshing = useRef(false);
   // On garde les produits dans un ref pour éviter les closures stales
   const productsRef = useRef([]);
 
   // Synchronise le ref à chaque changement d'état
   useEffect(() => { productsRef.current = products; }, [products]);
 
-  const fetchAll = useCallback(async (force = false) => {
+  const fetchAll = useCallback(async (force = false, fastRefresh = false) => {
     const now = Date.now();
+    const ttl = fastRefresh ? FAST_REFRESH_TTL : CACHE_TTL;
+    
+    // Éviter les rafraîchissements simultanés
+    if (isRefreshing.current && !force) return;
+    
     // Utilise productsRef.current (toujours à jour) au lieu de products (closure)
-    if (!force && now - lastFetch.current < CACHE_TTL && productsRef.current.length > 0) return;
+    if (!force && now - lastFetch.current < ttl && productsRef.current.length > 0) return;
 
+    isRefreshing.current = true;
     setError(null);
     try {
       const [
@@ -85,12 +95,21 @@ export const DataCacheProvider = ({ children }) => {
       console.error("DataCache fetch error:", err);
       setError(err.message || String(err));
     } finally {
-      setReady(true);
+      isRefreshing.current = false;
+      setReady(true); // Toujours true pour éviter la page blanche
     }
   }, []); // ← plus de dépendance sur products.length → pas de closure stale
 
   // Chargement initial
   useEffect(() => { fetchAll(); }, [fetchAll]);
+
+  // Rafraîchissement automatique toutes les 5s (backend silencieux)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchAll(false, false); // Rafraîchissement normal (5s)
+    }, CACHE_TTL);
+    return () => clearInterval(interval);
+  }, [fetchAll]);
 
   // Précharger les images en arrière-plan
   useEffect(() => {
@@ -110,8 +129,13 @@ export const DataCacheProvider = ({ children }) => {
     fetchAll(true);
   }, [fetchAll]);
 
+  /** Rafraîchissement rapide pour boutique/accueil (toutes les 2s) */
+  const fastRefresh = useCallback(() => {
+    fetchAll(false, true);
+  }, [fetchAll]);
+
   return (
-    <DataCacheContext.Provider value={{ products, categories, banners, ready, error, invalidateCache }}>
+    <DataCacheContext.Provider value={{ products, categories, banners, ready, error, invalidateCache, fastRefresh }}>
       {children}
     </DataCacheContext.Provider>
   );

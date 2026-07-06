@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import Hero from '../../components/layout/Hero.jsx';
@@ -8,7 +8,15 @@ import { ArrowRight, ShoppingCart } from 'lucide-react';
 
 export default function Home() {
   const { t, language } = useLanguage();
-  const { products, categories, ready } = useDataCache();
+  const { products, categories, ready, fastRefresh } = useDataCache();
+
+  // Rafraîchissement automatique toutes les 2s pour l'accueil
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fastRefresh();
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [fastRefresh]);
 
   // On prend les 6 premières catégories et les 3 derniers produits du cache
   const featuredCategories = categories.slice(0, 6);

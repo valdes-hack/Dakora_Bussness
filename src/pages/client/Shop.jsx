@@ -1,4 +1,4 @@
-import { useState, useCallback, memo, useMemo } from 'react';
+import { useState, useCallback, memo, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useCart } from '../../context/CartContext';
@@ -206,7 +206,15 @@ const Shop = () => {
   const { language } = useLanguage();
   const { addToCart }   = useCart();
   const { settings }    = useSettings();
-  const { products, categories, ready } = useDataCache();
+  const { products, categories, ready, fastRefresh } = useDataCache();
+
+  // Rafraîchissement automatique toutes les 2s pour la boutique
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fastRefresh();
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [fastRefresh]);
 
   const [addedId, setAddedId] = useState(null);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
