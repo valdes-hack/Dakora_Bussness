@@ -1,11 +1,78 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dakora Business</title>
 
-    <!-- Favicon et icônes PWA -->
+    <!-- ═══ TITRE & DESCRIPTION SEO ═══════════════════════════════════════ -->
+    <title>Dakora Business — Matériel Agricole Cameroun | Motoculteurs, Tracteurs, Équipements</title>
+    <meta name="description" content="Dakora Business : votre expert en matériel agricole au Cameroun. Motoculteurs, tracteurs, moissonneuses et équipements certifiés. Livraison à Douala et partout au Cameroun. Commandez via WhatsApp." />
+    <meta name="keywords" content="matériel agricole Cameroun, motoculteur Douala, tracteur Cameroun, équipement agricole, Dakora Business, achat tracteur Cameroun, moissonneuse Cameroun" />
+    <meta name="author" content="Dakora Business" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://dakora-business.vercel.app/" />
+
+    <!-- ═══ OPEN GRAPH — Aperçu sur Facebook, WhatsApp, LinkedIn ══════════ -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://dakora-business.vercel.app/" />
+    <meta property="og:title" content="Dakora Business — Matériel Agricole au Cameroun" />
+    <meta property="og:description" content="Motoculteurs, tracteurs et équipements agricoles certifiés. Livraison partout au Cameroun. Commandez facilement via WhatsApp." />
+    <meta property="og:image" content="https://dakora-business.vercel.app/icon/android-icon-192x192.png" />
+    <meta property="og:image:width" content="192" />
+    <meta property="og:image:height" content="192" />
+    <meta property="og:locale" content="fr_CM" />
+    <meta property="og:site_name" content="Dakora Business" />
+
+    <!-- ═══ TWITTER CARD ══════════════════════════════════════════════════ -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dakora Business — Matériel Agricole Cameroun" />
+    <meta name="twitter:description" content="Motoculteurs, tracteurs et équipements certifiés. Livraison partout au Cameroun." />
+    <meta name="twitter:image" content="https://dakora-business.vercel.app/icon/android-icon-192x192.png" />
+
+    <!-- ═══ DONNÉES STRUCTURÉES JSON-LD (Google Rich Results) ═══════════ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "Dakora Business",
+      "description": "Expert en matériel agricole au Cameroun. Motoculteurs, tracteurs, moissonneuses et équipements certifiés.",
+      "url": "https://dakora-business.vercel.app",
+      "logo": "https://dakora-business.vercel.app/icon/android-icon-192x192.png",
+      "image": "https://dakora-business.vercel.app/icon/android-icon-192x192.png",
+      "telephone": "+237000000000",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Douala",
+        "addressLocality": "Douala",
+        "addressCountry": "CM"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 4.0511,
+        "longitude": 9.7679
+      },
+      "openingHours": "Mo-Sa 08:00-18:00",
+      "priceRange": "$$",
+      "currenciesAccepted": "XAF",
+      "paymentAccepted": "Cash, Mobile Money",
+      "areaServed": {
+        "@type": "Country",
+        "name": "Cameroun"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Catalogue Matériel Agricole",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Motoculteurs" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Tracteurs" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Moissonneuses" } }
+        ]
+      },
+      "sameAs": []
+    }
+    </script>
+
+    <!-- ═══ FAVICON & ICÔNES PWA ══════════════════════════════════════════ -->
     <link rel="icon" type="image/png" sizes="32x32" href="/icon/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/icon/favicon-16x16.png" />
     <link rel="icon" href="/icon/favicon.ico" />
@@ -19,15 +86,17 @@
     <link rel="apple-touch-icon" sizes="60x60" href="/icon/apple-icon-60x60.png" />
     <link rel="apple-touch-icon" sizes="57x57" href="/icon/apple-icon-57x57.png" />
 
-    <!-- Meta pour Windows -->
+    <!-- Meta Windows & PWA -->
     <meta name="msapplication-TileColor" content="#2D5A27" />
     <meta name="msapplication-TileImage" content="/icon/ms-icon-144x144.png" />
     <meta name="theme-color" content="#2D5A27" />
-
-    <!-- Meta pour iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Dakora" />
+
+    <!-- Préchargement des polices pour performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
   </head>
   <body>
     <div id="root"></div>

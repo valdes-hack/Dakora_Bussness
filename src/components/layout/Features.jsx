@@ -2,10 +2,10 @@ import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 
 const Features = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const advantages = [
-    { icon: "🚚", title: t('feat_delivery'), desc: t('feat_delivery_desc') },
+    { icon: "🏪", title: language === 'fr' ? 'Commerce Général' : 'General Commerce', desc: language === 'fr' ? 'Matériel Agricole, Équipements de Transformation agro-alimentaires et Solutions pour Professionnels' : 'Agricultural Equipment, Agro-food Processing Equipment and Professional Solutions' },
     { icon: "⭐", title: t('feat_quality'), desc: t('feat_quality_desc') },
     { icon: "🛠️", title: t('feat_support'), desc: t('feat_support_desc') }
   ];
