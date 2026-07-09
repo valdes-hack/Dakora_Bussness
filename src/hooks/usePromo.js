@@ -10,7 +10,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../api/supabaseClient';
 
-const REFRESH_MS = 30_000; // Re-fetch toutes les 30s pour détecter les expirations
+const REFRESH_MS = 2000; // Re-fetch toutes les 2s pour détecter les expirations et nouveautés en temps réel
 
 export const usePromo = () => {
   const [promos, setPromos] = useState([]);

@@ -58,7 +58,7 @@ const CreatePromoModal = ({ onClose, onCreated, language }) => {
         is_active:      true,
       }]);
       if (insertErr) throw insertErr;
-      createNotification(`🏷️ Promo lancée : ${productName} — ${varLabel} → ${Number(form.promo_price).toLocaleString()} FCFA`, 'product', '/admin/promos');
+      createNotification(`🏷️ Promo lancée : ${productName} — ${varLabel} → ${Number(form.promo_price).toLocaleString()} FCFA`, 'promo', '/admin/promos');
       onCreated();
     } catch (err) { setError(err.message); }
     finally { setLoading(false); }
@@ -257,6 +257,9 @@ const PromoManager = () => {
       showSuccessMsg(promo.is_active
         ? (language === 'fr' ? 'Promo désactivée' : 'Promo deactivated')
         : (language === 'fr' ? '✅ Promo activée !' : '✅ Promo activated!'));
+      const productName = language === 'fr' ? promo.variants?.products?.name_fr : promo.variants?.products?.name_en;
+      const varLbl = language === 'fr' ? promo.variants?.label_fr : promo.variants?.label_en;
+      createNotification(`🔥 Promo ${!promo.is_active ? 'activée' : 'désactivée'} : ${productName || ''} (${varLbl || ''})`, 'promo', '/admin/promos');
     }
     setToggling(null);
   };
@@ -264,9 +267,12 @@ const PromoManager = () => {
   const deletePromo = async (id) => {
     if (!window.confirm(language === 'fr' ? 'Supprimer cette promotion ?' : 'Delete this promotion?')) return;
     setDeleting(id);
+    const promo = promos.find(p => p.id === id);
+    const productName = promo?.variants?.products ? (language === 'fr' ? promo.variants.products.name_fr : promo.variants.products.name_en) : '';
     await supabase.from('promotions').delete().eq('id', id);
     setPromos(prev => prev.filter(p => p.id !== id));
     showSuccessMsg(language === 'fr' ? 'Promotion supprimée' : 'Promotion deleted');
+    createNotification(`🗑️ Promo supprimée : ${productName || ''}`, 'promo', '/admin/promos');
     setDeleting(null);
   };
 

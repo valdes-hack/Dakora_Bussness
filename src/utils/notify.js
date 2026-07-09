@@ -71,6 +71,7 @@ export const typeIcon = (type) => ({
   order:    '🛒',
   share:    '📤',
   stock:    '⚠️',
+  promo:    '🔥',
 }[type] || '🔔');
 
 /** Couleur de badge par type */
@@ -82,6 +83,7 @@ export const typeColor = (type) => ({
   order:    'bg-red-500/10 text-red-500',
   share:    'bg-cyan-500/10 text-cyan-500',
   stock:    'bg-yellow-500/10 text-yellow-600',
+  promo:    'bg-pink-500/10 text-pink-500',
 }[type] || 'bg-gray-100 text-gray-400');
 
 /** Toutes les catégories configurables dans les préférences */
@@ -93,4 +95,5 @@ export const NOTIF_TYPES = [
   { type: 'settings', labelFr: 'Paramètres modifiés',          labelEn: 'Settings updated',         emoji: '⚙️' },
   { type: 'share',    labelFr: 'Partages sur réseaux sociaux', labelEn: 'Social media shares',      emoji: '📤' },
   { type: 'stock',    labelFr: 'Alertes de stock faible',      labelEn: 'Low stock alerts',         emoji: '⚠️' },
+  { type: 'promo',    labelFr: 'Promotions (lancement/modif)',  labelEn: 'Promotions (launch/edit)', emoji: '🔥' },
 ];

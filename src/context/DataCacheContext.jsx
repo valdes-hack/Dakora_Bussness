@@ -12,7 +12,7 @@ import { supabase } from '../api/supabaseClient';
 
 const DataCacheContext = createContext({});
 
-const CACHE_TTL = 5 * 1000; // 5 secondes (rafraîchissement automatique)
+const CACHE_TTL = 2 * 1000; // 2 secondes (rafraîchissement automatique pour éviter tout plantage ou retard d'affichage)
 const FAST_REFRESH_TTL = 2 * 1000; // 2 secondes (pour boutique/accueil)
 
 export const DataCacheProvider = ({ children }) => {

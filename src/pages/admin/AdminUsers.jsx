@@ -195,7 +195,13 @@ const CreateAdminModal = ({ onClose, onCreated, existingEmails }) => {
         is_blocked: false,
         updated_at: new Date().toISOString()
       }], { onConflict: 'id' });
-      if (profileErr) throw profileErr;
+      if (profileErr) {
+        // Message d'erreur lisible selon le type
+        if (profileErr.message?.includes('profiles_username_key') || profileErr.message?.includes('unique')) {
+          throw new Error(`Le nom d'utilisateur "${form.username.trim()}" est déjà utilisé. Choisissez-en un autre.`);
+        }
+        throw profileErr;
+      }
 
       // Restaurer la session admin actuel
       if (currentSession?.session) {
@@ -419,8 +425,8 @@ const AdminUsers = () => {
             {language === 'fr' ? 'Administrateurs ayant accès à l\'interface de gestion.' : 'Administrators with access to the management interface.'}
           </p>
         </div>
-        {/* Seul un super_admin peut créer */}
-        {isSuperAdmin && (
+        {/* Un admin ou super_admin peut créer */}
+        {(isSuperAdmin || currentProfile?.role === 'admin') && (
           <button onClick={() => setShowCreate(true)}
             className="flex items-center gap-2 px-5 py-3 bg-dakora-green text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-green-700 transition-all active:scale-95">
             <Plus size={15}/> {language === 'fr' ? 'Créer un admin' : 'Create admin'}
@@ -434,8 +440,8 @@ const AdminUsers = () => {
           <Shield size={16} className="text-blue-500 flex-shrink-0"/>
           <p className="text-xs text-blue-600 dark:text-blue-400 font-bold">
             {language === 'fr'
-              ? 'Vous avez le rôle Admin. Seul le Super Admin peut créer, bloquer ou supprimer des comptes.'
-              : 'You have the Admin role. Only the Super Admin can create, block or delete accounts.'}
+              ? 'Vous avez le rôle Admin. Vous pouvez créer des comptes, mais seul le Super Admin peut bloquer ou supprimer des comptes.'
+              : 'You have the Admin role. You can create accounts, but only the Super Admin can block or delete accounts.'}
           </p>
         </div>
       )}
