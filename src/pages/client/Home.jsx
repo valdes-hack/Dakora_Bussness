@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import Hero from '../../components/layout/Hero.jsx';
 import Features from '../../components/layout/Features.jsx';
 import { useDataCache } from '../../context/DataCacheContext';
 import { useSettings } from '../../context/SettingsContext';
+import { usePromo } from '../../hooks/usePromo';
+import CountdownTimer from '../../components/ui/CountdownTimer';
 import {
   ArrowRight, ShoppingCart, Star, TrendingUp,
-  Truck, Shield, Headphones, CheckCircle, MapPin, Phone
+  Truck, Shield, Headphones, MapPin, Phone, Zap
 } from 'lucide-react';
 
 // ─── COMPTEURS STATS ──────────────────────────────────────────────────────────
@@ -22,6 +24,7 @@ export default function Home() {
   const { t, language } = useLanguage();
   const { settings } = useSettings();
   const { products, categories, ready } = useDataCache();
+  const { getActivePromo } = usePromo();
 
   const featuredCategories = categories.slice(0, 6);
   const featuredProducts   = products.slice(0, 3);
@@ -135,15 +138,20 @@ export default function Home() {
             ) : (
               featuredProducts.map((prod, idx) => {
                 const name  = language === 'fr' ? prod.name_fr : prod.name_en;
-                const price = prod.variants?.length
+                // Vérifier la promo active sur la première variante
+                const firstVariantId = prod.variants?.[0]?.id;
+                const activePromo = firstVariantId ? getActivePromo(firstVariantId) : null;
+                const basePrice = prod.variants?.length
                   ? Math.min(...prod.variants.map(v => Number(v.price)))
                   : prod.variants?.[0]?.price;
+                const displayPrice = activePromo ? activePromo.promo_price : basePrice;
+                const savings = activePromo ? (basePrice - activePromo.promo_price) : 0;
                 const imgUrl = prod.product_images?.[0]?.url;
                 return (
                   <Link
                     key={prod.id}
                     to={`/produit/${prod.id}`}
-                    className={`group bg-white dark:bg-neutral-900 rounded-[2.5rem] md:rounded-[3.5rem] p-3 md:p-4 shadow-xl border border-white/10 flex flex-col transition-all duration-500 hover:shadow-dakora-green/15 hover:-translate-y-1 ${idx === 1 ? 'sm:scale-105 shadow-2xl' : ''}`}
+                    className={`group bg-white dark:bg-neutral-900 rounded-[2.5rem] md:rounded-[3.5rem] p-3 md:p-4 shadow-xl border flex flex-col transition-all duration-500 hover:-translate-y-1 ${activePromo ? 'border-red-200 dark:border-red-500/20 shadow-red-100/50' : 'border-white/10 hover:shadow-dakora-green/15'} ${idx === 1 ? 'sm:scale-105 shadow-2xl' : ''}`}
                   >
                     <div className="relative aspect-square rounded-[2rem] md:rounded-[2.8rem] overflow-hidden mb-4 md:mb-5 bg-gray-100 dark:bg-black/40">
                       {imgUrl ? (
@@ -156,12 +164,17 @@ export default function Home() {
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-4xl">📦</div>
                       )}
-                      {prod.badge && (
+                      {/* Badge promo OU badge produit OU populaire */}
+                      {activePromo ? (
+                        <span className="absolute top-4 left-4 px-3 py-1.5 bg-red-500 text-white text-[9px] font-black uppercase rounded-full shadow-lg flex items-center gap-1 animate-pulse">
+                          <Zap size={9}/> {language === 'fr' ? 'OFFRE LIMITÉE' : 'LIMITED OFFER'}
+                        </span>
+                      ) : prod.badge ? (
                         <span className="absolute top-4 left-4 px-3 py-1.5 bg-dakora-yellow text-yellow-900 text-[9px] md:text-[10px] font-black uppercase rounded-full shadow-lg">
                           {prod.badge}
                         </span>
-                      )}
-                      {idx === 1 && (
+                      ) : null}
+                      {idx === 1 && !activePromo && (
                         <span className="absolute top-4 right-4 px-3 py-1.5 bg-dakora-green text-white text-[9px] font-black uppercase rounded-full shadow-lg flex items-center gap-1">
                           <Star size={10} className="fill-current"/> {language === 'fr' ? 'Populaire' : 'Popular'}
                         </span>
@@ -174,12 +187,28 @@ export default function Home() {
                       <h3 className="text-base md:text-xl font-black text-gray-900 dark:text-white tracking-tighter uppercase leading-tight line-clamp-2 mb-3 flex-grow">
                         {name}
                       </h3>
+                      {/* Compte à rebours compact si promo */}
+                      {activePromo?.end_timestamp && (
+                        <div className="mb-2">
+                          <CountdownTimer endTimestamp={activePromo.end_timestamp} language={language} compact/>
+                        </div>
+                      )}
                       <div className="flex items-center justify-between mt-auto">
                         <div>
                           <p className="text-[10px] font-bold text-gray-400 uppercase">{t('price_from')}</p>
-                          <p className="text-lg md:text-2xl font-black text-dakora-green tracking-tighter">
-                            {price?.toLocaleString()} <span className="text-[10px] md:text-xs">FCFA</span>
-                          </p>
+                          <div className="flex items-baseline gap-2">
+                            <p className={`text-lg md:text-2xl font-black tracking-tighter ${activePromo ? 'text-red-500' : 'text-dakora-green'}`}>
+                              {displayPrice?.toLocaleString()} <span className="text-[10px] md:text-xs">FCFA</span>
+                            </p>
+                            {activePromo && (
+                              <p className="text-sm text-gray-400 line-through font-bold">{basePrice?.toLocaleString()}</p>
+                            )}
+                          </div>
+                          {savings > 0 && (
+                            <p className="text-[9px] font-black text-red-500">
+                              -{savings.toLocaleString()} FCFA
+                            </p>
+                          )}
                         </div>
                         <span className="p-3 bg-gray-100 dark:bg-white/5 rounded-xl md:rounded-2xl group-hover:bg-dakora-green group-hover:text-white transition-all dark:text-white">
                           <ArrowRight size={18}/>

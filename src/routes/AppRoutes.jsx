@@ -45,6 +45,7 @@ const Categories     = lazyWithRetry(() => import('../pages/admin/Categories'));
 const Products       = lazyWithRetry(() => import('../pages/admin/Products'));
 const Stories        = lazyWithRetry(() => import('../pages/admin/Stories'));
 const AdminUsers     = lazyWithRetry(() => import('../pages/admin/AdminUsers'));
+const PromoManager   = lazyWithRetry(() => import('../pages/admin/PromoManager'));
 
 // Skeleton générique pendant le chargement d'une page
 const PageLoader = () => (
@@ -103,9 +104,8 @@ const AppRoutes = () => {
         <Route path="/admin/stories" element={
           <Suspense fallback={<PageLoader />}><Stories /></Suspense>
         } />
-        <Route path="/admin/utilisateurs" element={
-          <Suspense fallback={<PageLoader />}><AdminUsers /></Suspense>
-        } />
+        <Route path="/admin/utilisateurs" element={<Suspense fallback={<PageLoader />}><AdminUsers /></Suspense>}/>
+        <Route path="/admin/promos" element={<Suspense fallback={<PageLoader />}><PromoManager /></Suspense>}/>
       </Route>
 
       <Route path="*" element={<Navigate to="/" />} />

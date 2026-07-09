@@ -5,7 +5,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useSettings } from '../../context/SettingsContext';
 import { 
   LayoutDashboard, Boxes, Package, Settings, LogOut, 
-  Store, X, Tag, ShoppingBag, ChevronLeft, Layers, Users
+  Store, X, Tag, ShoppingBag, ChevronLeft, Layers, Users, Zap
 } from 'lucide-react';
 import logo from '../../assets/logos.png';
 
@@ -65,6 +65,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { name: t('nav_inventory'), path: '/admin/inventaire', icon: <Boxes size={20} /> },
     { name: t('nav_orders'), path: '/admin/commandes', icon: <Package size={20} /> },
     { name: t('nav_stories') || 'Stories', path: '/admin/stories', icon: <Layers size={20} /> },
+    { name: 'Promos', path: '/admin/promos', icon: <Zap size={20} /> },
     { name: 'Utilisateurs', path: '/admin/utilisateurs', icon: <Users size={20} /> },
     { name: t('nav_settings'), path: '/admin/profil', icon: <Settings size={20} /> },
   ];

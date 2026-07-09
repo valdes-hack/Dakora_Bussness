@@ -4,7 +4,9 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useSettings } from '../../context/SettingsContext';
 import { useDataCache } from '../../context/DataCacheContext';
 import { useCart } from '../../context/CartContext';
-import { ChevronLeft, MessageCircle, Package, ArrowRight, ShoppingCart, Share2, X, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
+import { usePromo } from '../../hooks/usePromo';
+import { ChevronLeft, MessageCircle, Package, ArrowRight, ShoppingCart, Share2, X, Link as LinkIcon, CheckCircle2, Zap } from 'lucide-react';
+import CountdownTimer from '../../components/ui/CountdownTimer';
 
 // ─── SKELETON ─────────────────────────────────────────────────────────────────
 const Skeleton = () => (
@@ -138,6 +140,8 @@ const ProductDetails = () => {
   const [addedToCart, setAddedToCart]         = useState(false);
   const [showShare, setShowShare]             = useState(false);
 
+  const { getActivePromo } = usePromo();
+
   // Trouver le produit dans le cache — 0ms réseau
   const product = useMemo(
     () => products.find(p => p.id === id) || null,
@@ -263,14 +267,42 @@ const ProductDetails = () => {
               {name}
             </h1>
             <div className="flex items-baseline gap-1.5 md:gap-2 lg:gap-3">
-              <span className="text-xl md:text-2xl lg:text-4xl font-black text-dakora-green tracking-tighter">
-                {selectedVariant?.price?.toLocaleString()} <span className="text-[10px] md:text-xs lg:text-sm">FCFA</span>
-              </span>
-              {selectedVariant?.old_price && (
-                <span className="text-sm md:text-base lg:text-xl text-gray-400 line-through font-bold">
-                  {selectedVariant.old_price.toLocaleString()}
-                </span>
-              )}
+              {(() => {
+                const activePromo = selectedVariant ? getActivePromo(selectedVariant.id) : null;
+                const displayPrice = activePromo ? activePromo.promo_price : selectedVariant?.price;
+                const oldPrice = activePromo ? selectedVariant?.price : selectedVariant?.old_price;
+                const savings = activePromo ? (selectedVariant?.price - activePromo.promo_price) : 0;
+                return (
+                  <>
+                    {activePromo && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-500 text-white text-[8px] md:text-[9px] font-black uppercase rounded-full mb-1 animate-pulse">
+                        <Zap size={9}/> {language === 'fr' ? 'OFFRE LIMITÉE' : 'LIMITED OFFER'}
+                      </span>
+                    )}
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <span className={`text-xl md:text-2xl lg:text-4xl font-black tracking-tighter ${activePromo ? 'text-red-500' : 'text-dakora-green'}`}>
+                        {displayPrice?.toLocaleString()} <span className="text-[10px] md:text-xs lg:text-sm">FCFA</span>
+                      </span>
+                      {oldPrice && (
+                        <span className="text-sm md:text-base lg:text-xl text-gray-400 line-through font-bold">
+                          {oldPrice.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                    {savings > 0 && (
+                      <p className="text-[10px] font-black text-red-500">
+                        {language === 'fr' ? `Économisez ${savings.toLocaleString()} FCFA` : `Save ${savings.toLocaleString()} FCFA`}
+                      </p>
+                    )}
+                    {/* Compte à rebours plein format */}
+                    {activePromo?.end_timestamp && (
+                      <div className="mt-2 w-full">
+                        <CountdownTimer endTimestamp={activePromo.end_timestamp} language={language} onExpire={() => {}}/>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
 

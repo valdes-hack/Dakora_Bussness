@@ -4,7 +4,9 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useCart } from '../../context/CartContext';
 import { useDataCache } from '../../context/DataCacheContext';
 import { useSettings } from '../../context/SettingsContext';
-import { ShoppingCart, Check, MessageSquare, SlidersHorizontal, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { usePromo } from '../../hooks/usePromo';
+import { ShoppingCart, Check, MessageSquare, SlidersHorizontal, X, ChevronDown, ChevronUp, Zap } from 'lucide-react';
+import CountdownTimer from '../../components/ui/CountdownTimer';
 
 // ─── SKELETON ────────────────────────────────────────────────────────────────
 const SkeletonCard = () => (
@@ -19,11 +21,16 @@ const SkeletonCard = () => (
 );
 
 // ─── CARTE PRODUIT ─────────────────────────────────────────────────────────────
-const ProductCard = memo(({ product, language, onAddToCart, onWhatsApp, isAdded }) => {
+const ProductCard = memo(({ product, language, onAddToCart, onWhatsApp, isAdded, activePromo }) => {
   const minPrice = useMemo(
     () => product.variants?.length ? Math.min(...product.variants.map(v => Number(v.price))) : 0,
     [product.variants]
   );
+  // Promo : prendre le prix promo si actif
+  const promoPrice   = activePromo ? activePromo.promo_price : null;
+  const displayPrice = promoPrice ?? minPrice;
+  const savings      = promoPrice ? minPrice - promoPrice : 0;
+
   const imageUrl = product.product_images?.[0]?.url;
   const name     = language === 'fr' ? product.name_fr : product.name_en;
   const category = language === 'fr' ? product.categories?.name_fr : product.categories?.name_en;
@@ -42,11 +49,16 @@ const ProductCard = memo(({ product, language, onAddToCart, onWhatsApp, isAdded 
             <span className="text-[8px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Image indisponible</span>
           </div>
         )}
-        {product.badge && (
+        {/* Badge promo OU badge produit */}
+        {activePromo ? (
+          <span className="absolute top-3 left-3 px-2 py-1 bg-red-500 text-white text-[8px] md:text-[9px] font-black uppercase rounded-full shadow-lg flex items-center gap-1 animate-pulse">
+            <Zap size={9}/> {language === 'fr' ? 'OFFRE LIMITÉE' : 'LIMITED OFFER'}
+          </span>
+        ) : product.badge ? (
           <span className="absolute top-3 md:top-5 left-3 md:left-5 px-2 md:px-3 py-1 md:py-1.5 bg-dakora-yellow text-yellow-900 text-[8px] md:text-[10px] font-black uppercase rounded-full shadow-lg">
             {product.badge}
           </span>
-        )}
+        ) : null}
       </Link>
       <div className="px-2 md:px-3 pb-2 md:pb-3 flex flex-col flex-grow">
         {category && <span className="text-[8px] md:text-[10px] font-black text-dakora-green uppercase tracking-[0.2em] mb-1">{category}</span>}
@@ -54,12 +66,29 @@ const ProductCard = memo(({ product, language, onAddToCart, onWhatsApp, isAdded 
           <h3 className="text-sm md:text-lg font-black text-gray-900 dark:text-white leading-tight mb-2 md:mb-4 tracking-tighter hover:text-dakora-green transition-colors line-clamp-2">{name}</h3>
         </Link>
         <div className="mt-auto">
-          <div className="mb-2 md:mb-4">
+          {/* Prix */}
+          <div className="mb-2 md:mb-3">
             <p className="text-[8px] md:text-[10px] font-bold text-gray-400 uppercase">{language === 'fr' ? 'À partir de' : 'From'}</p>
-            <p className="text-lg md:text-2xl font-black text-gray-900 dark:text-white tracking-tighter">
-              {minPrice.toLocaleString()} <span className="text-xs md:text-sm text-dakora-green">FCFA</span>
-            </p>
+            <div className="flex items-baseline gap-2">
+              <p className={`text-lg md:text-2xl font-black tracking-tighter ${activePromo ? 'text-red-500' : 'text-gray-900 dark:text-white'}`}>
+                {displayPrice.toLocaleString()} <span className="text-xs md:text-sm text-dakora-green">FCFA</span>
+              </p>
+              {activePromo && (
+                <p className="text-sm text-gray-400 line-through font-bold">{minPrice.toLocaleString()}</p>
+              )}
+            </div>
+            {savings > 0 && (
+              <p className="text-[9px] font-black text-red-500">
+                {language === 'fr' ? `Économisez ${savings.toLocaleString()} FCFA` : `Save ${savings.toLocaleString()} FCFA`}
+              </p>
+            )}
           </div>
+          {/* Compte à rebours compact */}
+          {activePromo?.end_timestamp && (
+            <div className="mb-2 md:mb-3">
+              <CountdownTimer endTimestamp={activePromo.end_timestamp} language={language} compact/>
+            </div>
+          )}
           <div className="flex gap-1.5 md:gap-2">
             <button onClick={e => { e.preventDefault(); onAddToCart(product); }}
               className={`flex-1 flex items-center justify-center gap-1 md:gap-2 py-2 md:py-3.5 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-black uppercase tracking-widest shadow transition-all active:scale-95 ${isAdded ? 'bg-green-500 text-white' : 'bg-dakora-green text-white hover:bg-green-700'}`}>
@@ -78,6 +107,7 @@ const ProductCard = memo(({ product, language, onAddToCart, onWhatsApp, isAdded 
   );
 });
 ProductCard.displayName = 'ProductCard';
+        
 
 // ─── SECTION FILTRE (réductible) ─────────────────────────────────────────────
 const FilterSection = ({ title, children, defaultOpen = true }) => {
@@ -207,6 +237,7 @@ const Shop = () => {
   const { addToCart }   = useCart();
   const { settings }    = useSettings();
   const { products, categories, ready, fastRefresh } = useDataCache();
+  const { getActivePromo } = usePromo();
 
   // Rafraîchissement automatique toutes les 2s pour la boutique
   useEffect(() => {
@@ -350,12 +381,18 @@ const Shop = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
-              {filteredProducts.map(product => (
-                <ProductCard key={product.id} product={product} language={language}
-                  onAddToCart={handleAddToCart} onWhatsApp={handleWhatsApp} isAdded={addedId === product.id}/>
-              ))}
-            </div>
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
+              {filteredProducts.map(product => {
+                // Trouver la promo active pour la première variante du produit
+                const firstVariantId = product.variants?.[0]?.id;
+                const activePromo = firstVariantId ? getActivePromo(firstVariantId) : null;
+                return (
+                  <ProductCard key={product.id} product={product} language={language}
+                    onAddToCart={handleAddToCart} onWhatsApp={handleWhatsApp}
+                    isAdded={addedId === product.id} activePromo={activePromo}/>
+                );
+              })}
+              </div>
           )}
         </div>
       </div>
