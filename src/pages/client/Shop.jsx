@@ -1,5 +1,5 @@
 import { useState, useCallback, memo, useMemo, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useCart } from '../../context/CartContext';
 import { useDataCache } from '../../context/DataCacheContext';
@@ -296,6 +296,7 @@ const Shop = () => {
   const { settings }    = useSettings();
   const { products, categories, ready, fastRefresh } = useDataCache();
   const { getActivePromo } = usePromo();
+  const [searchParams] = useSearchParams();
 
   // Rafraîchissement automatique toutes les 2s pour la boutique
   useEffect(() => {
@@ -314,6 +315,14 @@ const Shop = () => {
     badge: '',
     sort: 'default',
   });
+
+  // Lire le paramètre category depuis l'URL et appliquer le filtre
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      setFilters(prev => ({ ...prev, category: categoryParam }));
+    }
+  }, [searchParams]);
 
   const handleAddToCart = useCallback((product, selectedVariant) => {
     const variant = selectedVariant || (product.variants?.length ? [...product.variants].sort((a, b) => a.price - b.price)[0] : null);

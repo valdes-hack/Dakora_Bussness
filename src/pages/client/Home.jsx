@@ -81,7 +81,7 @@ export default function Home() {
             featuredCategories.map(cat => (
               <Link
                 key={cat.id}
-                to="/boutique"
+                to={`/boutique?category=${cat.id}`}
                 className="group flex flex-col items-center gap-3 p-5 md:p-7 bg-white/70 dark:bg-white/5 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-[2rem] shadow hover:shadow-dakora-green/20 hover:-translate-y-2 hover:border-dakora-green/30 transition-all duration-400"
               >
                 <span className="text-4xl md:text-5xl group-hover:scale-125 transition-transform duration-400">{cat.icon_url || '🌾'}</span>
