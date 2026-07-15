@@ -181,15 +181,6 @@ const Footer = () => {
             </div>
 
             <div className="flex flex-col items-center md:items-end gap-4 md:gap-6">
-              {/* Bouton d'installation PWA — caché si déjà installée */}
-              {!isInstalled && (
-                <button onClick={handleInstallClick}
-                  className="flex items-center gap-2 px-4 py-3 md:px-6 md:py-4 bg-dakora-green hover:bg-green-700 text-white rounded-full font-black text-[10px] md:text-xs uppercase tracking-widest shadow-2xl transition-all hover:scale-105 active:scale-95">
-                  <Download size={16} className="animate-pulse"/>
-                  <span>{language === 'fr' ? 'Installer l\'app' : 'Install App'}</span>
-                </button>
-              )}
-
               {!user ? (
                 <Link to="/admin/login"
                   className="px-4 py-2 md:px-6 md:py-2 bg-dakora-green/10 hover:bg-dakora-green text-dakora-green hover:text-white border border-dakora-green/20 rounded-full text-[10px] md:text-xs font-bold transition-all uppercase tracking-widest shadow-sm">
