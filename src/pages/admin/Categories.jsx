@@ -20,7 +20,7 @@ const EMPTY_ERRORS = { name_fr: null, name_en: null, slug: null, icon_url: null 
 // Liste d'emojis agricoles descriptifs pour l'admin
 const AGRICULTURAL_EMOJIS = [
   // Équipements lourds
-  '🚜', '🚛', '🚚', '🚙', '🛻', '�️', '�',
+  '🚜', '🚛', '🚚', '🚙', '🛻', 
   // Outils et machines
   '⛏️', '🔨', '�', '🔧', '🧰', '⚙️', '🔩', '�', '�', '🪜',
   // Cultures et récolte
