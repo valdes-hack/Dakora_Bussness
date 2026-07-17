@@ -3,7 +3,7 @@ import { mkdirSync } from 'fs';
 
 mkdirSync('./public/icon', { recursive: true });
 
-const src = './src/assets/logo.jpeg';
+const src = './src/assets/logos.png';
 const sizes = [57, 60, 72, 76, 96, 114, 120, 144, 152, 180, 192, 310];
 
 for (const size of sizes) {

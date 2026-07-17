@@ -16,10 +16,38 @@ const CACHE_TTL = 2 * 1000; // 2 secondes (rafraîchissement automatique pour é
 const FAST_REFRESH_TTL = 2 * 1000; // 2 secondes (pour boutique/accueil)
 
 export const DataCacheProvider = ({ children }) => {
-  const [products, setProducts]     = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [banners, setBanners]       = useState([]);
-  const [ready, setReady]           = useState(true); // Commence à true pour éviter la page blanche
+  const [products, setProducts]     = useState(() => {
+    try {
+      const cached = localStorage.getItem('dakora_products');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [categories, setCategories] = useState(() => {
+    try {
+      const cached = localStorage.getItem('dakora_categories');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [banners, setBanners]       = useState(() => {
+    try {
+      const cached = localStorage.getItem('dakora_banners');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  // Prêt immédiatement s'il y a du cache local pour éviter les écrans ou listes vides en faible connexion
+  const [ready, setReady]           = useState(() => {
+    try {
+      return !!localStorage.getItem('dakora_products');
+    } catch {
+      return false;
+    }
+  });
   const [error, setError]           = useState(null);
   const lastFetch = useRef(0);
   const isRefreshing = useRef(false);
@@ -76,8 +104,14 @@ export const DataCacheProvider = ({ children }) => {
       if (prodErr) throw prodErr;
       if (storiesErr) throw storiesErr;
 
-      if (cats)  setCategories(cats);
-      if (stories) setBanners(stories);
+      if (cats) {
+        setCategories(cats);
+        try { localStorage.setItem('dakora_categories', JSON.stringify(cats)); } catch (e) { console.warn(e); }
+      }
+      if (stories) {
+        setBanners(stories);
+        try { localStorage.setItem('dakora_banners', JSON.stringify(stories)); } catch (e) { console.warn(e); }
+      }
       if (prods) {
         // Trier les images de chaque produit (principale en tête)
         const sorted = prods.map(p => ({
@@ -89,6 +123,7 @@ export const DataCacheProvider = ({ children }) => {
           })
         }));
         setProducts(sorted);
+        try { localStorage.setItem('dakora_products', JSON.stringify(sorted)); } catch (e) { console.warn(e); }
       }
       lastFetch.current = Date.now();
     } catch (err) {
