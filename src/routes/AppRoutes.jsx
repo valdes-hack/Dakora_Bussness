@@ -34,6 +34,7 @@ import Home from '../pages/client/Home'; // Home reste eager (page d'accueil)
 const Shop         = lazyWithRetry(() => import('../pages/client/Shop'));
 const ProductDetails = lazyWithRetry(() => import('../pages/client/ProductDetails'));
 const CartPage     = lazyWithRetry(() => import('../pages/client/CartPage'));
+const Promotions   = lazyWithRetry(() => import('../pages/client/Promotions'));
 
 // Pages Admin — lazy loading
 import Login from '../pages/admin/Login';
@@ -68,6 +69,9 @@ const AppRoutes = () => {
         <Route path="/" element={<Home />} />
         <Route path="/boutique" element={
           <Suspense fallback={<PageLoader />}><Shop /></Suspense>
+        } />
+        <Route path="/promotions" element={
+          <Suspense fallback={<PageLoader />}><Promotions /></Suspense>
         } />
         <Route path="/produit/:id" element={
           <Suspense fallback={<PageLoader />}><ProductDetails /></Suspense>

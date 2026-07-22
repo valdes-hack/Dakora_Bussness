@@ -38,7 +38,40 @@ export default function Home() {
       <Hero />
 
       {/* ══════════════════════════════════════════════════════════
-          2. BANDE DE STATS / CONFIANCE
+          2. BANNIÈRE PROMOTIONS
+      ══════════════════════════════════════════════════════════ */}
+      <section className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+        <Link to="/promotions" className="block group">
+          <div className="relative bg-gradient-to-r from-red-500 to-orange-500 rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 overflow-hidden shadow-2xl hover:shadow-red-500/30 transition-all duration-500 hover:scale-[1.02]">
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="text-center md:text-left">
+                <span className="inline-block px-4 py-1.5 bg-white/20 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-3 animate-pulse">
+                  {language === 'fr' ? 'OFFRES SPÉCIALES' : 'SPECIAL OFFERS'}
+                </span>
+                <h2 className="text-2xl md:text-4xl font-black text-white uppercase italic tracking-tighter mb-2">
+                  {language === 'fr' ? 'Nos Bons Plans du Moment' : 'Our Best Deals'}
+                </h2>
+                <p className="text-white/90 text-sm md:text-base font-medium">
+                  {language === 'fr' 
+                    ? 'Profitez de réductions exclusives sur une sélection d\'équipements agricoles.'
+                    : 'Enjoy exclusive discounts on a selection of agricultural equipment.'
+                  }
+                </p>
+              </div>
+              <div className="flex items-center gap-3 bg-white text-red-500 px-6 py-3 md:px-8 md:py-4 rounded-full font-black uppercase text-xs md:text-sm tracking-widest shadow-xl group-hover:bg-red-100 transition-all">
+                {language === 'fr' ? 'Voir les promos' : 'View promos'}
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/>
+              </div>
+            </div>
+            {/* Décoration */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"/>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-300/20 rounded-full blur-3xl -ml-16 -mb-16 pointer-events-none"/>
+          </div>
+        </Link>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════
+          3. BANDE DE STATS / CONFIANCE
       ══════════════════════════════════════════════════════════ */}
       <section className="bg-white dark:bg-neutral-900 border-y border-gray-100 dark:border-white/5 py-6 md:py-8">
         <div className="max-w-5xl mx-auto px-6 flex flex-wrap items-center justify-center gap-6 md:gap-0 md:divide-x md:divide-gray-100 md:dark:divide-white/10">

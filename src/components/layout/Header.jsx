@@ -95,6 +95,12 @@ const Header = () => {
           <div className="hidden md:flex items-center gap-6 lg:gap-8 font-bold text-[10px] md:text-xs uppercase tracking-widest">
             <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-dakora-green transition-colors">{t('home')}</Link>
             <Link to="/boutique" className="text-gray-600 dark:text-gray-300 hover:text-dakora-green transition-colors">{t('shop')}</Link>
+            <Link to="/promotions" className="relative text-red-500 hover:text-red-600 transition-colors font-black">
+              {language === 'fr' ? 'Promotions' : 'Promotions'}
+              <span className="absolute -top-2 -right-3 px-1.5 py-0.5 bg-red-500 text-white text-[7px] font-black uppercase rounded-full animate-pulse">
+                -%
+              </span>
+            </Link>
           </div>
 
           <div className="flex items-center gap-1.5 md:gap-2 sm:gap-3">
@@ -244,10 +250,16 @@ const Header = () => {
         )}
 
         {/* MENU MOBILE */}
-        <div className={`w-full overflow-hidden transition-all duration-300 md:hidden ${isOpen ? 'max-h-64 border-t border-white/10' : 'max-h-0'}`}>
+        <div className={`w-full overflow-hidden transition-all duration-300 md:hidden ${isOpen ? 'max-h-80 border-t border-white/10' : 'max-h-0'}`}>
           <div className="flex flex-col items-center gap-3 md:gap-4 py-4 md:py-6 font-bold uppercase tracking-widest text-xs md:text-sm">
             <Link to="/" onClick={() => setIsOpen(false)} className="dark:text-white py-2">{t('home')}</Link>
             <Link to="/boutique" onClick={() => setIsOpen(false)} className="dark:text-white py-2">{t('shop')}</Link>
+            <Link to="/promotions" onClick={() => setIsOpen(false)} className="relative text-red-500 py-2 font-black">
+              {language === 'fr' ? 'Promotions' : 'Promotions'}
+              <span className="absolute -top-1 -right-6 px-1.5 py-0.5 bg-red-500 text-white text-[7px] font-black uppercase rounded-full animate-pulse">
+                -%
+              </span>
+            </Link>
             {user && (
               <Link to="/admin/dashboard" onClick={() => setIsOpen(false)} className="text-dakora-green py-2 px-4 md:px-6 border border-dakora-green/30 rounded-full mt-2">
                 {t('manage_btn') || 'Gestion'}
